@@ -12,6 +12,7 @@ interface MapCountry { feature: CountryFeature; country: Country }
 interface Callbacks {
   cityHover: (city: CityScore, x: number, y: number) => void;
   countryHover: (country: CountryScore, x: number, y: number) => void;
+  citySelected: (city: CityScore) => void;
   hideTooltip: () => void;
   spinChanged: (spinning: boolean) => void;
 }
@@ -34,6 +35,11 @@ export class Globe {
   private path = geoPath(this.projection);
   private rotation: [number, number, number] = [75, -25, 0];
   private scale = 240;
+  private baseScale = 240;
+  private width = 760;
+  private height = 520;
+  private selectedName: string | null = null;
+  private resizeObserver: ResizeObserver;
   private spin = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   private reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   private sphere = element('path', { class: 'ocean', 'aria-hidden': 'true' });
@@ -56,6 +62,19 @@ export class Globe {
   private userInteracted = false;
 
   constructor(private svg: SVGSVGElement, private callbacks: Callbacks) {
+    this.resizeObserver = new ResizeObserver(entries => {
+      const { width, height } = entries[0].contentRect;
+      if (width < 1 || height < 1) return;
+      const zoom = this.scale / this.baseScale;
+      this.width = width; this.height = height;
+      this.baseScale = Math.min(width, height) * 0.455;
+      this.scale = clamp(this.baseScale * zoom, this.baseScale * 0.79, 1000);
+      this.svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      this.projection.translate([width / 2, height / 2]);
+      this.callbacks.hideTooltip();
+      this.draw();
+    });
+    this.resizeObserver.observe(svg);
     this.svg.append(this.sphere, this.countryLayer, this.graticule, this.cityLayer, this.homeLayer);
     for (const map of MAP_COUNTRIES) {
       const node = element('path', { class: 'country', 'data-country': map.country.name });
@@ -80,9 +99,7 @@ export class Globe {
     this.svg.addEventListener('lostpointercapture', event => this.pointerUp(event));
     this.svg.addEventListener('wheel', event => {
       event.preventDefault();
-      this.interact();
-      this.scale = clamp(this.scale * (event.deltaY < 0 ? 1.1 : 1 / 1.1), 190, 1000);
-      this.draw();
+      this.zoom(event.deltaY < 0 ? 1.1 : 1 / 1.1);
     }, { passive: false });
     this.svg.addEventListener('keydown', event => {
       const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '=', '-'];
@@ -93,8 +110,8 @@ export class Globe {
       if (event.key === 'ArrowRight') this.rotation[0] += 8;
       if (event.key === 'ArrowUp') this.rotation[1] = clamp(this.rotation[1] - 8, -90, 90);
       if (event.key === 'ArrowDown') this.rotation[1] = clamp(this.rotation[1] + 8, -90, 90);
-      if (event.key === '+' || event.key === '=') this.scale = clamp(this.scale * 1.1, 190, 1000);
-      if (event.key === '-') this.scale = clamp(this.scale / 1.1, 190, 1000);
+      if (event.key === '+' || event.key === '=') this.scale = clamp(this.scale * 1.1, this.baseScale * 0.79, 1000);
+      if (event.key === '-') this.scale = clamp(this.scale / 1.1, this.baseScale * 0.79, 1000);
       this.draw();
     });
     this.callbacks.spinChanged(this.spin);
@@ -138,11 +155,11 @@ export class Globe {
         if (performance.now() < this.suppressClickUntil) return;
         event.stopPropagation();
         this.flyTo(score.city.lon, score.city.lat);
-        if (event.pointerType === 'touch') this.callbacks.cityHover(score, event.clientX, event.clientY);
+        this.callbacks.citySelected(score);
       });
       node.addEventListener('keydown', event => {
         if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault(); this.flyTo(score.city.lon, score.city.lat);
+          event.preventDefault(); this.flyTo(score.city.lon, score.city.lat); this.callbacks.citySelected(score);
         }
       });
       this.cityLayer.append(node);
@@ -174,6 +191,24 @@ export class Globe {
     this.callbacks.spinChanged(this.spin);
   }
 
+  setSelected(name: string | null): void {
+    this.selectedName = name;
+    this.draw();
+  }
+
+  zoom(factor: number): void {
+    this.interact();
+    this.scale = clamp(this.scale * factor, this.baseScale * 0.79, 1000);
+    this.draw();
+  }
+
+  resetView(): void {
+    this.interact();
+    this.scale = this.baseScale;
+    this.rotation = [75, -25, 0];
+    this.draw();
+  }
+
   private interact(): void {
     this.userInteracted = true;
     this.spin = false;
@@ -196,13 +231,13 @@ export class Globe {
     const previous = this.pointers.get(event.pointerId);
     if (!previous) return;
     const dx = event.clientX - previous.x, dy = event.clientY - previous.y;
-    const ratio = 760 / this.svg.getBoundingClientRect().width;
+    const ratio = this.width / this.svg.getBoundingClientRect().width;
     this.gestureTravel += Math.hypot(dx, dy);
     if (this.pointers.size === 2) {
       const other = [...this.pointers.entries()].find(([id]) => id !== event.pointerId)![1];
       const before = Math.hypot(previous.x - other.x, previous.y - other.y);
       const after = Math.hypot(event.clientX - other.x, event.clientY - other.y);
-      if (before > 0) this.scale = clamp(this.scale * after / before, 190, 1000);
+      if (before > 0) this.scale = clamp(this.scale * after / before, this.baseScale * 0.79, 1000);
     } else {
       this.rotation[0] += dx * ratio * 70 / this.scale;
       this.rotation[1] = clamp(this.rotation[1] - dy * ratio * 70 / this.scale, -90, 90);
@@ -252,15 +287,18 @@ export class Globe {
       node.style.display = visible ? '' : 'none';
       if (!visible) continue;
       const projected = this.projection(point)!;
-      const size = rank ? 1.9 * radius : 0.75 * radius;
+      const selected = score.city.name === this.selectedName;
+      const size = rank ? 1.9 * radius : selected ? 1.5 * radius : 0.75 * radius;
+      node.classList.toggle('selected', selected);
+      circle.setAttribute('opacity', rank || selected ? '1' : '0.45');
       node.setAttribute('transform', `translate(${projected[0]},${projected[1]})`);
       circle.setAttribute('r', String(size));
       number.setAttribute('font-size', String(Math.max(9, size * 1.15)));
-      label.style.display = rank || this.scale > 380 ? '' : 'none';
+      label.style.display = rank || selected || this.scale / this.baseScale > 1.58 ? '' : 'none';
       label.setAttribute('x', String(size + 5));
       label.setAttribute('y', '4');
       label.setAttribute('text-anchor', 'start');
-      if (rank) visibleLabels.push({ label, x: projected[0], y: projected[1], radius: size, rank, name: score.city.name });
+      if (rank || selected) visibleLabels.push({ label, x: projected[0], y: projected[1], radius: size, rank: selected ? 0 : rank!, name: score.city.name });
     }
     this.placeLabels(visibleLabels);
     if (this.home) {
@@ -290,7 +328,7 @@ export class Globe {
         const left = item.x + candidate.dx - (candidate.anchor === 'end' ? width : 0);
         const box = { left, top: item.y + candidate.dy - 11, right: left + width, bottom: item.y + candidate.dy + 3 };
         const overlap = occupied.reduce((sum, other) => sum + Math.max(0, Math.min(box.right, other.right) - Math.max(box.left, other.left)) * Math.max(0, Math.min(box.bottom, other.bottom) - Math.max(box.top, other.top)), 0);
-        const outside = box.left < 5 || box.right > 755 || box.top < 5 || box.bottom > 515;
+        const outside = box.left < 5 || box.right > this.width - 5 || box.top < 5 || box.bottom > this.height - 5;
         const cost = overlap * 100 + (outside ? 100_000 : 0) + Math.abs(candidate.dy - 4) + (candidate.anchor === 'end' ? 1 : 0);
         if (cost < bestCost) { best = candidate; bestCost = cost; bestBox = box; }
       }
@@ -301,5 +339,5 @@ export class Globe {
     }
   }
 
-  destroy(): void { cancelAnimationFrame(this.frame); }
+  destroy(): void { cancelAnimationFrame(this.frame); this.resizeObserver.disconnect(); }
 }
