@@ -2,7 +2,8 @@ export type Months = readonly [number, number, number, number, number, number, n
 export type CityRow = readonly [string, string, number, number, Months, Months, readonly number[], readonly number[]];
 export type OriginRow = readonly [string, number, number, number, Months];
 export interface Place { name: string; lat: number; lon: number; tz: number }
-export interface Origin extends Place { high: Months }
+export interface Origin extends Place { country: string; high: Months }
+export type DestinationScope = 'all' | 'domestic' | 'international';
 export interface City extends Place { country: string; high: Months; rain: Months; peak: readonly number[]; shoulder: readonly number[] }
 export interface Weights { weather: number; dry: number; crowds: number; travel: number }
 export interface Trip { start: string; end: string }

@@ -85,6 +85,7 @@ export class Globe {
       node.addEventListener('pointerleave', () => this.callbacks.hideTooltip());
       node.addEventListener('click', event => {
         if (performance.now() < this.suppressClickUntil) return;
+        if (!this.scores.has(map.country.name)) return;
         event.stopPropagation();
         this.flyTo(map.country.lon, map.country.lat);
       });
@@ -127,6 +128,7 @@ export class Globe {
       const score = this.scores.get(map.country.name);
       node.style.fill = score ? band(score.score).color : 'var(--neutral-country)';
       node.style.fillOpacity = score ? '0.35' : '1';
+      node.classList.toggle('unscored-country', !score);
     }
     this.cityLayer.replaceChildren();
     // Ranked markers are drawn last so small background dots cannot obscure them.

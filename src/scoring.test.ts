@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
-import { DAY, DEFAULT_WEIGHTS, defaultTrip, easter, geometricMean, interp, rankCities, sampleDays, scoreCities, scoreCountry, thanksgiving, travel, tripEvents, validateTrip, weatherFit } from './scoring';
+import { DAY, DEFAULT_WEIGHTS, defaultTrip, easter, geometricMean, interp, matchesDestinationScope, rankCities, sampleDays, scoreCities, scoreCountry, thanksgiving, travel, tripEvents, validateTrip, weatherFit } from './scoring';
 
 const boston = ORIGINS.find(city => city.name === 'Boston')!;
 const london = ORIGINS.find(city => city.name === 'London')!;
@@ -101,5 +101,41 @@ describe('travel and scoring', () => {
   });
   it('leaves Antarctica unscored', () => {
     expect(scoreCountry({ name: 'Antarctica', lat: -90, lon: 0, tz: 0 }, boston, sampleDays({ start: '2027-01-01', end: '2027-01-07' }), DEFAULT_WEIGHTS)).toBeNull();
+  });
+});
+
+describe('domestic and international destinations', () => {
+  const trip = { start: '2026-12-20', end: '2027-01-03' };
+  const scoped = (originName: string, scope: 'all' | 'domestic' | 'international') => {
+    const home = ORIGINS.find(origin => origin.name === originName)!;
+    return rankCities(scoreCities(trip, home).filter(result => matchesDestinationScope(result.city.country, home.country, scope)));
+  };
+  it('keeps the original ranking when All is selected', () => {
+    expect(scoped('Boston', 'all')).toEqual(rankCities(scoreCities(trip, boston)));
+  });
+  it('includes US destinations and Puerto Rico in domestic picks from Boston', () => {
+    const names = scoped('Boston', 'domestic').map(result => result.city.name);
+    expect(names).toEqual(expect.arrayContaining(['San Diego', 'Honolulu', 'San Juan']));
+    expect(names).not.toEqual(expect.arrayContaining(['Mexico City']));
+    expect(names).not.toContain('Boston');
+    expect(scoped('Boston', 'international').map(result => result.city.name)).not.toContain('San Juan');
+  });
+  it('uses the selected home country rather than always treating the US as domestic', () => {
+    expect(scoped('Toronto', 'domestic').map(result => result.city.name).sort()).toEqual(['Banff', 'Vancouver']);
+    expect(scoped('Tokyo', 'domestic').map(result => result.city.name)).toEqual(['Kyoto']);
+    expect(scoped('Tokyo', 'international').map(result => result.city.name)).toContain('San Diego');
+  });
+  it('returns no picks when the dataset has no domestic destinations beyond home', () => {
+    for (const home of ['London', 'Frankfurt', 'Singapore', 'Dubai']) expect(scoped(home, 'domestic')).toEqual([]);
+  });
+  it('partitions all destinations without omissions or overlaps for every home city', () => {
+    for (const home of ORIGINS) {
+      expect(home.country.length).toBeGreaterThan(0);
+      const all = rankCities(scoreCities(trip, home));
+      const domestic = all.filter(result => matchesDestinationScope(result.city.country, home.country, 'domestic'));
+      const international = all.filter(result => matchesDestinationScope(result.city.country, home.country, 'international'));
+      expect(domestic.length + international.length).toBe(all.length);
+      expect(domestic.some(result => international.includes(result))).toBe(false);
+    }
   });
 });

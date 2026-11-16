@@ -27,4 +27,21 @@ export const ORIGIN_ROWS = [
 ['Sydney',-33.87,151.21,10,[26,26,25,23,20,17,17,18,20,22,24,25]]
 ] as const satisfies readonly OriginRow[];
 
-export const ORIGINS: readonly Origin[] = ORIGIN_ROWS.map(([name, lat, lon, tz, high]) => ({name, lat, lon, tz, high}));
+export const ORIGIN_COUNTRIES = {
+  Boston: 'United States of America', 'New York': 'United States of America',
+  'Washington, DC': 'United States of America', Miami: 'United States of America',
+  Chicago: 'United States of America', Dallas: 'United States of America',
+  Denver: 'United States of America', 'Los Angeles': 'United States of America',
+  'San Francisco': 'United States of America', Seattle: 'United States of America',
+  Toronto: 'Canada', 'Mexico City': 'Mexico', 'São Paulo': 'Brazil',
+  London: 'United Kingdom', Paris: 'France', Frankfurt: 'Germany', Madrid: 'Spain',
+  Dubai: 'United Arab Emirates', Johannesburg: 'South Africa', Mumbai: 'India',
+  Singapore: 'Singapore', 'Hong Kong': 'China', Tokyo: 'Japan', Sydney: 'Australia',
+} as const satisfies Record<(typeof ORIGIN_ROWS)[number][0], string>;
+
+// Group separately named territories with their country for this destination filter.
+export const DOMESTIC_COUNTRY_GROUPS: Readonly<Record<string, string>> = {
+  'Puerto Rico': 'United States of America',
+};
+
+export const ORIGINS: readonly Origin[] = ORIGIN_ROWS.map(([name, lat, lon, tz, high]) => ({name, lat, lon, tz, high, country: ORIGIN_COUNTRIES[name]}));

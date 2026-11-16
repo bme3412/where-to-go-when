@@ -3,14 +3,15 @@ import { ORIGINS } from './data/origins';
 import { band, BANDS, cityTooltip, countryTooltip, crowdWord, difference, displayCountry, escapeHtml, hours, rainWord, temperature } from './format';
 import { Globe, MAP_COUNTRIES } from './globe';
 import { setupPanels } from './panels';
-import { clamp, DEFAULT_WEIGHTS, defaultTrip, rankCities, sampleDays, scoreCities, scoreCountry, validateTrip } from './scoring';
-import type { CityScore, CountryScore, RankedCity, Trip, Unit, Weights } from './types';
+import { clamp, DEFAULT_WEIGHTS, defaultTrip, matchesDestinationScope, rankCities, sampleDays, scoreCities, scoreCountry, validateTrip } from './scoring';
+import type { CityScore, CountryScore, DestinationScope, RankedCity, Trip, Unit, Weights } from './types';
 
 const app = document.querySelector<HTMLElement>('#app')!;
 const initialTrip = defaultTrip(new Date());
 const weights: Weights = { ...DEFAULT_WEIGHTS };
 let home = ORIGINS[0];
 let unit: Unit = 'F';
+let scope: DestinationScope = 'all';
 let cityScores: CityScore[] = [];
 let ranked: RankedCity[] = [];
 let selectedName: string | null = null;
@@ -34,10 +35,11 @@ app.innerHTML = `
     </nav>
   </header>
   <section id="globe-container" class="workspace" aria-label="Vacation explorer">
-    <aside id="settings-panel" class="side-panel settings-panel" aria-labelledby="settings-title">
-      <div class="panel-heading"><div><h2 id="settings-title">Make it your trip</h2><p>A few details. A world of options.</p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close trip settings">${closeIcon}</button></div>
+    <aside id="settings-panel" class="side-panel settings-panel" aria-label="Trip settings">
+      <button type="button" class="icon-button close-panel settings-close" data-close-panel aria-label="Close trip settings">${closeIcon}</button>
       <div class="panel-scroll settings-content">
         <div class="field"><label for="home">Home city</label><select id="home">${ORIGINS.map(origin => `<option value="${escapeHtml(origin.name)}">${escapeHtml(origin.name)}</option>`).join('')}</select></div>
+        <fieldset class="destination-scope"><legend>Destinations</legend><div class="scope-options">${(['all', 'domestic', 'international'] as const).map(value => `<label class="scope-choice"><input type="radio" name="destination-scope" value="${value}" ${value === 'all' ? 'checked' : ''} /><span>${value[0].toUpperCase() + value.slice(1)}</span></label>`).join('')}</div></fieldset>
         <div class="date-fields"><div class="field"><label for="start">From</label><input type="date" id="start" value="${initialTrip.start}" aria-describedby="date-error" /></div><div class="field"><label for="end">To</label><input type="date" id="end" value="${initialTrip.end}" aria-describedby="date-error" /></div></div>
         <div class="trip-duration">${icon('<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4m8-4v4M4 11h16"/>')}<output id="trip-length" for="start end">15 days</output><span>to get away</span></div>
         <p id="date-error" class="date-error" role="alert" hidden></p>
@@ -48,14 +50,14 @@ app.innerHTML = `
       </div>
     </aside>
     <section class="globe-stage" aria-label="Interactive destination globe">
-      <div class="stage-heading"><div><p class="stage-kicker">Go somewhere good.</p><div class="trip-summary"><span id="summary-origin">From Boston</span><span aria-hidden="true">·</span><span id="summary-dates">Dec 20 – Jan 3</span><span class="summary-duration" id="summary-duration">15 days</span></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid dates</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
+      <div class="stage-heading"><div><p class="stage-kicker">Go somewhere good.</p><div class="trip-summary"><span id="summary-origin">From Boston</span><span aria-hidden="true">·</span><span id="summary-dates">Dec 20 – Jan 3</span><span class="summary-duration" id="summary-duration">15 days</span><span class="summary-scope" id="summary-scope" hidden></span></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid dates</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
       <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Interactive vacation globe. Use arrow keys to rotate, plus or minus to zoom. Choose a destination to center it."></svg><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
       <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span></div><button id="selected-details" class="small-button" type="button">Details ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
-      <div class="stage-bottom"><div class="legend" aria-label="Destination rating bands">${BANDS.map(rating => `<span><i class="swatch" style="--swatch:${rating.color}"></i>${rating.label}${rating.minimum ? `<span class="legend-threshold">${rating.minimum}+</span>` : ''}</span>`).join('')}</div><p class="globe-help"><span class="desktop-help">Drag to rotate · Scroll to zoom</span><span class="touch-help">Drag to rotate · Pinch to zoom</span><span class="help-divider">/</span> Numbers mark the top 10</p><p class="map-note">71 destinations, scored for you. Country colors are broader estimates.</p></div>
+      <div class="stage-bottom"><div class="legend" aria-label="Destination rating bands">${BANDS.map(rating => `<span><i class="swatch" style="--swatch:${rating.color}"></i>${rating.label}${rating.minimum ? `<span class="legend-threshold">${rating.minimum}+</span>` : ''}</span>`).join('')}</div><p class="globe-help"><span class="desktop-help">Drag to rotate · Scroll to zoom</span><span class="touch-help">Drag to rotate · Pinch to zoom</span><span class="help-divider">/</span> Numbers mark the top 10</p></div>
     </section>
     <aside id="results-panel" class="side-panel results-panel" aria-labelledby="top-title">
       <div class="panel-heading"><div><h2 id="top-title">Your top 5</h2><p id="ranking-context">For 15 days, from Boston</p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close recommendations">${closeIcon}</button></div>
-      <div class="panel-scroll results-content"><div id="top-list" class="top-list"></div><div class="more-heading"><h3>More good options</h3><span>6–17</span></div><div id="more-grid" class="more-grid"></div><p class="results-note">A starting point for your next adventure.<br>Choose a place to take a closer look.</p></div>
+      <div class="panel-scroll results-content"><div id="top-list" class="top-list"></div><div id="more-options"><div class="more-heading"><h3>More good options</h3><span id="more-range">6–17</span></div><div id="more-grid" class="more-grid"></div></div><p class="results-note">A starting point for your next adventure.<br>Choose a place to take a closer look.</p></div>
     </aside>
     <button type="button" id="panel-backdrop" class="panel-backdrop" aria-label="Close open panel" tabindex="-1" hidden></button>
     <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
@@ -106,6 +108,15 @@ const globe = new Globe(document.querySelector<SVGSVGElement>('#globe')!, {
 });
 
 function renderLists(): void {
+  const count = Math.min(5, ranked.length);
+  document.querySelector('#top-title')!.textContent = count === 0 ? 'Your picks' : count === 1 ? 'Your top pick' : `Your top ${count}`;
+  document.querySelector('.count-bubble')!.textContent = String(Math.min(17, ranked.length));
+  document.querySelector<HTMLElement>('#more-options')!.hidden = ranked.length <= 5;
+  document.querySelector('#more-range')!.textContent = `6–${Math.min(17, ranked.length)}`;
+  document.querySelector<HTMLElement>('.results-note')!.hidden = ranked.length === 0;
+  const scopeLabel = scope === 'all' ? '' : scope[0].toUpperCase() + scope.slice(1);
+  document.querySelector<HTMLElement>('#summary-scope')!.hidden = !scopeLabel;
+  document.querySelector('#summary-scope')!.textContent = scopeLabel;
   topList.innerHTML = ranked.slice(0, 5).map(r => {
     const rating = band(r.score), travel = `~${hours(r.travel.hours)}h ${r.travel.mode === 'drive' ? 'drive' : 'away'}`;
     const delta = r.high - r.homeHigh;
@@ -113,6 +124,7 @@ function renderLists(): void {
     const escape = delta * 1.8 >= 15 ? `${difference(delta, unit)} vs ${home.name}` : crowdWord(r.crowd);
     return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(r.city.name)}, rank ${r.rank}, ${rating.label}, ${Math.round(r.score)}. Center on globe."><span class="pick-heading"><span class="rank-circle" style="--swatch:${rating.color}">${r.rank}</span><span class="pick-place"><strong class="city-name">${escapeHtml(r.city.name)}</strong><span class="country-name">${escapeHtml(displayCountry(r.city.country))}</span></span><span class="rating ${rating.key}"><strong>${Math.round(r.score)}</strong><span>${rating.label}</span></span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span><span>${rainWord(r.rain).toLowerCase()}</span><span>${travel}</span></span><span class="pick-note">${escapeHtml(note ?? escape)}</span></button>`;
   }).join('');
+  if (!ranked.length) topList.innerHTML = `<div class="empty-results"><strong>No ${scope === 'all' ? 'matching' : scope} destinations</strong><p>There aren’t any destinations in this list beyond your home city for this filter.</p><button type="button" class="small-button" data-clear-scope>Show all destinations</button></div>`;
   moreGrid.innerHTML = ranked.slice(5, 17).map(r => {
     const rating = band(r.score);
     return `<button type="button" class="option-card${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(r.city.name)}, rank ${r.rank}, ${rating.label}, score ${Math.round(r.score)}. Center on globe."><span class="option-top"><span class="option-name"><span class="swatch" style="--swatch:${rating.color}"></span>${escapeHtml(r.city.name)}</span><span class="option-score">${Math.round(r.score)}</span></span><span class="option-detail">${temperature(r.high, unit)} <span>·</span> ~${hours(r.travel.hours)}h ${r.travel.mode === 'drive' ? 'drive' : 'away'}</span></button>`;
@@ -146,7 +158,9 @@ function recompute(shouldFly: boolean): void {
   start.setAttribute('aria-invalid', String(Boolean(error))); end.setAttribute('aria-invalid', String(Boolean(error)));
   if (error) { document.querySelector('#trip-length')!.textContent = '— days'; return; }
   home = ORIGINS.find(origin => origin.name === homeSelect.value)!; hideTooltip();
-  cityScores = scoreCities(trip, home, weights); ranked = rankCities(cityScores);
+  scope = document.querySelector<HTMLInputElement>('[name="destination-scope"]:checked')!.value as DestinationScope;
+  cityScores = scoreCities(trip, home, weights).filter(result => result.travel.km >= 40 && matchesDestinationScope(result.city.country, home.country, scope));
+  ranked = rankCities(cityScores);
   const samples = sampleDays(trip), duration = `${samples.tripDays} ${samples.tripDays === 1 ? 'day' : 'days'}`;
   const dateLabel = (value: string) => new Date(`${value}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
   document.querySelector('#trip-length')!.textContent = duration;
@@ -154,12 +168,16 @@ function recompute(shouldFly: boolean): void {
   document.querySelector('#summary-dates')!.textContent = `${dateLabel(trip.start)} – ${dateLabel(trip.end)}`;
   document.querySelector('#summary-duration')!.textContent = duration;
   if (shouldFly) selectedName = null;
-  const countries = MAP_COUNTRIES.map(({ country }) => scoreCountry(country, home, samples, weights)).filter((c): c is CountryScore => c !== null);
+  const countries = MAP_COUNTRIES.filter(({ country }) => matchesDestinationScope(country.name, home.country, scope)).map(({ country }) => scoreCountry(country, home, samples, weights)).filter((c): c is CountryScore => c !== null);
   renderLists(); renderSelection(); globe.update(cityScores, ranked, countries, home); globe.setSelected(selectedName);
-  document.querySelector('#ranking-context')!.textContent = `For ${duration}, from ${home.name}`;
-  document.querySelector('#rank-announcement')!.textContent = `Top pick: ${ranked[0].city.name}, score ${Math.round(ranked[0].score)}. ${duration} from ${home.name}.`;
-  if (shouldFly) globe.flyTo(ranked[0].city.lon, ranked[0].city.lat);
+  document.querySelector('#ranking-context')!.textContent = `For ${duration}, from ${home.name}${scope === 'all' ? '' : ` · ${scope}`}`;
+  const best = ranked[0];
+  document.querySelector('#rank-announcement')!.textContent = best ? `Top pick: ${best.city.name}, score ${Math.round(best.score)}. ${duration} from ${home.name}.` : `No ${scope === 'all' ? 'matching' : scope} destinations in this list from ${home.name}.`;
+  if (shouldFly) globe.flyTo(best?.city.lon ?? home.lon, best?.city.lat ?? home.lat);
 }
+for (const control of document.querySelectorAll<HTMLInputElement>('[name="destination-scope"]')) control.addEventListener('change', () => {
+  recompute(true);
+});
 for (const control of [start, end, homeSelect]) control.addEventListener('change', () => recompute(true));
 for (const slider of document.querySelectorAll<HTMLInputElement>('[data-weight]')) slider.addEventListener('input', () => {
   weights[slider.dataset.weight as keyof Weights] = Number(slider.value);
@@ -181,6 +199,12 @@ unitButton.addEventListener('click', () => {
   unitButton.innerHTML = `<span class="${unit === 'F' ? 'unit-active' : ''}">°F</span><span class="unit-divider">/</span><span class="${unit === 'C' ? 'unit-active' : ''}">°C</span>`;
   unitButton.setAttribute('aria-label', `Temperature unit: ${unit === 'F' ? 'Fahrenheit. Switch to Celsius.' : 'Celsius. Switch to Fahrenheit.'}`);
   hideTooltip(); renderLists(); renderSelection();
+});
+topList.addEventListener('click', event => {
+  if (!(event.target as Element).closest('[data-clear-scope]')) return;
+  document.querySelector<HTMLInputElement>('[name="destination-scope"][value="all"]')!.checked = true;
+  recompute(true);
+  document.querySelector<HTMLButtonElement>('#top-list .pick-row')?.focus();
 });
 function resultForTarget(target: EventTarget | null): CityScore | undefined {
   const card = (target as Element | null)?.closest<HTMLButtonElement>('[data-city]');
@@ -206,4 +230,4 @@ document.querySelector('.panel-toggles')!.addEventListener('click', hideTooltip)
 document.querySelectorAll('.panel-scroll').forEach(panel => panel.addEventListener('scroll', hideTooltip, { passive: true }));
 window.addEventListener('pagehide', () => globe.destroy(), { once: true });
 recompute(false);
-window.setTimeout(() => globe.initialFlyTo(ranked[0].city.lon, ranked[0].city.lat), 600);
+window.setTimeout(() => { const best = ranked[0]; if (best) globe.initialFlyTo(best.city.lon, best.city.lat); }, 600);

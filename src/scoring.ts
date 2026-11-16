@@ -1,8 +1,9 @@
 import { CITIES } from './data/cities';
+import { DOMESTIC_COUNTRY_GROUPS } from './data/origins';
 import { ALT, CONT, DESERT, HURR, MED, MONSOON, OCEAN, POP, SPRING } from './data/countries';
 import { eventsForYear } from './data/events';
 import { RISKS } from './data/risks';
-import type { City, CityScore, Country, CountryScore, Dealbreaker, Origin, Place, RankedCity, SampledTrip, Travel, Trip, TripEvent, Weights } from './types';
+import type { City, CityScore, Country, CountryScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, Travel, Trip, TripEvent, Weights } from './types';
 
 export { easter, thanksgiving, eventsForYear } from './data/events';
 export const DAY = 86_400_000;
@@ -161,6 +162,13 @@ export function rankCities(scores: readonly CityScore[]): RankedCity[] {
   return scores.filter(result => result.travel.km >= 40)
     .sort((a, b) => b.score - a.score || a.city.name.localeCompare(b.city.name))
     .map((result, index) => ({ ...result, rank: index + 1 }));
+}
+
+export function matchesDestinationScope(destinationCountry: string, homeCountry: string, scope: DestinationScope): boolean {
+  if (scope === 'all') return true;
+  const country = (name: string) => DOMESTIC_COUNTRY_GROUPS[name] ?? name;
+  const domestic = country(destinationCountry) === country(homeCountry);
+  return scope === 'domestic' ? domestic : !domestic;
 }
 
 export function cHigh(country: Country, month: number): number {
