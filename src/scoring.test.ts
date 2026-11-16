@@ -111,7 +111,7 @@ describe('sourced climate baseline', () => {
           expect(source.distanceKm).toBeLessThanOrEqual(15);
           expect(Math.abs(source.elevationDifferenceM)).toBeLessThanOrEqual(150);
           expect(source.stationId.length).toBeGreaterThan(0);
-          expect(new URL(source.sourceUrl).hostname).toMatch(/^(www\.ncei\.noaa\.gov|data\.geo\.admin\.ch|meteofrance\.s3\.sbg\.io\.cloud\.ovh\.net|data\.weather\.gov\.hk|api\.weather\.gc\.ca|www\.weather\.gov\.sg)$/);
+          expect(new URL(source.sourceUrl).hostname).toMatch(/^(www\.ncei\.noaa\.gov|data\.geo\.admin\.ch|meteofrance\.s3\.sbg\.io\.cloud\.ovh\.net|data\.weather\.gov\.hk|api\.weather\.gc\.ca|www\.weather\.gov\.sg|opendata\.chmi\.cz|data\.climpact\.gr|smn\.conagua\.gob\.mx|datazone\.darwinfoundation\.org|www\.data\.jma\.go\.jp|www\.weather\.go\.kr)$/);
         } else {
           expect(source.reason.length).toBeGreaterThan(20);
           expect(source.coverage.map(c => c.days)).toEqual(expected);
@@ -196,12 +196,50 @@ describe('sourced climate baseline', () => {
   it('makes all destinations searchable independently of rankings and source type', () => {
     expect(auditDestinations('', 'all')).toHaveLength(71);
     expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(71);
-    expect(sourceCounts).toEqual({station:22,mixed:4,grid:45});
+    expect(sourceCounts).toEqual({station:28,mixed:6,grid:37});
     expect(auditDestinations('Queenstown', 'grid').map(c => c.name)).toEqual(['Queenstown']);
     expect(auditDestinations('El Médano', 'station').map(c => c.name)).toEqual(['Tenerife']);
     expect(auditDestinations('Banff', 'mixed').map(c => c.name)).toEqual(['Banff']);
     expect(auditRows('Queenstown', 'all')).toContain('data-audit-city="Queenstown"');
     expect(auditRows('missing place', 'all')).toContain('No destinations match');
+  });
+  it('distinguishes verified agency requirements from unresolved retrieval and coverage', () => {
+    expect(auditDestinations('Mauritius', 'request-required').map(c => c.name)).toEqual(['Mauritius']);
+    expect(auditDestinations('London', 'access-required').map(c => c.name)).toEqual(['London']);
+    expect(auditDestinations('Buenos Aires', 'not-verified').map(c => c.name)).toEqual(['Buenos Aires']);
+    expect(auditDestinations('Cape Cod', 'coverage-failed').map(c => c.name)).toEqual(['Cape Cod']);
+    expect(auditDestinations('Athens', 'request-required')).toHaveLength(0);
+    expect(auditRows('Mauritius', 'all')).toContain('Data request needed');
+  });
+  it('keeps noncomparable Tokyo temperatures and ambiguous Seoul rain on the grid', () => {
+    const tokyo = climateFor('Tokyo'), seoul = climateFor('Seoul');
+    expect(tokyo.sources.temperature.kind).toBe('grid');
+    expect(tokyo.sources.precipitation.kind).toBe('station');
+    if (tokyo.sources.temperature.kind === 'grid') expect(tokyo.sources.temperature.reason).toMatch(/homogeneity/);
+    expect(seoul.sources.temperature.kind).toBe('station');
+    expect(seoul.sources.precipitation.kind).toBe('grid');
+    if (seoul.sources.precipitation.kind === 'grid') expect(seoul.sources.precipitation.reason).toMatch(/blank cells/);
+    expect(climateSourceKind(climateFor('Kyoto'))).toBe('station');
+  });
+  it('preserves reproducible POST exports without offering a broken direct download link', () => {
+    const kyoto = climateFor('Kyoto'), source = kyoto.sources.temperature;
+    const file = source.rawInputs?.[0];
+    expect(file?.request?.method).toBe('POST');
+    expect(file?.sourcePage).toBe('https://www.data.jma.go.jp/risk/obsdl/');
+    const parameters = new URLSearchParams(file!.request!.body);
+    expect(JSON.parse(parameters.get('stationNumList')!)).toEqual(['s47759']);
+    const html = climateProvenance(kyoto);
+    expect(html).toContain('POST export · request recorded');
+    expect(html).not.toContain('href="https://www.data.jma.go.jp/risk/obsdl/show/table"');
+  });
+  it('retains the Galápagos instrument exclusion and derived-data licence', () => {
+    const climate = climateFor('Galápagos');
+    expect(climateSourceKind(climate)).toBe('station');
+    expect(climate.sources.temperature.coverage.every(month => month.decadeYears[2] <= 9)).toBe(true);
+    const html = climateProvenance(climate);
+    expect(html).toContain('2020–2021 instrument-error');
+    expect(html).toContain('https://creativecommons.org/licenses/by-nc-sa/4.0/');
+    expect(html).toContain('derived summaries remain licensed CC BY-NC-SA 4.0');
   });
   it('retains different local climates inside the same country', () => {
     expect(climateFor('Miami').months[0].meanHigh - climateFor('New York').months[0].meanHigh).toBeGreaterThan(10);

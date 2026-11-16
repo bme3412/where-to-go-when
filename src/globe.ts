@@ -66,7 +66,7 @@ export class Globe {
       if (width < 1 || height < 1) return;
       const zoom = this.scale / this.baseScale;
       this.width = width; this.height = height;
-      this.baseScale = Math.min(width, height) * 0.455;
+      this.baseScale = Math.min(width, height) * 0.49;
       this.scale = clamp(this.baseScale * zoom, this.baseScale * 0.79, 1000);
       this.svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       this.projection.translate([width / 2, height / 2]);

@@ -21,22 +21,26 @@ interface SourceBase {
   provider: string; sourceUrl: string; retrieved: string; sha256: string; version: string;
   coverage: ClimateCoverage[];
   hashScope?: string;
-  rawInputs?: { url: string; label: string; retrieved: string; sha256: string }[];
+  rawInputs?: { url: string; label: string; retrieved: string; sha256: string; sourcePage?: string;
+    request?: { method: 'POST'; contentType: string; body: string } }[];
 }
 export interface StationSource extends SourceBase {
   kind: 'station'; stationId: string; stationName: string; lat: number; lon: number;
   elevation: number; distanceKm: number; elevationDifferenceM: number; sourceFlags: string[];
-  metadataUrl?: string; lineageUrl?: string; qualityNote?: string;
+  metadataUrl?: string; lineageUrl?: string; qualityNote?: string; sourcePage?: string;
+  qualityUrl?: string; qualityEvidenceUrl?: string; licenseUrl?: string; attribution?: string;
   stationMembers?: { stationId: string; stationName: string; lat: number; lon: number; elevation: number; start: string; end: string }[];
 }
 export interface GridSource extends SourceBase { kind: 'grid'; reason: string }
 export type ClimateSource = StationSource | GridSource;
+export type AgencyReviewStatus = 'access-required' | 'request-required' | 'coverage-failed' | 'not-verified' | 'imported';
+export interface AgencyReview { agency: string; note: string; url: string; status?: AgencyReviewStatus; checked?: string }
 export interface CityClimate {
   name: string; lat: number; lon: number; elevation: number; gridElevation: number; sourceUrl: string;
   retrieved: string; sha256: string; apiVersion: string; months: ClimateMonth[];
   sources: { temperature: ClimateSource; precipitation: ClimateSource };
   referenceLabel?: string; referenceUrl?: string; referenceNote?: string;
-  agencyReview?: { agency: string; note: string; url: string };
+  agencyReview?: AgencyReview;
 }
 export interface ScoreBreakdown {
   fits: Weights;

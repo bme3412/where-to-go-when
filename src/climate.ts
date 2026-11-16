@@ -1,5 +1,5 @@
 import baseline from './data/climate.json';
-import type { CityClimate, ClimateMonth, TemperatureRange } from './types';
+import type { AgencyReviewStatus, CityClimate, ClimateMonth, TemperatureRange } from './types';
 
 export const CLIMATE_SOURCE = baseline;
 const locations = baseline.locations as Readonly<Record<string, CityClimate>>;
@@ -39,6 +39,14 @@ export function climateSourceKind(climate: CityClimate): 'station' | 'mixed' | '
   const kinds = Object.values(climate.sources).map(source => source.kind);
   return kinds.every(kind => kind === 'station') ? 'station' : kinds.every(kind => kind === 'grid') ? 'grid' : 'mixed';
 }
+
+export const AGENCY_STATUS_LABELS: Record<AgencyReviewStatus, string> = {
+  'access-required': 'Agency access needed',
+  'request-required': 'Data request needed',
+  'coverage-failed': 'Record did not qualify',
+  'not-verified': 'Daily record not verified',
+  imported: 'Station data added',
+};
 
 /** Flag unresolved terrain mismatch; this is not an extra scoring penalty. */
 export function gridElevationMismatch(climate: CityClimate): number | null {

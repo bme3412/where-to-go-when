@@ -19,6 +19,9 @@ import statistics
 import time
 import urllib.parse
 import urllib.request
+import agency_europe_africa
+import agency_americas
+import agency_asia
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CACHE = ROOT / '.climate-cache/stations'
@@ -251,7 +254,11 @@ def build_place(place, stations, version):
     if len(found) < 2:
         # Pass helpers explicitly; no network, parsing or quality rules run in the browser.
         from types import SimpleNamespace
-        agencies.supplement(place, result, found, audit, SimpleNamespace(cached=cached, eligible=eligible, distance=distance, summarize=summarize))
+        context = SimpleNamespace(cached=cached, eligible=eligible, distance=distance, summarize=summarize, agencies=agencies)
+        agencies.supplement(place, result, found, audit, context)
+        agency_europe_africa.supplement(place, result, found, audit, context)
+        agency_americas.supplement(place, result, found, audit, context, agencies.accept_candidate)
+        agency_asia.supplement(place, result, found, audit, context)
     for variable in ('temperature', 'precipitation'):
         if variable in found:
             continue
@@ -259,6 +266,9 @@ def build_place(place, stations, version):
         has_agency_candidates = any(variable in item.get('variables', {}) for item in audit if item.get('provider'))
         reason = ('Nearby station records did not meet daily quality and monthly coverage requirements for 1991–2020.' if has_candidates or has_agency_candidates else
                   'No station in the screened NOAA archive met the 15 km distance, 150 m elevation and historical inventory requirements.')
+        agency_reasons = [item.get('variables', {}).get(variable, {}).get('reason') for item in audit if item.get('provider')]
+        if any(agency_reasons):
+            reason = ' '.join(dict.fromkeys(value for value in agency_reasons if value))
         found[variable] = dict(kind='grid', provider='NASA POWER / MERRA-2', sourceUrl=result['sourceUrl'],
                                retrieved=result['retrieved'], sha256=result['sha256'], version=result['apiVersion'],
                                reason=reason, coverage=[dict(days=m[variable + 'Days'], expectedDays=m[variable + 'Days'], years=30, decadeYears=[10, 10, 10]) for m in result['months']])
@@ -270,6 +280,14 @@ def build_place(place, stations, version):
 def main():
     CACHE.mkdir(parents=True, exist_ok=True)
     places = json.loads((ROOT / 'data/climate-locations.json').read_text())
+    by_name = {place['name']: place for place in places}
+    reviewed = set()
+    for path in sorted((ROOT / 'data').glob('agency-review-*.json')):
+        for review in json.loads(path.read_text()):
+            name = review['name']
+            assert name in by_name and name not in reviewed, 'Unknown or duplicate agency review'
+            reviewed.add(name)
+            by_name[name]['agencyReview'] = {key: value for key, value in review.items() if key != 'name'}
     query = urllib.parse.urlencode(dict(latitude=','.join(str(p['lat']) for p in places), longitude=','.join(str(p['lon']) for p in places)))
     elevation_url = 'https://api.open-meteo.com/v1/elevation?' + query
     raw, elevation_retrieved = cached(elevation_url, 'elevation-' + hashlib.sha256(query.encode()).hexdigest()[:16] + '.json')

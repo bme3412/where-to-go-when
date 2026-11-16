@@ -3,7 +3,7 @@ import { ORIGINS } from './data/origins';
 import { climateLabel, climateSourceKind } from './climate';
 import { auditContent, auditDestinations, auditRows } from './audit';
 import type { AuditFilter } from './audit';
-import { band, BANDS, cityTooltip, countryTooltip, crowdWord, difference, displayCountry, escapeHtml, hours, rainWord, scoreBreakdown, temperature } from './format';
+import { band, cityTooltip, countryTooltip, crowdWord, difference, displayCountry, escapeHtml, hours, rainWord, scoreBreakdown, temperature } from './format';
 import { Globe } from './globe';
 import { methodContent } from './method';
 import { setupPanels } from './panels';
@@ -20,6 +20,7 @@ let home = ORIGINS[0];
 let unit: Unit = 'F';
 let scope: DestinationScope = 'all';
 let cityScores: CityScore[] = [];
+let allCityScores: CityScore[] = [];
 let ranked: RankedCity[] = [];
 let selectedName: string | null = null;
 let activeTip = '';
@@ -52,17 +53,19 @@ app.innerHTML = `
         <p id="date-error" class="date-error" role="alert" hidden></p>
         <div class="section-divider"></div>
         <fieldset class="temperature-preference"><legend>Preferred daytime highs</legend><div class="temperature-fields"><div><label for="temperature-min">Low <span class="temperature-unit">°F</span></label><input type="number" id="temperature-min" step="any" value="68" min="-40" max="122" aria-describedby="temperature-error" /></div><span aria-hidden="true">to</span><div><label for="temperature-max">High <span class="temperature-unit">°F</span></label><input type="number" id="temperature-max" step="any" value="86" min="-40" max="122" aria-describedby="temperature-error" /></div></div><p id="temperature-error" class="date-error" role="alert" hidden></p></fieldset>
-        <div class="preferences-heading"><h3>Your priorities</h3><output id="weight-total" aria-label="Total weight">100%</output></div>
-        <p class="weights-help" id="weights-help">Adjust one; the others rebalance to 100%.</p>
-        <div class="weights">${preferences.map(({ key, label, hint, paths }) => `<div class="weight"><div class="weight-heading"><label for="weight-${key}">${icon(paths)}${label}</label><output for="weight-${key}" id="value-${key}">${weights[key]}%</output></div><input id="weight-${key}" data-weight="${key}" type="range" min="0" max="100" step="1" value="${weights[key]}" aria-valuetext="${weights[key]} percent" aria-describedby="hint-${key} weights-help" /><p class="weight-hint" id="hint-${key}">${hint}</p></div>`).join('')}</div>
-        <button class="text-button reset-preferences" id="reset-weights" type="button">Reset preferences</button>
+
       </div>
     </aside>
     <section class="globe-stage" aria-label="Interactive destination globe">
       <div class="stage-heading"><div><div class="trip-summary"><span id="summary-origin">From Boston</span><span aria-hidden="true">·</span><span id="summary-dates">Dec 20 – Jan 3</span><span class="summary-duration" id="summary-duration">15 days</span><span class="summary-scope" id="summary-scope" hidden></span></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid settings</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
       <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Interactive vacation globe. Use arrow keys to rotate, plus or minus to zoom. Choose a destination to center it."></svg><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
       <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span></div><button id="selected-details" class="small-button" type="button" aria-haspopup="dialog">Why this score? ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
-      <div class="stage-bottom"><div class="legend-heading"><span>Destination match</span><button type="button" class="text-button" data-show-method aria-haspopup="dialog" aria-controls="method-dialog">What do the colors mean? ${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>')}</button></div><div class="legend" aria-label="Destination match bands">${BANDS.map(rating => `<span><i class="swatch" style="--swatch:${rating.color}"></i>${rating.label}<span class="legend-threshold">${rating.range}</span></span>`).join('')}</div><p class="globe-help"><span class="desktop-help">Drag to rotate · Scroll to zoom</span><span class="touch-help">Drag to rotate · Pinch to zoom</span><span class="help-divider">/</span> Numbers mark the top 10</p></div>
+      <section class="priorities-dock" aria-label="Your priorities">
+        <div class="priorities-top"><button id="toggle-priorities" class="priorities-toggle" type="button" aria-expanded="true" aria-controls="priorities-body"><span class="priorities-title">Your priorities</span><output id="weight-total" aria-label="Total weight">100%</output>${icon('<path d="m7 10 5 5 5-5"/>')}</button><p class="weights-help" id="weights-help">Adjust one; the others rebalance to 100%.</p><button class="text-button reset-preferences" id="reset-weights" type="button">Reset preferences</button></div>
+        <div id="priorities-body">
+        <div class="weights">${preferences.map(({ key, label, hint, paths }) => `<div class="weight"><div class="weight-heading"><label for="weight-${key}">${icon(paths)}${label}</label><output for="weight-${key}" id="value-${key}">${weights[key]}%</output></div><input id="weight-${key}" data-weight="${key}" type="range" min="0" max="100" step="1" value="${weights[key]}" aria-valuetext="${weights[key]} percent" aria-describedby="hint-${key} weights-help" /><p class="weight-hint" id="hint-${key}">${hint}</p></div>`).join('')}</div>
+        </div>
+      </section>
     </section>
     <aside id="results-panel" class="side-panel results-panel" aria-labelledby="top-title">
       <div class="panel-heading"><div><h2 id="top-title">Your top 5</h2><p id="ranking-context">For 15 days, from Boston</p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close recommendations">${closeIcon}</button></div>
@@ -91,6 +94,18 @@ const topList = document.querySelector<HTMLDivElement>('#top-list')!;
 const moreGrid = document.querySelector<HTMLDivElement>('#more-grid')!;
 const detailsDialog = document.querySelector<HTMLDialogElement>('#details-dialog')!;
 const panels = setupPanels(container);
+const prioritiesToggle = document.querySelector<HTMLButtonElement>('#toggle-priorities')!;
+const prioritiesBody = document.querySelector<HTMLElement>('#priorities-body')!;
+const compactPriorities = window.matchMedia('(max-width: 600px)');
+function showPriorities(open: boolean): void {
+  if (!open && prioritiesBody.contains(document.activeElement)) prioritiesToggle.focus();
+  prioritiesBody.hidden = !open;
+  prioritiesToggle.setAttribute('aria-expanded', String(open));
+}
+prioritiesToggle.addEventListener('click', () => showPriorities(prioritiesBody.hidden));
+compactPriorities.addEventListener('change', () => showPriorities(!compactPriorities.matches));
+showPriorities(!compactPriorities.matches);
+
 
 function hideTooltip(): void {
   tooltip.hidden = true; activeTip = '';
@@ -143,7 +158,7 @@ function renderLists(): void {
   }).join('');
 }
 function renderSelection(): void {
-  const result = cityScores.find(r => r.city.name === selectedName);
+  const result = allCityScores.find(r => r.city.name === selectedName);
   const selection = document.querySelector<HTMLElement>('#selection')!;
   selection.hidden = !result;
   if (!result) return;
@@ -177,7 +192,8 @@ function recompute(shouldFly: boolean): void {
   if (temperatureError) return;
   home = ORIGINS.find(origin => origin.name === homeSelect.value)!; hideTooltip();
   scope = document.querySelector<HTMLInputElement>('[name="destination-scope"]:checked')!.value as DestinationScope;
-  cityScores = scoreCities(trip, home, weights, preferredTemperature).filter(result => result.travel.km >= 40 && matchesDestinationScope(result.city.country, home.country, scope));
+  allCityScores = scoreCities(trip, home, weights, preferredTemperature);
+  cityScores = allCityScores.filter(result => result.travel.km >= 40 && matchesDestinationScope(result.city.country, home.country, scope));
   ranked = rankCities(cityScores);
   const samples = sampleDays(trip), duration = `${samples.tripDays} ${samples.tripDays === 1 ? 'day' : 'days'}`;
   const dateLabel = (value: string) => new Date(`${value}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
@@ -258,7 +274,7 @@ for (const list of [topList, moreGrid]) {
 document.querySelector('#clear-selection')!.addEventListener('click', () => {
   selectedName = null; globe.setSelected(null); renderLists(); renderSelection(); document.querySelector<SVGSVGElement>('#globe')!.focus();
 });
-document.querySelector('#selected-details')!.addEventListener('click', () => { hideTooltip(); detailsDialog.showModal(); detailsDialog.scrollTop = 0; });
+document.querySelector('#selected-details')!.addEventListener('click', () => { hideTooltip(); renderSelection(); detailsDialog.showModal(); detailsDialog.scrollTop = 0; });
 document.addEventListener('click', event => {
   if ((event.target as Element).closest('[data-show-method]')) {
     hideTooltip();
@@ -282,9 +298,10 @@ auditSearch.addEventListener('input', renderAudit);
 auditFilter.addEventListener('change', renderAudit);
 auditDialog.addEventListener('click', event => {
   const button = (event.target as Element).closest<HTMLButtonElement>('[data-audit-city]');
-  const result = cityScores.find(r => r.city.name === button?.dataset.auditCity);
+  const result = allCityScores.find(r => r.city.name === button?.dataset.auditCity);
   if (!result) return;
-  selectDestination(result); detailsDialog.showModal(); detailsDialog.scrollTop = 0;
+  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, home, unit) + scoreBreakdown(result, unit);
+  detailsDialog.showModal(); detailsDialog.scrollTop = 0;
 });
 for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog')) {
   dialog.querySelector('.dialog-close')!.addEventListener('click', () => dialog.close());

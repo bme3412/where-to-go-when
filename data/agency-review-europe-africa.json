@@ -1,0 +1,130 @@
+[
+  {
+    "name": "London",
+    "agency": "UK Met Office / CEDA MIDAS Open",
+    "status": "access-required",
+    "note": "MIDAS Open offers daily station observations, but its official catalogue requires a registered CEDA account and login. No authenticated download or qualifying central-London series was obtained.",
+    "url": "https://catalogue.ceda.ac.uk/uuid/dbd451271eb04662beade68da43546e1/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Rome",
+    "agency": "ISPRA SCIA",
+    "status": "not-verified",
+    "note": "SCIA documents downloadable daily station time series and metadata, but the daily station and time-series links currently lead to its maintenance page. A qualifying Rome daily baseline was not obtained; no registration or payment requirement was verified.",
+    "url": "https://scia.isprambiente.it/dati-e-indicatori/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Athens",
+    "agency": "National Observatory of Athens / CLIMPACT",
+    "status": "imported",
+    "note": "Accepted Thissio daily observations: all 10,958 baseline days for both temperature and rainfall; 1.45 km from the reference point and 8 m higher. Official metadata documents no station relocations. No per-record quality flags are supplied; instrument changes and observation-day timing are disclosed.",
+    "url": "https://data.climpact.gr/dataset/e2ae9f71-048f-4565-b24b-f8f15e4c2cf5",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Santorini",
+    "agency": "Hellenic National Meteorological Service",
+    "status": "request-required",
+    "note": "HNMS's official service portal routes raw meteorological and climate data through an application and normally a fee, with specified research/public-sector exemptions. Its public climate page supplies summaries; no qualifying Santorini daily 1991–2020 baseline was obtained.",
+    "url": "https://crm.emy.gr/home",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Dubrovnik",
+    "agency": "Croatian Meteorological and Hydrological Service",
+    "status": "request-required",
+    "note": "DHMZ provides an explicit meteorological-data request form and states delivery follows an offer and payment, with academic/research exceptions. Its public climate tables are monthly values and extremes, which cannot replace the daily distributions required here.",
+    "url": "https://meteo.hr/proizvodi_e.php?section=proizvodi_usluge&param=services",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Prague",
+    "agency": "Czech Hydrometeorological Institute",
+    "status": "imported",
+    "note": "Accepted Praha Karlov public daily CSVs after excluding every quality code except Good. Lowest calendar-month coverage is 86.32% for paired temperature and 88.78% for rainfall. Both documented station positions pass 15 km/150 m limits; the 2003 location change is retained in provenance.",
+    "url": "https://opendata.chmi.cz/meteorology/climate/historical_csv/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Istanbul",
+    "agency": "Turkish State Meteorological Service",
+    "status": "request-required",
+    "note": "MGM's official archive route is the MEVBİS data-ordering system, listed under paid products with payment and order instructions. No order was placed and no qualifying Istanbul daily baseline was obtained.",
+    "url": "https://www.mgm.gov.tr/site/urunler.aspx?u=tum",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Marrakech",
+    "agency": "Direction Générale de la Météorologie, Morocco",
+    "status": "not-verified",
+    "note": "DGM confirms it provides daily station temperature and rainfall time series as climate services. The reviewed page supplied no public daily download or explicit access/fee requirement; a qualifying Marrakech baseline remains unverified.",
+    "url": "https://www.marocmeteo.ma/fr/climatologie",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Cairo",
+    "agency": "Egyptian Meteorological Authority",
+    "status": "not-verified",
+    "note": "The official site was checked, but no public historical daily station download or explicit data-request/access requirement was verified. This is an unresolved source search, not evidence that observations are unavailable.",
+    "url": "http://ema.gov.eg/wp/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Petra",
+    "agency": "Jordan Meteorological Department",
+    "status": "not-verified",
+    "note": "The official site offers climate averages and records, but no qualifying nearby daily 1991–2020 archive or explicit historical-data access requirement was verified. Monthly averages cannot supply the model's temperature distribution.",
+    "url": "https://jmd.gov.jo/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Dubai",
+    "agency": "UAE National Center of Meteorology",
+    "status": "not-verified",
+    "note": "NCM lists daily maximum/minimum temperature and rainfall among its services and publishes current daily station reports. A public 1991–2020 daily archive and any required registration/request process were not verified.",
+    "url": "https://www.ncm.gov.ae/pages/list-of-services?lang=en",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Cape Town",
+    "agency": "South African Weather Service",
+    "status": "request-required",
+    "note": "SAWS publishes a specific Climate Data Request contact and lists historical climate data as a commercial service. Its public Recent Climate page contains current reports, not a qualifying 1991–2020 daily archive near central Cape Town. A request/quote is the verified next route; no fee amount or guaranteed station coverage is claimed.",
+    "url": "https://www.weathersa.co.za/observations/RecentClimate",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Serengeti",
+    "agency": "Tanzania Meteorological Authority",
+    "status": "not-verified",
+    "note": "TMA confirms it collects and archives station rainfall and temperature and supplies climate information. No public daily baseline near the Ikoma reference area or explicit access/request requirement was verified.",
+    "url": "https://www.meteo.go.tz/services/climate-services",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Zanzibar",
+    "agency": "Tanzania Meteorological Authority",
+    "status": "not-verified",
+    "note": "TMA's climate service is verified, but no public daily 1991–2020 station baseline near Zanzibar City or explicit access/request requirement was verified. The existing nearby NOAA series does not meet the unchanged coverage rules.",
+    "url": "https://www.meteo.go.tz/services/climate-services",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Victoria Falls",
+    "agency": "Meteorological Services Department of Zimbabwe",
+    "status": "not-verified",
+    "note": "The official climate-services page offers forecasts, climate information and a contact route. It does not establish a downloadable daily baseline or a specific historical-data access requirement; qualifying station observations remain unverified.",
+    "url": "https://www.weatherzw.org.zw/services/climate/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Mauritius",
+    "agency": "Mauritius Meteorological Services",
+    "status": "request-required",
+    "note": "MMS explicitly holds daily maximum/minimum temperature and rainfall records and directs climate-data requests to the agency. It states charges apply for extraction, preparation and verification. Coverage and a suitable station near the Port Louis reference point still require verification; no request or payment was made.",
+    "url": "https://metservice.intnet.mu/climate-services/climate-info-and-data.php",
+    "checked": "2026-11-16"
+  }
+]

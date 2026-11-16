@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Cape Cod",
+    "agency": "NOAA / National Centers for Environmental Information",
+    "status": "coverage-failed",
+    "note": "Nearby Hyannis station USC00193821 is 0.64 km from the unchanged reference point, but its weakest calendar-month coverage is 74.73% for paired temperatures and 73.33% for precipitation. Both fail the existing 80% baseline-day requirement.",
+    "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USC00193821.dly",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Cancún",
+    "agency": "CONAGUA / Servicio Meteorológico Nacional (Mexico)",
+    "status": "imported",
+    "note": "Station 23155, Cancún, is 3.10 km away and 3 m lower. Official dated daily observations pass the unchanged policy for both variables; minimum monthly coverage is 93.01% for temperature and 89.98% for precipitation. NULO values are excluded. The archive supplies no per-record QC flags.",
+    "url": "https://smn.conagua.gob.mx/es/climatologia/informacion-climatologica/normales-climatologicas-por-estado?estado=qroo",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Mexico City",
+    "agency": "CONAGUA / Servicio Meteorológico Nacional (Mexico)",
+    "status": "imported",
+    "note": "Station 09048, Tacubaya Central, is 7.53 km away and 70.6 m higher. Official dated daily observations pass the unchanged policy for both variables; minimum monthly coverage is 86.67% for temperature and 90.00% for precipitation. NULO values are excluded. The archive supplies no per-record QC flags.",
+    "url": "https://smn.conagua.gob.mx/es/climatologia/informacion-climatologica/normales-climatologicas-por-estado?estado=df",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "San José",
+    "agency": "Instituto Meteorológico Nacional (Costa Rica)",
+    "status": "request-required",
+    "note": "IMN explicitly directs detailed station-data requests through its services form. Its current instructions describe a follow-up letter or quotation for non-academic requests. No request was submitted, and a qualifying 1991–2020 station export has not been audited.",
+    "url": "https://www.imn.ac.cr/solicitud-de-servicios",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Havana",
+    "agency": "Instituto de Meteorología (Cuba)",
+    "status": "not-verified",
+    "note": "The official INSMET portal and its climate/report links were checked. A dated daily 1991–2020 station archive and its access procedure were not verified; this does not establish that a request or account is required.",
+    "url": "http://www.insmet.cu/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Aruba",
+    "agency": "Meteorological Department Aruba",
+    "status": "not-verified",
+    "note": "The agency publishes 1991–2020 normals and annual climate summaries. The inspected 1991 file contains monthly averages and rain-day counts, not individual daily readings, so it cannot support the temperature-range scoring distribution. A historical daily export remains unverified.",
+    "url": "https://www.meteo.aw/climate.php",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Cartagena",
+    "agency": "IDEAM (Colombia)",
+    "status": "not-verified",
+    "note": "IDEAM documents its DHIME citizen portal for station-data consultation and download. The portal returned an unsupported-browser page during this pass; no dated Cartagena export, approval-level flags or baseline coverage were verified. No account requirement is inferred from that rendering failure.",
+    "url": "https://www.ideam.gov.co/dhime",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Galápagos",
+    "agency": "Charles Darwin Foundation / INAMHI-installed station",
+    "status": "imported",
+    "note": "Puerto Ayora's operator-published daily CSV is from a station 0.92 km away and 9 m lower. All 2020 minimum temperatures are excluded because the operator warns of 2020–2021 instrument errors. Both variables still pass the unchanged policy: minimum monthly coverage 86.33% temperature and 96.67% precipitation. No per-record QC flags are supplied. Source and derived monthly summaries are CC BY-NC-SA 4.0: attribution, noncommercial use and share-alike terms apply.",
+    "url": "https://datazone.darwinfoundation.org/es/clima/puerto-ayora",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Cusco",
+    "agency": "SENAMHI (Peru)",
+    "status": "not-verified",
+    "note": "SENAMHI exposes a historical station-download map and a separate registration workflow requesting identity and emailed credentials. A qualifying Cusco station export and whether that workflow is currently mandatory for the export were not verified; no station record was imported.",
+    "url": "https://www.senamhi.gob.pe/?p=descarga-datos-hidrometeorologicos",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Rio de Janeiro",
+    "agency": "INMET (Brazil)",
+    "status": "request-required",
+    "note": "INMET's BDMEP conventional-station archive explicitly requires an email request, confirmation link, and subsequent download link sent by email. The immediate annual automatic-station ZIP route starts in 2000 and cannot supply the required 1991–2000 decade coverage by itself. No email request was submitted.",
+    "url": "https://bdmep.inmet.gov.br/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Buenos Aires",
+    "agency": "Servicio Meteorológico Nacional (Argentina)",
+    "status": "not-verified",
+    "note": "SMN's public open-data page links a complete daily 1991–2020 archive, but fetching the linked RAR returned HTTP 403 in this pass. The archive's station coordinates, missing/QC conventions and daily coverage have not been audited. This retrieval failure is not evidence of an account or payment requirement. A browser attempt also stopped at Cloudflare security verification without reaching the archive; no challenge was solved or bypassed, and no account or payment requirement is inferred.",
+    "url": "https://ssl.smn.gob.ar/dpd/opendata_descargadatos.php",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Patagonia",
+    "agency": "Servicio Meteorológico Nacional (Argentina)",
+    "status": "not-verified",
+    "note": "SMN's public open-data page links a daily 1991–2020 archive, but its RAR returned HTTP 403 in this pass. Coverage and a station within 15 km / 150 m of the existing El Calafate-area reference point remain unverified. The reference point was not moved to an airport or another Patagonian location. A browser attempt also stopped at Cloudflare security verification without reaching the archive; no challenge was solved or bypassed, and no account or payment requirement is inferred.",
+    "url": "https://ssl.smn.gob.ar/dpd/opendata_descargadatos.php",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Goa",
+    "agency": "India Meteorological Department",
+    "status": "access-required",
+    "note": "IMD's Data Supply Portal explicitly requires account registration, email verification and identity/undertaking documentation, followed by an online data request and any applicable charges. No account or request was created. Station representativeness still needs verification against the unchanged inland Goa reference point.",
+    "url": "https://dsp.imdpune.gov.in/home_registration_form.php",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Delhi",
+    "agency": "India Meteorological Department",
+    "status": "access-required",
+    "note": "IMD's Data Supply Portal explicitly requires account registration, email verification and identity/undertaking documentation, followed by an online data request and any applicable charges. No account or request was created; no qualifying 1991–2020 daily station export has been audited.",
+    "url": "https://dsp.imdpune.gov.in/home_registration_form.php",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Kathmandu",
+    "agency": "Department of Hydrology and Meteorology (Nepal)",
+    "status": "request-required",
+    "note": "DHM publishes a meteorological data request form, procurement process, price schedule and payment procedure for historical observations. No request or payment was made. Daily station values, missing-data flags and baseline coverage remain unaudited.",
+    "url": "https://dhm.gov.np/pages/data",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Colombo",
+    "agency": "Department of Meteorology (Sri Lanka)",
+    "status": "not-verified",
+    "note": "The meteorological-service portal could not be retrieved in this pass. The official Department of Agriculture also has a meteorological-data request page, but it does not verify a Colombo station or a 1991–2020 daily export. No account, fee or mandatory request is inferred from these incomplete checks.",
+    "url": "https://www.meteo.gov.lk/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Maldives",
+    "agency": "Maldives Meteorological Service",
+    "status": "request-required",
+    "note": "The current agency form explicitly offers daily maximum/minimum temperature and rainfall as raw CSV, with identity/contact details and a reason for requesting data. It warns that another island's data may be substituted when the requested island is unavailable; any returned station must still pass the existing distance/elevation screen. No request was submitted.",
+    "url": "https://v2.meteorology.gov.mv/climate-data-request",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Queenstown",
+    "agency": "NIWA / Earth Sciences New Zealand",
+    "status": "access-required",
+    "note": "NIWA lists Queenstown station 5446 at −45.03476, 168.66364 and 322 m, close to the unchanged reference point, with a long historical daily record. The actual station-file page requires login to view purchase options. Public metadata alone does not establish valid daily values, licensing or 1991–2020 completeness.",
+    "url": "https://data.niwa.co.nz/products/climate-station-daily/files/67d4b548256f92dc33a220c4",
+    "checked": "2026-11-16"
+  }
+]

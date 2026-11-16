@@ -1,0 +1,90 @@
+[
+  {
+    "name": "Tokyo",
+    "agency": "Japan Meteorological Agency",
+    "status": "imported",
+    "note": "Precipitation imported from the complete-quality daily export: at least 99.89% of baseline days in every calendar month. Temperature stays grid: the agency marks a homogeneity break at the 2014-12-02 Otemachi–Kitanomaru move, provides no daily adjustment, and neither segment alone meets the unchanged 1991–2020 policy.",
+    "url": "https://www.jma.go.jp/jma/kishou/books/sokkou/83/vol83p001.pdf",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Kyoto",
+    "agency": "Japan Meteorological Agency",
+    "status": "imported",
+    "note": "Temperature and precipitation imported from the official 1991–2020 daily export using only complete quality code 8. Every month exceeds 99.67% coverage. Station 47759 is 3.51 km from the reference point, with a 4.2 m elevation difference; the record retains one agency homogeneity segment.",
+    "url": "https://www.data.jma.go.jp/risk/obsdl/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Seoul",
+    "agency": "Korea Meteorological Administration",
+    "status": "imported",
+    "note": "Temperature imported from 60 public annual daily tables for Songwol-dong station 108; every calendar month exceeds 99.89% coverage. These reference tables provide no per-record quality codes. Numeric ASOS observations have an attribution licence. Precipitation stays grid because blank rain cells cannot safely be treated as dry days.",
+    "url": "https://www.data.go.kr/data/15059093/openapi.do",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Beijing",
+    "agency": "China Meteorological Administration / National Meteorological Information Centre",
+    "status": "not-verified",
+    "note": "The official data network and registration route were located, but an eligible Beijing station's 1991–2020 daily temperature/precipitation export and station history were not verified. Failed public-page retrieval does not establish a payment or access requirement; both factors remain grid.",
+    "url": "https://www.nmic.cn/cmaOld/user/register/shareLevel/10.html",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Bangkok",
+    "agency": "Thai Meteorological Department",
+    "status": "request-required",
+    "note": "TMD directs historical meteorological/statistical data enquiries to its registered-user data-request service. No 1991–2020 daily station export was retrieved for this reference point; station location/history, quality flags and coverage still require verification. No request or payment was submitted.",
+    "url": "https://data-service.tmd.go.th/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Phuket",
+    "agency": "Thai Meteorological Department",
+    "status": "request-required",
+    "note": "TMD directs historical meteorological/statistical data enquiries to its registered-user data-request service. No 1991–2020 daily station export was retrieved for this reference point; station location/history, quality flags and coverage still require verification. No request or payment was submitted.",
+    "url": "https://data-service.tmd.go.th/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Chiang Mai",
+    "agency": "Thai Meteorological Department",
+    "status": "request-required",
+    "note": "TMD directs historical meteorological/statistical data enquiries to its registered-user data-request service. No 1991–2020 daily station export was retrieved for this reference point; station location/history, quality flags and coverage still require verification. No request or payment was submitted.",
+    "url": "https://data-service.tmd.go.th/",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Hanoi",
+    "agency": "Viet Nam Meteorological and Hydrological Administration",
+    "status": "request-required",
+    "note": "The agency says historical hourly rainfall is supplied on request through regional offices or its information/data centre; commercial-use fees may apply. This confirms a rainfall request route, not a complete temperature archive. No eligible 1991–2020 daily temperature/precipitation station record was verified.",
+    "url": "https://vnmha.mae.gov.vn/chi-tiet-hoi-dap-10.htm",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Hoi An",
+    "agency": "Viet Nam Meteorological and Hydrological Administration",
+    "status": "request-required",
+    "note": "The agency says historical hourly rainfall is supplied on request through regional offices or its information/data centre; commercial-use fees may apply. This confirms a rainfall request route, not a complete temperature archive. No eligible 1991–2020 daily temperature/precipitation station record was verified.",
+    "url": "https://vnmha.mae.gov.vn/chi-tiet-hoi-dap-10.htm",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Siem Reap",
+    "agency": "Cambodia Department of Meteorology",
+    "status": "not-verified",
+    "note": "The official climatology page was checked, but no downloadable 1991–2020 daily temperature/precipitation archive or station history was verified for the Siem Reap reference point. Agency access and data-request requirements were not confirmed; both factors remain grid.",
+    "url": "https://www.cambodiameteo.com/articles?menu=133&lang=en",
+    "checked": "2026-11-16"
+  },
+  {
+    "name": "Bali",
+    "agency": "Indonesia BMKG",
+    "status": "access-required",
+    "note": "BMKG Data Online presents a sign-in and registration gate for its data service. No authenticated Denpasar daily record was accessed. The 1991–2020 station history, reference-point eligibility and completeness remain unverified; no account was created.",
+    "url": "https://dataonline.bmkg.go.id/dataonline-home",
+    "checked": "2026-11-16"
+  }
+]

@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 import pathlib
+import urllib.parse
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -35,7 +36,7 @@ def main():
     places = json.loads((ROOT / 'data/climate-locations.json').read_text())
     source = (ROOT / 'src/data/cities.ts').read_text().split('export const CITY_ROWS = ', 1)[1].split(' as const', 1)[0]
     cities = json.loads(source)
-    fingerprints = {digest(path) for path in (ROOT / '.climate-cache').rglob('*') if path.is_file() and path.suffix in ('.json', '.csv', '.gz', '.dly')}
+    fingerprints = {digest(path) for path in (ROOT / '.climate-cache').rglob('*') if path.is_file() and path.suffix in ('.json', '.csv', '.gz', '.dly', '.txt', '.html')}
     expected = [sum(calendar.monthrange(year, month)[1] for year in range(1991, 2021)) for month in range(1, 13)]
     assert baseline['start'] == '1991-01-01' and baseline['end'] == '2020-12-31'
     assert set(baseline['locations']) == {place['name'] for place in places}
@@ -61,6 +62,10 @@ def main():
             inputs = data.get('rawInputs', [])
             if inputs:
                 assert all(item['sha256'] in fingerprints for item in inputs), 'A declared source file is missing or changed'
+                for item in inputs:
+                    if item.get('request'):
+                        assert item['request']['method'] == 'POST' and item['request']['body'] and item['request']['contentType']
+                        assert item.get('sourcePage', '').startswith('https://'), 'POST exports need a usable source-page link'
                 if data.get('hashScope') == 'input manifest':
                     manifest = [{key: item[key] for key in ('url', 'sha256')} for item in inputs]
                     assert data['sha256'] == hashlib.sha256(json.dumps(manifest, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
@@ -92,13 +97,27 @@ def main():
     before = comparison['destinationSources']
     changes = [dict(name=city[0], before=before[city[0]], after=kind(baseline['locations'][city[0]]))
                for city in cities if before[city[0]] != kind(baseline['locations'][city[0]])]
+    reviewed = []
+    for name, previous_kind in before.items():
+        if previous_kind != 'grid':
+            continue
+        climate = baseline['locations'][name]
+        review = climate.get('agencyReview')
+        assert review and review.get('status') in ('access-required', 'request-required', 'coverage-failed', 'not-verified', 'imported'), f'Missing agency outcome for {name}'
+        url = urllib.parse.urlsplit(review['url'])
+        assert url.scheme in ('https', 'http') and url.netloc and review['agency'] and review['note']
+        dt.date.fromisoformat(review['checked'])
+        if review['status'] == 'imported':
+            assert kind(climate) != 'grid', f'Imported label without station data: {name}'
+        reviewed.append(dict(name=name, **review))
+    access_counts = dict(collections.Counter(review['status'] for review in reviewed))
     report = dict(auditedAt=dt.datetime.now(dt.timezone.utc).isoformat(), baseline='1991–2020',
-        status='passed', scope='All 83 reference points, all 71 destination coordinates, and every climate factor. Local agency search was targeted, not exhaustive.',
+        status='passed', scope=f'All 83 reference points, all 71 destination coordinates, and every climate factor. Agency routes reviewed for the {len(reviewed)} previously grid-only destinations; source availability research is not exhaustive.',
         checks=dict(sourceFingerprints=source_checks, monthDenominators=True, histogramCounts=True, coveragePolicy=True,
-                    stationDistanceAndElevation=True, documentedStationSuccession=True, globeReferenceAlignment=True),
-        destinationCounts=counts, comparisonCommit=comparison['sourceCommit'], upgrades=changes,
+                    stationDistanceAndElevation=True, documentedStationSuccession=True, globeReferenceAlignment=True, agencyReviewCompleteness=True),
+        destinationCounts=counts, comparisonCommit=comparison['sourceCommit'], upgrades=changes, agencyReviewCounts=access_counts, agencyReviews=reviewed,
         findings=[dict(id='reference-areas', status='fixed', detail='Tenerife now explicitly represents El Médano coast; regional names show their reference areas. Remaining grid elevation differences >=300m are flagged.'),
-                  dict(id='keyboard-access', status='fixed', detail='Searchable Data audit dialog exposes all 71 destinations independently of ranking; marker labels include provenance.'),
+                  dict(id='keyboard-access', status='fixed', detail='Searchable Data audit dialog exposes all 71 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance.'),
                   dict(id='archive-version', status='fixed', detail='NOAA provenance uses file retrieval dates and hashes; no cached global revision is attributed to independently refreshed files.'),
                   dict(id='precipitation-phase', status='fixed', detail='Frequent precipitation replaces Very rainy; total precipitation includes snow-water equivalent.'),
                   dict(id='compound-provenance', status='fixed', detail='Every source file and the Banff station succession are inspectable, with explicit manifest hash scope.')],

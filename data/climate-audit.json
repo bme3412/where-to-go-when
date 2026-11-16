@@ -1,53 +1,433 @@
 {
-  "auditedAt": "2026-11-16T23:05:06.388238+00:00",
+  "auditedAt": "2026-11-16T23:36:41.665709+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 83 reference points, all 71 destination coordinates, and every climate factor. Local agency search was targeted, not exhaustive.",
+  "scope": "All 83 reference points, all 71 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 887,
+    "sourceFingerprints": 957,
     "monthDenominators": true,
     "histogramCounts": true,
     "coveragePolicy": true,
     "stationDistanceAndElevation": true,
     "documentedStationSuccession": true,
-    "globeReferenceAlignment": true
+    "globeReferenceAlignment": true,
+    "agencyReviewCompleteness": true
   },
   "destinationCounts": {
-    "station": 22,
-    "grid": 45,
-    "mixed": 4
+    "station": 28,
+    "grid": 37,
+    "mixed": 6
   },
-  "comparisonCommit": "e257480b24f91f96feed339761bf484984dc5a95",
+  "comparisonCommit": "74b9b2fe750a3e8350b2706d7dc25d5574438954",
   "upgrades": [
     {
-      "name": "Paris",
+      "name": "Athens",
       "before": "grid",
       "after": "station"
     },
     {
-      "name": "Tenerife",
+      "name": "Prague",
       "before": "grid",
       "after": "station"
     },
     {
-      "name": "Hong Kong",
-      "before": "grid",
-      "after": "station"
-    },
-    {
-      "name": "Singapore",
-      "before": "grid",
-      "after": "station"
-    },
-    {
-      "name": "Tahiti",
-      "before": "grid",
-      "after": "station"
-    },
-    {
-      "name": "Banff",
+      "name": "Tokyo",
       "before": "grid",
       "after": "mixed"
+    },
+    {
+      "name": "Kyoto",
+      "before": "grid",
+      "after": "station"
+    },
+    {
+      "name": "Seoul",
+      "before": "grid",
+      "after": "mixed"
+    },
+    {
+      "name": "Cancún",
+      "before": "grid",
+      "after": "station"
+    },
+    {
+      "name": "Mexico City",
+      "before": "grid",
+      "after": "station"
+    },
+    {
+      "name": "Galápagos",
+      "before": "grid",
+      "after": "station"
+    }
+  ],
+  "agencyReviewCounts": {
+    "access-required": 5,
+    "not-verified": 17,
+    "imported": 8,
+    "request-required": 14,
+    "coverage-failed": 1
+  },
+  "agencyReviews": [
+    {
+      "name": "London",
+      "agency": "UK Met Office / CEDA MIDAS Open",
+      "status": "access-required",
+      "note": "MIDAS Open offers daily station observations, but its official catalogue requires a registered CEDA account and login. No authenticated download or qualifying central-London series was obtained.",
+      "url": "https://catalogue.ceda.ac.uk/uuid/dbd451271eb04662beade68da43546e1/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Rome",
+      "agency": "ISPRA SCIA",
+      "status": "not-verified",
+      "note": "SCIA documents downloadable daily station time series and metadata, but the daily station and time-series links currently lead to its maintenance page. A qualifying Rome daily baseline was not obtained; no registration or payment requirement was verified.",
+      "url": "https://scia.isprambiente.it/dati-e-indicatori/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Athens",
+      "agency": "National Observatory of Athens / CLIMPACT",
+      "status": "imported",
+      "note": "Accepted Thissio daily observations: all 10,958 baseline days for both temperature and rainfall; 1.45 km from the reference point and 8 m higher. Official metadata documents no station relocations. No per-record quality flags are supplied; instrument changes and observation-day timing are disclosed.",
+      "url": "https://data.climpact.gr/dataset/e2ae9f71-048f-4565-b24b-f8f15e4c2cf5",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Santorini",
+      "agency": "Hellenic National Meteorological Service",
+      "status": "request-required",
+      "note": "HNMS's official service portal routes raw meteorological and climate data through an application and normally a fee, with specified research/public-sector exemptions. Its public climate page supplies summaries; no qualifying Santorini daily 1991–2020 baseline was obtained.",
+      "url": "https://crm.emy.gr/home",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Dubrovnik",
+      "agency": "Croatian Meteorological and Hydrological Service",
+      "status": "request-required",
+      "note": "DHMZ provides an explicit meteorological-data request form and states delivery follows an offer and payment, with academic/research exceptions. Its public climate tables are monthly values and extremes, which cannot replace the daily distributions required here.",
+      "url": "https://meteo.hr/proizvodi_e.php?section=proizvodi_usluge&param=services",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Prague",
+      "agency": "Czech Hydrometeorological Institute",
+      "status": "imported",
+      "note": "Accepted Praha Karlov public daily CSVs after excluding every quality code except Good. Lowest calendar-month coverage is 86.32% for paired temperature and 88.78% for rainfall. Both documented station positions pass 15 km/150 m limits; the 2003 location change is retained in provenance.",
+      "url": "https://opendata.chmi.cz/meteorology/climate/historical_csv/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Istanbul",
+      "agency": "Turkish State Meteorological Service",
+      "status": "request-required",
+      "note": "MGM's official archive route is the MEVBİS data-ordering system, listed under paid products with payment and order instructions. No order was placed and no qualifying Istanbul daily baseline was obtained.",
+      "url": "https://www.mgm.gov.tr/site/urunler.aspx?u=tum",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Marrakech",
+      "agency": "Direction Générale de la Météorologie, Morocco",
+      "status": "not-verified",
+      "note": "DGM confirms it provides daily station temperature and rainfall time series as climate services. The reviewed page supplied no public daily download or explicit access/fee requirement; a qualifying Marrakech baseline remains unverified.",
+      "url": "https://www.marocmeteo.ma/fr/climatologie",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Cairo",
+      "agency": "Egyptian Meteorological Authority",
+      "status": "not-verified",
+      "note": "The official site was checked, but no public historical daily station download or explicit data-request/access requirement was verified. This is an unresolved source search, not evidence that observations are unavailable.",
+      "url": "http://ema.gov.eg/wp/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Petra",
+      "agency": "Jordan Meteorological Department",
+      "status": "not-verified",
+      "note": "The official site offers climate averages and records, but no qualifying nearby daily 1991–2020 archive or explicit historical-data access requirement was verified. Monthly averages cannot supply the model's temperature distribution.",
+      "url": "https://jmd.gov.jo/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Dubai",
+      "agency": "UAE National Center of Meteorology",
+      "status": "not-verified",
+      "note": "NCM lists daily maximum/minimum temperature and rainfall among its services and publishes current daily station reports. A public 1991–2020 daily archive and any required registration/request process were not verified.",
+      "url": "https://www.ncm.gov.ae/pages/list-of-services?lang=en",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Tokyo",
+      "agency": "Japan Meteorological Agency",
+      "status": "imported",
+      "note": "Precipitation imported from the complete-quality daily export: at least 99.89% of baseline days in every calendar month. Temperature stays grid: the agency marks a homogeneity break at the 2014-12-02 Otemachi–Kitanomaru move, provides no daily adjustment, and neither segment alone meets the unchanged 1991–2020 policy.",
+      "url": "https://www.jma.go.jp/jma/kishou/books/sokkou/83/vol83p001.pdf",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Kyoto",
+      "agency": "Japan Meteorological Agency",
+      "status": "imported",
+      "note": "Temperature and precipitation imported from the official 1991–2020 daily export using only complete quality code 8. Every month exceeds 99.67% coverage. Station 47759 is 3.51 km from the reference point, with a 4.2 m elevation difference; the record retains one agency homogeneity segment.",
+      "url": "https://www.data.jma.go.jp/risk/obsdl/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Seoul",
+      "agency": "Korea Meteorological Administration",
+      "status": "imported",
+      "note": "Temperature imported from 60 public annual daily tables for Songwol-dong station 108; every calendar month exceeds 99.89% coverage. These reference tables provide no per-record quality codes. Numeric ASOS observations have an attribution licence. Precipitation stays grid because blank rain cells cannot safely be treated as dry days.",
+      "url": "https://www.data.go.kr/data/15059093/openapi.do",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Beijing",
+      "agency": "China Meteorological Administration / National Meteorological Information Centre",
+      "status": "not-verified",
+      "note": "The official data network and registration route were located, but an eligible Beijing station's 1991–2020 daily temperature/precipitation export and station history were not verified. Failed public-page retrieval does not establish a payment or access requirement; both factors remain grid.",
+      "url": "https://www.nmic.cn/cmaOld/user/register/shareLevel/10.html",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Bangkok",
+      "agency": "Thai Meteorological Department",
+      "status": "request-required",
+      "note": "TMD directs historical meteorological/statistical data enquiries to its registered-user data-request service. No 1991–2020 daily station export was retrieved for this reference point; station location/history, quality flags and coverage still require verification. No request or payment was submitted.",
+      "url": "https://data-service.tmd.go.th/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Phuket",
+      "agency": "Thai Meteorological Department",
+      "status": "request-required",
+      "note": "TMD directs historical meteorological/statistical data enquiries to its registered-user data-request service. No 1991–2020 daily station export was retrieved for this reference point; station location/history, quality flags and coverage still require verification. No request or payment was submitted.",
+      "url": "https://data-service.tmd.go.th/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Chiang Mai",
+      "agency": "Thai Meteorological Department",
+      "status": "request-required",
+      "note": "TMD directs historical meteorological/statistical data enquiries to its registered-user data-request service. No 1991–2020 daily station export was retrieved for this reference point; station location/history, quality flags and coverage still require verification. No request or payment was submitted.",
+      "url": "https://data-service.tmd.go.th/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Hanoi",
+      "agency": "Viet Nam Meteorological and Hydrological Administration",
+      "status": "request-required",
+      "note": "The agency says historical hourly rainfall is supplied on request through regional offices or its information/data centre; commercial-use fees may apply. This confirms a rainfall request route, not a complete temperature archive. No eligible 1991–2020 daily temperature/precipitation station record was verified.",
+      "url": "https://vnmha.mae.gov.vn/chi-tiet-hoi-dap-10.htm",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Hoi An",
+      "agency": "Viet Nam Meteorological and Hydrological Administration",
+      "status": "request-required",
+      "note": "The agency says historical hourly rainfall is supplied on request through regional offices or its information/data centre; commercial-use fees may apply. This confirms a rainfall request route, not a complete temperature archive. No eligible 1991–2020 daily temperature/precipitation station record was verified.",
+      "url": "https://vnmha.mae.gov.vn/chi-tiet-hoi-dap-10.htm",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Siem Reap",
+      "agency": "Cambodia Department of Meteorology",
+      "status": "not-verified",
+      "note": "The official climatology page was checked, but no downloadable 1991–2020 daily temperature/precipitation archive or station history was verified for the Siem Reap reference point. Agency access and data-request requirements were not confirmed; both factors remain grid.",
+      "url": "https://www.cambodiameteo.com/articles?menu=133&lang=en",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Bali",
+      "agency": "Indonesia BMKG",
+      "status": "access-required",
+      "note": "BMKG Data Online presents a sign-in and registration gate for its data service. No authenticated Denpasar daily record was accessed. The 1991–2020 station history, reference-point eligibility and completeness remain unverified; no account was created.",
+      "url": "https://dataonline.bmkg.go.id/dataonline-home",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Maldives",
+      "agency": "Maldives Meteorological Service",
+      "status": "request-required",
+      "note": "The current agency form explicitly offers daily maximum/minimum temperature and rainfall as raw CSV, with identity/contact details and a reason for requesting data. It warns that another island's data may be substituted when the requested island is unavailable; any returned station must still pass the existing distance/elevation screen. No request was submitted.",
+      "url": "https://v2.meteorology.gov.mv/climate-data-request",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Goa",
+      "agency": "India Meteorological Department",
+      "status": "access-required",
+      "note": "IMD's Data Supply Portal explicitly requires account registration, email verification and identity/undertaking documentation, followed by an online data request and any applicable charges. No account or request was created. Station representativeness still needs verification against the unchanged inland Goa reference point.",
+      "url": "https://dsp.imdpune.gov.in/home_registration_form.php",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Delhi",
+      "agency": "India Meteorological Department",
+      "status": "access-required",
+      "note": "IMD's Data Supply Portal explicitly requires account registration, email verification and identity/undertaking documentation, followed by an online data request and any applicable charges. No account or request was created; no qualifying 1991–2020 daily station export has been audited.",
+      "url": "https://dsp.imdpune.gov.in/home_registration_form.php",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Kathmandu",
+      "agency": "Department of Hydrology and Meteorology (Nepal)",
+      "status": "request-required",
+      "note": "DHM publishes a meteorological data request form, procurement process, price schedule and payment procedure for historical observations. No request or payment was made. Daily station values, missing-data flags and baseline coverage remain unaudited.",
+      "url": "https://dhm.gov.np/pages/data",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Colombo",
+      "agency": "Department of Meteorology (Sri Lanka)",
+      "status": "not-verified",
+      "note": "The meteorological-service portal could not be retrieved in this pass. The official Department of Agriculture also has a meteorological-data request page, but it does not verify a Colombo station or a 1991–2020 daily export. No account, fee or mandatory request is inferred from these incomplete checks.",
+      "url": "https://www.meteo.gov.lk/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Queenstown",
+      "agency": "NIWA / Earth Sciences New Zealand",
+      "status": "access-required",
+      "note": "NIWA lists Queenstown station 5446 at −45.03476, 168.66364 and 322 m, close to the unchanged reference point, with a long historical daily record. The actual station-file page requires login to view purchase options. Public metadata alone does not establish valid daily values, licensing or 1991–2020 completeness.",
+      "url": "https://data.niwa.co.nz/products/climate-station-daily/files/67d4b548256f92dc33a220c4",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Cape Cod",
+      "agency": "NOAA / National Centers for Environmental Information",
+      "status": "coverage-failed",
+      "note": "Nearby Hyannis station USC00193821 is 0.64 km from the unchanged reference point, but its weakest calendar-month coverage is 74.73% for paired temperatures and 73.33% for precipitation. Both fail the existing 80% baseline-day requirement.",
+      "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USC00193821.dly",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Cancún",
+      "agency": "CONAGUA / Servicio Meteorológico Nacional (Mexico)",
+      "status": "imported",
+      "note": "Station 23155, Cancún, is 3.10 km away and 3 m lower. Official dated daily observations pass the unchanged policy for both variables; minimum monthly coverage is 93.01% for temperature and 89.98% for precipitation. NULO values are excluded. The archive supplies no per-record QC flags.",
+      "url": "https://smn.conagua.gob.mx/es/climatologia/informacion-climatologica/normales-climatologicas-por-estado?estado=qroo",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Mexico City",
+      "agency": "CONAGUA / Servicio Meteorológico Nacional (Mexico)",
+      "status": "imported",
+      "note": "Station 09048, Tacubaya Central, is 7.53 km away and 70.6 m higher. Official dated daily observations pass the unchanged policy for both variables; minimum monthly coverage is 86.67% for temperature and 90.00% for precipitation. NULO values are excluded. The archive supplies no per-record QC flags.",
+      "url": "https://smn.conagua.gob.mx/es/climatologia/informacion-climatologica/normales-climatologicas-por-estado?estado=df",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "San José",
+      "agency": "Instituto Meteorológico Nacional (Costa Rica)",
+      "status": "request-required",
+      "note": "IMN explicitly directs detailed station-data requests through its services form. Its current instructions describe a follow-up letter or quotation for non-academic requests. No request was submitted, and a qualifying 1991–2020 station export has not been audited.",
+      "url": "https://www.imn.ac.cr/solicitud-de-servicios",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Havana",
+      "agency": "Instituto de Meteorología (Cuba)",
+      "status": "not-verified",
+      "note": "The official INSMET portal and its climate/report links were checked. A dated daily 1991–2020 station archive and its access procedure were not verified; this does not establish that a request or account is required.",
+      "url": "http://www.insmet.cu/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Aruba",
+      "agency": "Meteorological Department Aruba",
+      "status": "not-verified",
+      "note": "The agency publishes 1991–2020 normals and annual climate summaries. The inspected 1991 file contains monthly averages and rain-day counts, not individual daily readings, so it cannot support the temperature-range scoring distribution. A historical daily export remains unverified.",
+      "url": "https://www.meteo.aw/climate.php",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Cartagena",
+      "agency": "IDEAM (Colombia)",
+      "status": "not-verified",
+      "note": "IDEAM documents its DHIME citizen portal for station-data consultation and download. The portal returned an unsupported-browser page during this pass; no dated Cartagena export, approval-level flags or baseline coverage were verified. No account requirement is inferred from that rendering failure.",
+      "url": "https://www.ideam.gov.co/dhime",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Galápagos",
+      "agency": "Charles Darwin Foundation / INAMHI-installed station",
+      "status": "imported",
+      "note": "Puerto Ayora's operator-published daily CSV is from a station 0.92 km away and 9 m lower. All 2020 minimum temperatures are excluded because the operator warns of 2020–2021 instrument errors. Both variables still pass the unchanged policy: minimum monthly coverage 86.33% temperature and 96.67% precipitation. No per-record QC flags are supplied. Source and derived monthly summaries are CC BY-NC-SA 4.0: attribution, noncommercial use and share-alike terms apply.",
+      "url": "https://datazone.darwinfoundation.org/es/clima/puerto-ayora",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Cusco",
+      "agency": "SENAMHI (Peru)",
+      "status": "not-verified",
+      "note": "SENAMHI exposes a historical station-download map and a separate registration workflow requesting identity and emailed credentials. A qualifying Cusco station export and whether that workflow is currently mandatory for the export were not verified; no station record was imported.",
+      "url": "https://www.senamhi.gob.pe/?p=descarga-datos-hidrometeorologicos",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Rio de Janeiro",
+      "agency": "INMET (Brazil)",
+      "status": "request-required",
+      "note": "INMET's BDMEP conventional-station archive explicitly requires an email request, confirmation link, and subsequent download link sent by email. The immediate annual automatic-station ZIP route starts in 2000 and cannot supply the required 1991–2000 decade coverage by itself. No email request was submitted.",
+      "url": "https://bdmep.inmet.gov.br/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Buenos Aires",
+      "agency": "Servicio Meteorológico Nacional (Argentina)",
+      "status": "not-verified",
+      "note": "SMN's public open-data page links a complete daily 1991–2020 archive, but fetching the linked RAR returned HTTP 403 in this pass. The archive's station coordinates, missing/QC conventions and daily coverage have not been audited. This retrieval failure is not evidence of an account or payment requirement. A browser attempt also stopped at Cloudflare security verification without reaching the archive; no challenge was solved or bypassed, and no account or payment requirement is inferred.",
+      "url": "https://ssl.smn.gob.ar/dpd/opendata_descargadatos.php",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Patagonia",
+      "agency": "Servicio Meteorológico Nacional (Argentina)",
+      "status": "not-verified",
+      "note": "SMN's public open-data page links a daily 1991–2020 archive, but its RAR returned HTTP 403 in this pass. Coverage and a station within 15 km / 150 m of the existing El Calafate-area reference point remain unverified. The reference point was not moved to an airport or another Patagonian location. A browser attempt also stopped at Cloudflare security verification without reaching the archive; no challenge was solved or bypassed, and no account or payment requirement is inferred.",
+      "url": "https://ssl.smn.gob.ar/dpd/opendata_descargadatos.php",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Cape Town",
+      "agency": "South African Weather Service",
+      "status": "request-required",
+      "note": "SAWS publishes a specific Climate Data Request contact and lists historical climate data as a commercial service. Its public Recent Climate page contains current reports, not a qualifying 1991–2020 daily archive near central Cape Town. A request/quote is the verified next route; no fee amount or guaranteed station coverage is claimed.",
+      "url": "https://www.weathersa.co.za/observations/RecentClimate",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Serengeti",
+      "agency": "Tanzania Meteorological Authority",
+      "status": "not-verified",
+      "note": "TMA confirms it collects and archives station rainfall and temperature and supplies climate information. No public daily baseline near the Ikoma reference area or explicit access/request requirement was verified.",
+      "url": "https://www.meteo.go.tz/services/climate-services",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Zanzibar",
+      "agency": "Tanzania Meteorological Authority",
+      "status": "not-verified",
+      "note": "TMA's climate service is verified, but no public daily 1991–2020 station baseline near Zanzibar City or explicit access/request requirement was verified. The existing nearby NOAA series does not meet the unchanged coverage rules.",
+      "url": "https://www.meteo.go.tz/services/climate-services",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Victoria Falls",
+      "agency": "Meteorological Services Department of Zimbabwe",
+      "status": "not-verified",
+      "note": "The official climate-services page offers forecasts, climate information and a contact route. It does not establish a downloadable daily baseline or a specific historical-data access requirement; qualifying station observations remain unverified.",
+      "url": "https://www.weatherzw.org.zw/services/climate/",
+      "checked": "2026-11-16"
+    },
+    {
+      "name": "Mauritius",
+      "agency": "Mauritius Meteorological Services",
+      "status": "request-required",
+      "note": "MMS explicitly holds daily maximum/minimum temperature and rainfall records and directs climate-data requests to the agency. It states charges apply for extraction, preparation and verification. Coverage and a suitable station near the Port Louis reference point still require verification; no request or payment was made.",
+      "url": "https://metservice.intnet.mu/climate-services/climate-info-and-data.php",
+      "checked": "2026-11-16"
     }
   ],
   "findings": [
@@ -59,7 +439,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 71 destinations independently of ranking; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 71 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -214,20 +594,20 @@
     },
     {
       "name": "Athens",
-      "kind": "grid",
+      "kind": "station",
       "reference": "Athens",
       "factors": {
         "temperature": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
+          "kind": "station",
+          "provider": "National Observatory of Athens (CLIMPACT)",
+          "station": "Athens Thissio – Hill of Nymphs",
           "acceptedDays": 10958,
           "minimumMonthlyCoverage": 1.0
         },
         "precipitation": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
+          "kind": "station",
+          "provider": "National Observatory of Athens (CLIMPACT)",
+          "station": "Athens Thissio – Hill of Nymphs",
           "acceptedDays": 10958,
           "minimumMonthlyCoverage": 1.0
         }
@@ -298,22 +678,22 @@
     },
     {
       "name": "Prague",
-      "kind": "grid",
+      "kind": "station",
       "reference": "Prague",
       "factors": {
         "temperature": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "Czech Hydrometeorological Institute",
+          "station": "Praha Karlov",
+          "acceptedDays": 9738,
+          "minimumMonthlyCoverage": 0.8632
         },
         "precipitation": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "Czech Hydrometeorological Institute",
+          "station": "Praha Karlov",
+          "acceptedDays": 10328,
+          "minimumMonthlyCoverage": 0.8878
         }
       }
     },
@@ -508,17 +888,17 @@
     },
     {
       "name": "Tokyo",
-      "kind": "grid",
+      "kind": "mixed",
       "reference": "Tokyo",
       "factors": {
-        "temperature": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
-        },
         "precipitation": {
+          "kind": "station",
+          "provider": "Japan Meteorological Agency",
+          "station": "Tokyo",
+          "acceptedDays": 10957,
+          "minimumMonthlyCoverage": 0.9989
+        },
+        "temperature": {
           "kind": "grid",
           "provider": "NASA POWER / MERRA-2",
           "station": null,
@@ -529,36 +909,36 @@
     },
     {
       "name": "Kyoto",
-      "kind": "grid",
+      "kind": "station",
       "reference": "Kyoto",
       "factors": {
         "temperature": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "Japan Meteorological Agency",
+          "station": "Kyoto",
+          "acceptedDays": 10949,
+          "minimumMonthlyCoverage": 0.9968
         },
         "precipitation": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "Japan Meteorological Agency",
+          "station": "Kyoto",
+          "acceptedDays": 10949,
+          "minimumMonthlyCoverage": 0.9968
         }
       }
     },
     {
       "name": "Seoul",
-      "kind": "grid",
+      "kind": "mixed",
       "reference": "Seoul",
       "factors": {
         "temperature": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "Korea Meteorological Administration",
+          "station": "Seoul · Songwol-dong",
+          "acceptedDays": 10957,
+          "minimumMonthlyCoverage": 0.9989
         },
         "precipitation": {
           "kind": "grid",
@@ -1222,43 +1602,43 @@
     },
     {
       "name": "Cancún",
-      "kind": "grid",
+      "kind": "station",
       "reference": "Cancún",
       "factors": {
         "temperature": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "CONAGUA / Servicio Meteorológico Nacional (Mexico)",
+          "station": "CANCUN",
+          "acceptedDays": 10276,
+          "minimumMonthlyCoverage": 0.9301
         },
         "precipitation": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "CONAGUA / Servicio Meteorológico Nacional (Mexico)",
+          "station": "CANCUN",
+          "acceptedDays": 10252,
+          "minimumMonthlyCoverage": 0.8998
         }
       }
     },
     {
       "name": "Mexico City",
-      "kind": "grid",
+      "kind": "station",
       "reference": "Mexico City",
       "factors": {
         "temperature": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "CONAGUA / Servicio Meteorológico Nacional (Mexico)",
+          "station": "TACUBAYA CENTRAL (OBS)",
+          "acceptedDays": 10576,
+          "minimumMonthlyCoverage": 0.8667
         },
         "precipitation": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "CONAGUA / Servicio Meteorológico Nacional (Mexico)",
+          "station": "TACUBAYA CENTRAL (OBS)",
+          "acceptedDays": 10708,
+          "minimumMonthlyCoverage": 0.9
         }
       }
     },
@@ -1369,22 +1749,22 @@
     },
     {
       "name": "Galápagos",
-      "kind": "grid",
+      "kind": "station",
       "reference": "Puerto Ayora, Santa Cruz",
       "factors": {
         "temperature": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "Charles Darwin Foundation (INAMHI-installed station)",
+          "station": "Puerto Ayora / Charles Darwin Research Station",
+          "acceptedDays": 10059,
+          "minimumMonthlyCoverage": 0.8633
         },
         "precipitation": {
-          "kind": "grid",
-          "provider": "NASA POWER / MERRA-2",
-          "station": null,
-          "acceptedDays": 10958,
-          "minimumMonthlyCoverage": 1.0
+          "kind": "station",
+          "provider": "Charles Darwin Foundation (INAMHI-installed station)",
+          "station": "Puerto Ayora / Charles Darwin Research Station",
+          "acceptedDays": 10897,
+          "minimumMonthlyCoverage": 0.9667
         }
       }
     },
