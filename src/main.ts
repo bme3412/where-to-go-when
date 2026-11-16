@@ -10,6 +10,8 @@ import type { CityScore, DestinationScope, RankedCity, TemperatureRange, Trip, U
 const app = document.querySelector<HTMLElement>('#app')!;
 const initialTrip = defaultTrip(new Date());
 const weights: Weights = { ...DEFAULT_WEIGHTS };
+let weightBasis: Weights = { ...weights };
+let lastWeightKey: keyof Weights | null = null;
 const preferredTemperature: TemperatureRange = { ...DEFAULT_TEMPERATURE };
 let home = ORIGINS[0];
 let unit: Unit = 'F';
@@ -211,11 +213,16 @@ for (const [key, input] of [['min', temperatureMin], ['max', temperatureMax]] as
   recompute(false);
 });
 for (const slider of document.querySelectorAll<HTMLInputElement>('[data-weight]')) slider.addEventListener('input', () => {
-  Object.assign(weights, setWeight(weights, slider.dataset.weight as keyof Weights, Number(slider.value)));
+  const key = slider.dataset.weight as keyof Weights;
+  // Preserve the original proportions across repeated drag/keyboard input. Reusing
+  // already rounded outputs would slowly skew the other factors at each step.
+  if (lastWeightKey !== key) { weightBasis = { ...weights }; lastWeightKey = key; }
+  Object.assign(weights, setWeight(weightBasis, key, Number(slider.value)));
   syncWeights(); recompute(false);
 });
 document.querySelector('#reset-weights')!.addEventListener('click', () => {
   Object.assign(weights, DEFAULT_WEIGHTS);
+  lastWeightKey = null;
   Object.assign(preferredTemperature, DEFAULT_TEMPERATURE);
   syncWeights(); syncTemperature(); recompute(false);
 });

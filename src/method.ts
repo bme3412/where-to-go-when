@@ -7,7 +7,7 @@ export const methodContent = `
   <p class="method-caption">Bands use rounded scores. The thresholds are design choices; a match score is not a probability of a good trip.</p>
   <h3>A weighted sum you can inspect</h3>
   <p>Temperature + dry days + fewer crowds + usable travel time. Each fit runs from 0 to 100, and its contribution is fit × weight ÷ 100. The four contributions add up to your match.</p>
-  <p>Weights always total <strong>100%</strong>. Adjusting one redistributes the remainder proportionally across the other three. If those are all zero, the remainder is split equally. Zero excludes a factor. Defaults are 40% temperature, 25% dry days, 10% crowds, and 25% travel; they are a starting preference, not scientific constants.</p>
+  <p>Weights always total <strong>100%</strong>. Adjusting one redistributes the remainder proportionally across the other three, preserving their proportions until you edit another weight. If those start at zero, the remainder is split equally. Zero excludes a factor. Defaults are 40% temperature, 25% dry days, 10% crowds, and 25% travel; they are a starting preference, not scientific constants.</p>
   <dl class="method-factors">
     <dt>Temperature · sourced climate</dt><dd>The historical share of daily maximum temperatures inside your preferred range. Set that range under Your trip. It describes daytime highs, not every hour of the day. A warm beach trip and a cool city break can now produce different picks.</dd>
     <dt>Dry days · sourced climate</dt><dd>The historical share of days with less than 1 mm of total precipitation. A wet day has at least 1 mm, including the water equivalent of snow. Rainfall volume is shown for context, but does not add a second penalty.</dd>
