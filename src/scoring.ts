@@ -1,9 +1,8 @@
 import { CITIES } from './data/cities';
 import { DOMESTIC_COUNTRY_GROUPS } from './data/origins';
-import { ALT, CONT, DESERT, HURR, MED, MONSOON, OCEAN, POP, SPRING } from './data/countries';
 import { eventsForYear } from './data/events';
 import { RISKS } from './data/risks';
-import type { City, CityScore, Country, CountryScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, Travel, Trip, TripEvent, Weights } from './types';
+import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, Travel, Trip, TripEvent, Weights } from './types';
 
 export { easter, thanksgiving, eventsForYear } from './data/events';
 export const DAY = 86_400_000;
@@ -116,7 +115,7 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const riskNames = new Set<string>();
   const dealbreakers = new Set<Dealbreaker>();
   const highs: number[] = [], homeHighs: number[] = [], rains: number[] = [], crowdLevels: number[] = [], scores: number[] = [];
-  let good = 0;
+  const weatherFits: number[] = [], dryFits: number[] = [], baseScores: number[] = [];
   for (const { timestamp, month } of samples.days) {
     const high = interp(city.high, month);
     const rain = interp(city.rain, month);
@@ -137,18 +136,28 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
       risk += contribution;
       if (contribution > 0.04) riskNames.add(label);
     }
-    const dayScore = geometricMean([[fit, weights.weather], [dry, weights.dry], [1 - crowd, weights.crowds]]) * (1 - risk);
+    const baseScore = geometricMean([[fit, weights.weather], [dry, weights.dry], [1 - crowd, weights.crowds]]);
+    const dayScore = baseScore * (1 - risk);
     if (fit < 0.25) dealbreakers.add(high < 20 ? 'Too cold' : 'Too hot');
     if (dry < 0.2) dealbreakers.add('Very rainy');
     if (crowd > 0.86) dealbreakers.add('Packed');
-    if (dayScore >= 0.6) good++;
+    weatherFits.push(fit); dryFits.push(dry); baseScores.push(baseScore);
     highs.push(high); homeHighs.push(homeHigh); rains.push(rain); crowdLevels.push(crowd); scores.push(dayScore);
   }
   const journey = travel(home, city, samples.tripDays);
+  const baseScore = 100 * mean(baseScores);
+  const afterRisk = 100 * mean(scores);
+  const travelMultiplier = journey.factor ** (weights.travel / 7);
+  const score = afterRisk * travelMultiplier;
   return {
-    city, score: 100 * mean(scores) * journey.factor ** (weights.travel / 7),
+    city, score,
     high: mean(highs), homeHigh: mean(homeHighs), rain: mean(rains), crowd: mean(crowdLevels),
-    goodDays: Math.min(samples.tripDays, good * samples.step), tripDays: samples.tripDays, travel: journey,
+    tripDays: samples.tripDays, travel: journey,
+    breakdown: {
+      weatherFit: mean(weatherFits), dryFit: mean(dryFits), crowdFit: 1 - mean(crowdLevels),
+      weights: { ...weights }, baseScore, riskDeduction: baseScore - afterRisk,
+      travelMultiplier, travelDeduction: afterRisk - score,
+    },
     events: [...eventNames], risks: [...riskNames], dealbreakers: [...dealbreakers],
   };
 }
@@ -169,52 +178,4 @@ export function matchesDestinationScope(destinationCountry: string, homeCountry:
   const country = (name: string) => DOMESTIC_COUNTRY_GROUPS[name] ?? name;
   const domestic = country(destinationCountry) === country(homeCountry);
   return scope === 'domestic' ? domestic : !domestic;
-}
-
-export function cHigh(country: Country, month: number): number {
-  const latitude = Math.abs(country.lat);
-  const average = 27 - 0.45 * Math.max(0, latitude - 12);
-  let amplitude = Math.min(latitude * 0.3, CONT.has(country.name) ? 18 : 12);
-  if (OCEAN.has(country.name)) amplitude *= 0.6;
-  const season = Math.cos(2 * Math.PI * (month - 6.5) / 12) * (country.lat >= 0 ? 1 : -1);
-  return average + amplitude * season + 5 + (DESERT.has(country.name) ? 5 : 0) - (ALT.has(country.name) ? 7 : 0);
-}
-
-export function cRain(country: Country, month: number): number {
-  const latitude = Math.abs(country.lat), name = country.name;
-  let rain: number;
-  if (DESERT.has(name)) rain = 0.05;
-  else if (MONSOON.has(name)) rain = 0.15 + 0.8 * bump(month, 7.3, 1.8);
-  else if (MED.has(name)) rain = 0.12 + 0.4 * bump(month, 0.5, 2.5);
-  else if (latitude < 5) rain = 0.6;
-  else if (latitude < 23) rain = 0.2 + 0.6 * bump(month, country.lat > 0 ? 7.5 : 1.5, 2.2);
-  else if (OCEAN.has(name)) rain = 0.55;
-  else rain = 0.35;
-  if (HURR.has(name)) rain += 0.35 * bump(month, 8.8, 1);
-  return Math.min(1, rain);
-}
-
-export function cCrowd(country: Country, month: number): number {
-  const latitude = Math.abs(country.lat), name = country.name;
-  let crowd = 0.2;
-  if (latitude < 23) crowd += 0.4 * bump(month, 1.5, 1.6) + 0.3 * bump(month, 11.8, 0.4);
-  else if (country.lat > 0) crowd += 0.6 * bump(month, 7.2, 1.2) + 0.35 * bump(month, 11.8, 0.4);
-  else crowd += 0.55 * bump(month, 0.4, 1.2);
-  if (SPRING.has(name)) crowd += 0.35 * bump(month, 2.4, 0.4);
-  if (name === 'Japan') crowd += 0.5 * bump(month, 3.1, 0.4) + 0.3 * bump(month, 4.1, 0.2);
-  return Math.min(0.85, crowd * (POP.has(name) ? 1.35 : 0.75));
-}
-
-const cityCountries = new Set(CITIES.map(city => city.country));
-export function scoreCountry(country: Country, home: Origin, samples: SampledTrip, weights: Weights): CountryScore | null {
-  if (country.name === 'Antarctica') return null;
-  const highs: number[] = [], rains: number[] = [], crowds: number[] = [], scores: number[] = [];
-  for (const { month } of samples.days) {
-    const high = cHigh(country, month), rain = cRain(country, month), crowd = cCrowd(country, month);
-    highs.push(high); rains.push(rain); crowds.push(crowd);
-    scores.push(geometricMean([[tempFit(high), weights.weather], [1 - 0.9 * rain, weights.dry], [1 - crowd, weights.crowds]]));
-  }
-  const journey = travel(home, country, samples.tripDays);
-  const appeal = POP.has(country.name) || cityCountries.has(country.name) ? 1 : 0.75;
-  return { country, score: 100 * mean(scores) * appeal * journey.factor ** (weights.travel / 7), high: mean(highs), rain: mean(rains), crowd: mean(crowds), travel: journey };
 }

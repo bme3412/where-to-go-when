@@ -11,10 +11,19 @@ export interface Sample { timestamp: number; month: number }
 export interface SampledTrip { tripDays: number; step: number; days: Sample[] }
 export interface Travel { km: number; mode: 'drive' | 'flight'; hours: number; timeShift: number; lost: number; usable: number; factor: number }
 export type Dealbreaker = 'Too hot' | 'Too cold' | 'Very rainy' | 'Packed';
-export interface CityScore { city: City; score: number; high: number; homeHigh: number; rain: number; crowd: number; goodDays: number; tripDays: number; travel: Travel; events: string[]; risks: string[]; dealbreakers: Dealbreaker[] }
+export interface ScoreBreakdown {
+  weatherFit: number;
+  dryFit: number;
+  crowdFit: number;
+  weights: Weights;
+  baseScore: number;
+  riskDeduction: number;
+  travelMultiplier: number;
+  travelDeduction: number;
+}
+export interface CityScore { city: City; score: number; high: number; homeHigh: number; rain: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[] }
 export type RankedCity = CityScore & { rank: number };
-export interface Country extends Place {}
-export interface CountryScore { country: Country; score: number; high: number; rain: number; crowd: number; travel: Travel }
+export interface Country { name: string; lat: number; lon: number }
 export interface TripEvent { cities: ReadonlySet<string>; start: number; end: number; crowd: number; name: string; festival: boolean }
 export type RiskRow = readonly [ReadonlySet<string>, number, number, number, string];
 export type Unit = 'F' | 'C';

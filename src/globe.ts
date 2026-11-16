@@ -5,13 +5,13 @@ import type { Feature, Geometry } from 'geojson';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import { band } from './format';
 import { clamp } from './scoring';
-import type { CityScore, Country, CountryScore, Origin, RankedCity } from './types';
+import type { CityScore, Country, Origin, RankedCity } from './types';
 
 type CountryFeature = Feature<Geometry, { name: string }>;
 interface MapCountry { feature: CountryFeature; country: Country }
 interface Callbacks {
   cityHover: (city: CityScore, x: number, y: number) => void;
-  countryHover: (country: CountryScore, x: number, y: number) => void;
+  countryHover: (country: Country, x: number, y: number) => void;
   citySelected: (city: CityScore) => void;
   hideTooltip: () => void;
   spinChanged: (spinning: boolean) => void;
@@ -23,11 +23,10 @@ function element<K extends keyof SVGElementTagNameMap>(tag: K, attributes: Recor
   return result;
 }
 const collection = feature(world as unknown as Topology<{ countries: GeometryCollection }>, world.objects.countries as GeometryCollection);
-export const MAP_COUNTRIES: readonly MapCountry[] = collection.features.map(item => {
+const MAP_COUNTRIES: readonly MapCountry[] = collection.features.map(item => {
   const shape = item as CountryFeature;
   const [lon, lat] = geoCentroid(shape);
-  // Broad country estimates use the centroid's approximate solar time zone.
-  return { feature: shape, country: { name: shape.properties.name, lat, lon, tz: clamp(Math.round(lon / 15), -12, 12) } };
+  return { feature: shape, country: { name: shape.properties.name, lat, lon } };
 });
 
 export class Globe {
@@ -50,7 +49,6 @@ export class Globe {
   private homeLayer = element('g', { class: 'home-marker', 'pointer-events': 'none' });
   private countryPaths: { map: MapCountry; node: SVGPathElement }[] = [];
   private cityNodes: { score: CityScore; rank?: number; node: SVGGElement; circle: SVGCircleElement; number: SVGTextElement; label: SVGTextElement }[] = [];
-  private scores = new Map<string, CountryScore>();
   private home?: Origin;
   private pointers = new Map<number, { x: number; y: number }>();
   private gestureTravel = 0;
@@ -79,13 +77,11 @@ export class Globe {
     for (const map of MAP_COUNTRIES) {
       const node = element('path', { class: 'country', 'data-country': map.country.name });
       node.addEventListener('pointermove', event => {
-        const score = this.scores.get(map.country.name);
-        if (!this.pointers.size && score) this.callbacks.countryHover(score, event.clientX, event.clientY);
+        if (!this.pointers.size) this.callbacks.countryHover(map.country, event.clientX, event.clientY);
       });
       node.addEventListener('pointerleave', () => this.callbacks.hideTooltip());
       node.addEventListener('click', event => {
         if (performance.now() < this.suppressClickUntil) return;
-        if (!this.scores.has(map.country.name)) return;
         event.stopPropagation();
         this.flyTo(map.country.lon, map.country.lat);
       });
@@ -120,16 +116,9 @@ export class Globe {
     this.frame = requestAnimationFrame(time => this.tick(time));
   }
 
-  update(cities: readonly CityScore[], ranked: readonly RankedCity[], countries: readonly CountryScore[], home: Origin): void {
+  update(cities: readonly CityScore[], ranked: readonly RankedCity[], home: Origin): void {
     this.home = home;
-    this.scores = new Map(countries.map(country => [country.country.name, country]));
     const ranks = new Map(ranked.slice(0, 10).map(city => [city.city.name, city.rank]));
-    for (const { map, node } of this.countryPaths) {
-      const score = this.scores.get(map.country.name);
-      node.style.fill = score ? band(score.score).color : 'var(--neutral-country)';
-      node.style.fillOpacity = score ? '0.35' : '1';
-      node.classList.toggle('unscored-country', !score);
-    }
     this.cityLayer.replaceChildren();
     // Ranked markers are drawn last so small background dots cannot obscure them.
     this.cityNodes = [...cities].sort((a, b) => Number(ranks.has(a.city.name)) - Number(ranks.has(b.city.name))).map(score => {

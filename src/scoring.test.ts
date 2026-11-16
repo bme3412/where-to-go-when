@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
-import { DAY, DEFAULT_WEIGHTS, defaultTrip, easter, geometricMean, interp, matchesDestinationScope, rankCities, sampleDays, scoreCities, scoreCountry, thanksgiving, travel, tripEvents, validateTrip, weatherFit } from './scoring';
+import { DAY, DEFAULT_WEIGHTS, defaultTrip, easter, geometricMean, interp, matchesDestinationScope, rankCities, sampleDays, scoreCities, thanksgiving, travel, tripEvents, validateTrip, weatherFit } from './scoring';
+import { band } from './format';
 
 const boston = ORIGINS.find(city => city.name === 'Boston')!;
 const london = ORIGINS.find(city => city.name === 'London')!;
@@ -94,13 +95,56 @@ describe('travel and scoring', () => {
     expect(results('2027-07-10', '2027-07-20').find(result => result.city.name === 'Goa')!.dealbreakers).toContain('Very rainy');
     expect(results('2027-09-12', '2027-09-18').find(result => result.city.name === 'Miami')!.risks).toContain('Hurricane season');
   });
-  it('excludes home from ranking and keeps scores and good days bounded', () => {
+  it('excludes home from ranking and keeps scores and usable days bounded', () => {
     const scores = results('2027-01-01', '2027-12-31');
     expect(rankCities(scores).some(result => result.city.name === 'Boston')).toBe(false);
-    expect(scores.every(result => result.score >= 0 && result.score <= 100 && result.goodDays <= result.tripDays && result.travel.usable >= 0)).toBe(true);
+    expect(scores.every(result => result.score >= 0 && result.score <= 100 && result.travel.usable >= 0)).toBe(true);
   });
-  it('leaves Antarctica unscored', () => {
-    expect(scoreCountry({ name: 'Antarctica', lat: -90, lon: 0, tz: 0 }, boston, sampleDays({ start: '2027-01-01', end: '2027-01-07' }), DEFAULT_WEIGHTS)).toBeNull();
+});
+
+describe('transparent score breakdown', () => {
+  it('reconstructs each final score from the displayed categories of deductions', () => {
+    for (const result of results('2027-09-12', '2027-09-18')) {
+      const b = result.breakdown;
+      expect(b.baseScore - b.riskDeduction - b.travelDeduction).toBeCloseTo(result.score, 10);
+      expect(b.riskDeduction).toBeGreaterThanOrEqual(0);
+      expect(b.travelDeduction).toBeGreaterThanOrEqual(0);
+      expect([b.weatherFit, b.dryFit, b.crowdFit].every(fit => fit >= 0 && fit <= 1)).toBe(true);
+    }
+    const miami = results('2027-09-12', '2027-09-18').find(result => result.city.name === 'Miami')!;
+    expect(miami.breakdown.riskDeduction).toBeGreaterThan(5);
+  });
+  it('shows no travel deduction when Short travel is off', () => {
+    const trip = { start: '2027-07-10', end: '2027-07-20' };
+    const withoutTravel = scoreCities(trip, boston, { ...DEFAULT_WEIGHTS, travel: 0 });
+    for (const result of withoutTravel) {
+      expect(result.breakdown.travelMultiplier).toBe(1);
+      expect(result.breakdown.travelDeduction).toBe(0);
+    }
+  });
+  it('preserves component measurements while preferences change and snapshots the weights', () => {
+    const trip = { start: '2026-12-20', end: '2027-01-03' };
+    const weights = { ...DEFAULT_WEIGHTS };
+    const before = scoreCities(trip, boston, weights);
+    weights.weather = 0; weights.crowds = 10;
+    const after = scoreCities(trip, boston, weights);
+    before.forEach((result, i) => {
+      expect(result.breakdown.weights).toEqual(DEFAULT_WEIGHTS);
+      for (const key of ['weatherFit', 'dryFit', 'crowdFit'] as const) expect(result.breakdown[key]).toBe(after[i].breakdown[key]);
+    });
+    expect(before.some((result, i) => result.score !== after[i].score)).toBe(true);
+  });
+  it('makes the all-zero climate fallback visible as a 50-point base', () => {
+    for (const result of scoreCities({ start: '2027-01-01', end: '2027-01-03' }, boston, { weather: 0, dry: 0, crowds: 0, travel: 0 })) {
+      expect(result.breakdown.baseScore).toBe(50);
+      expect(result.score + result.breakdown.riskDeduction).toBeCloseTo(50, 10);
+    }
+  });
+  it('keeps colors consistent with the rounded number and printed threshold ranges', () => {
+    for (const threshold of [48, 62, 75]) {
+      expect(band(threshold - 0.49)).toBe(band(threshold));
+      expect(band(threshold - 0.51)).not.toBe(band(threshold));
+    }
   });
 });
 

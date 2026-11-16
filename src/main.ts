@@ -1,10 +1,11 @@
 import './style.css';
 import { ORIGINS } from './data/origins';
-import { band, BANDS, cityTooltip, countryTooltip, crowdWord, difference, displayCountry, escapeHtml, hours, rainWord, temperature } from './format';
-import { Globe, MAP_COUNTRIES } from './globe';
+import { band, BANDS, cityTooltip, countryTooltip, crowdWord, difference, displayCountry, escapeHtml, hours, rainWord, scoreBreakdown, temperature } from './format';
+import { Globe } from './globe';
+import { methodContent } from './method';
 import { setupPanels } from './panels';
-import { clamp, DEFAULT_WEIGHTS, defaultTrip, matchesDestinationScope, rankCities, sampleDays, scoreCities, scoreCountry, validateTrip } from './scoring';
-import type { CityScore, CountryScore, DestinationScope, RankedCity, Trip, Unit, Weights } from './types';
+import { clamp, DEFAULT_WEIGHTS, defaultTrip, matchesDestinationScope, rankCities, sampleDays, scoreCities, validateTrip } from './scoring';
+import type { CityScore, DestinationScope, RankedCity, Trip, Unit, Weights } from './types';
 
 const app = document.querySelector<HTMLElement>('#app')!;
 const initialTrip = defaultTrip(new Date());
@@ -28,7 +29,7 @@ const preferences: { key: keyof Weights; label: string; hint: string; paths: str
 
 app.innerHTML = `
   <header class="app-header">
-    <div class="brand"><span class="brand-icon">${globeIcon}</span><div><h1>Where to go, and when</h1><p>Your next getaway, in perspective.</p></div></div>
+    <div class="brand"><span class="brand-icon">${globeIcon}</span><h1>Where to go, and when</h1></div>
     <nav class="panel-toggles" aria-label="Explore controls">
       <button id="toggle-settings" class="panel-toggle" type="button" aria-controls="settings-panel" aria-expanded="true">${icon('<path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>')}<span>Your trip</span></button>
       <button id="toggle-results" class="panel-toggle" type="button" aria-controls="results-panel" aria-expanded="true">${icon('<path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/>')}<span>Your picks</span><span class="count-bubble">17</span></button>
@@ -50,22 +51,22 @@ app.innerHTML = `
       </div>
     </aside>
     <section class="globe-stage" aria-label="Interactive destination globe">
-      <div class="stage-heading"><div><p class="stage-kicker">Go somewhere good.</p><div class="trip-summary"><span id="summary-origin">From Boston</span><span aria-hidden="true">·</span><span id="summary-dates">Dec 20 – Jan 3</span><span class="summary-duration" id="summary-duration">15 days</span><span class="summary-scope" id="summary-scope" hidden></span></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid dates</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
+      <div class="stage-heading"><div><div class="trip-summary"><span id="summary-origin">From Boston</span><span aria-hidden="true">·</span><span id="summary-dates">Dec 20 – Jan 3</span><span class="summary-duration" id="summary-duration">15 days</span><span class="summary-scope" id="summary-scope" hidden></span></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid dates</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
       <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Interactive vacation globe. Use arrow keys to rotate, plus or minus to zoom. Choose a destination to center it."></svg><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
-      <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span></div><button id="selected-details" class="small-button" type="button">Details ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
-      <div class="stage-bottom"><div class="legend" aria-label="Destination rating bands">${BANDS.map(rating => `<span><i class="swatch" style="--swatch:${rating.color}"></i>${rating.label}${rating.minimum ? `<span class="legend-threshold">${rating.minimum}+</span>` : ''}</span>`).join('')}</div><p class="globe-help"><span class="desktop-help">Drag to rotate · Scroll to zoom</span><span class="touch-help">Drag to rotate · Pinch to zoom</span><span class="help-divider">/</span> Numbers mark the top 10</p></div>
+      <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span></div><button id="selected-details" class="small-button" type="button" aria-haspopup="dialog">Why this score? ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
+      <div class="stage-bottom"><div class="legend-heading"><span>Destination match</span><button type="button" class="text-button" data-show-method aria-haspopup="dialog" aria-controls="method-dialog">What do the colors mean? ${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>')}</button></div><div class="legend" aria-label="Destination match bands">${BANDS.map(rating => `<span><i class="swatch" style="--swatch:${rating.color}"></i>${rating.label}<span class="legend-threshold">${rating.range}</span></span>`).join('')}</div><p class="globe-help"><span class="desktop-help">Drag to rotate · Scroll to zoom</span><span class="touch-help">Drag to rotate · Pinch to zoom</span><span class="help-divider">/</span> Numbers mark the top 10</p></div>
     </section>
     <aside id="results-panel" class="side-panel results-panel" aria-labelledby="top-title">
       <div class="panel-heading"><div><h2 id="top-title">Your top 5</h2><p id="ranking-context">For 15 days, from Boston</p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close recommendations">${closeIcon}</button></div>
-      <div class="panel-scroll results-content"><div id="top-list" class="top-list"></div><div id="more-options"><div class="more-heading"><h3>More good options</h3><span id="more-range">6–17</span></div><div id="more-grid" class="more-grid"></div></div><p class="results-note">A starting point for your next adventure.<br>Choose a place to take a closer look.</p></div>
+      <div class="panel-scroll results-content"><div id="top-list" class="top-list"></div><div id="more-options"><div class="more-heading"><h3>More destinations</h3><span id="more-range">6–17</span></div><div id="more-grid" class="more-grid"></div></div><p class="results-note">Select a destination to inspect its score.</p></div>
     </aside>
     <button type="button" id="panel-backdrop" class="panel-backdrop" aria-label="Close open panel" tabindex="-1" hidden></button>
     <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
   </section>
-  <footer class="app-footer"><button type="button" class="text-button" id="show-method">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>')}How the score works</button><span>Climate averages, not a forecast.</span></footer>
+  <footer class="app-footer"><button type="button" class="text-button" data-show-method aria-haspopup="dialog" aria-controls="method-dialog">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>')}Scoring & data</button><span>Climate averages, not a forecast.</span></footer>
   <p id="rank-announcement" class="sr-only" role="status" aria-live="polite"></p>
   <dialog id="details-dialog" class="detail-dialog" aria-label="Destination details"><button type="button" class="icon-button dialog-close" aria-label="Close destination details">${closeIcon}</button><div id="details-content"></div></dialog>
-  <dialog id="method-dialog" class="method-dialog" aria-labelledby="method-title"><button type="button" class="icon-button dialog-close" aria-label="Close scoring explanation">${closeIcon}</button><span class="method-icon">${globeIcon}</span><h2 id="method-title">A little method to the wanderlust.</h2><p>We score 71 destinations for your dates, home city, and trip length. Your preferences decide how much comfortably warm weather, dry days, fewer crowds, and shorter travel matter.</p><p>Weather, rainfall, and crowds combine using a weighted geometric mean, so one poor factor can pull a destination down. Seasonal storms, holiday crowds, and usable days after travel also count. Cold or hot weather at home gives a small boost to more comfortable escapes.</p><p>Climate figures are approximate long-run averages, not forecasts. Flight times estimate distance, airport time, and likely connections. Time zones ignore daylight saving. Lunar holiday dates cover 2025–2029.</p><div class="method-note">Country colors use a broad model. Destination dots use the more detailed city data.</div></dialog>
+  <dialog id="method-dialog" class="method-dialog" aria-labelledby="method-title"><button type="button" class="icon-button dialog-close" aria-label="Close scoring explanation">${closeIcon}</button>${methodContent}</dialog>
 `;
 
 const start = document.querySelector<HTMLInputElement>('#start')!;
@@ -97,7 +98,7 @@ function showTooltip(html: string, key: string, clientX: number, clientY: number
 }
 const globe = new Globe(document.querySelector<SVGSVGElement>('#globe')!, {
   cityHover: (r, x, y) => showTooltip(cityTooltip(r, home, unit), `city-${r.city.name}-${unit}`, x, y),
-  countryHover: (r, x, y) => showTooltip(countryTooltip(r, unit), `country-${r.country.name}-${unit}`, x, y),
+  countryHover: (country, x, y) => showTooltip(countryTooltip(country, ranked), `country-${country.name}`, x, y),
   citySelected: r => selectDestination(r, false), hideTooltip,
   spinChanged: spinning => {
     document.querySelector('#spin-text')!.textContent = spinning ? 'Pause spin' : 'Spin';
@@ -138,7 +139,7 @@ function renderSelection(): void {
   selection.style.setProperty('--swatch', band(result.score).color);
   document.querySelector('#selected-name')!.textContent = result.city.name;
   document.querySelector('#selected-summary')!.textContent = `${displayCountry(result.city.country)} · ${temperature(result.high, unit)} · ~${hours(result.travel.hours)}h ${result.travel.mode === 'drive' ? 'drive' : 'away'}`;
-  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, home, unit);
+  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, home, unit) + scoreBreakdown(result, unit);
 }
 function selectDestination(result: CityScore, fly = true): void {
   selectedName = result.city.name; hideTooltip();
@@ -168,8 +169,7 @@ function recompute(shouldFly: boolean): void {
   document.querySelector('#summary-dates')!.textContent = `${dateLabel(trip.start)} – ${dateLabel(trip.end)}`;
   document.querySelector('#summary-duration')!.textContent = duration;
   if (shouldFly) selectedName = null;
-  const countries = MAP_COUNTRIES.filter(({ country }) => matchesDestinationScope(country.name, home.country, scope)).map(({ country }) => scoreCountry(country, home, samples, weights)).filter((c): c is CountryScore => c !== null);
-  renderLists(); renderSelection(); globe.update(cityScores, ranked, countries, home); globe.setSelected(selectedName);
+  renderLists(); renderSelection(); globe.update(cityScores, ranked, home); globe.setSelected(selectedName);
   document.querySelector('#ranking-context')!.textContent = `For ${duration}, from ${home.name}${scope === 'all' ? '' : ` · ${scope}`}`;
   const best = ranked[0];
   document.querySelector('#rank-announcement')!.textContent = best ? `Top pick: ${best.city.name}, score ${Math.round(best.score)}. ${duration} from ${home.name}.` : `No ${scope === 'all' ? 'matching' : scope} destinations in this list from ${home.name}.`;
@@ -218,8 +218,14 @@ for (const list of [topList, moreGrid]) {
 document.querySelector('#clear-selection')!.addEventListener('click', () => {
   selectedName = null; globe.setSelected(null); renderLists(); renderSelection(); document.querySelector<SVGSVGElement>('#globe')!.focus();
 });
-document.querySelector('#selected-details')!.addEventListener('click', () => { hideTooltip(); detailsDialog.showModal(); });
-document.querySelector('#show-method')!.addEventListener('click', () => document.querySelector<HTMLDialogElement>('#method-dialog')!.showModal());
+document.querySelector('#selected-details')!.addEventListener('click', () => { hideTooltip(); detailsDialog.showModal(); detailsDialog.scrollTop = 0; });
+document.addEventListener('click', event => {
+  if ((event.target as Element).closest('[data-show-method]')) {
+    hideTooltip();
+    const methodDialog = document.querySelector<HTMLDialogElement>('#method-dialog')!;
+    methodDialog.showModal(); methodDialog.scrollTop = 0;
+  }
+});
 for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog')) {
   dialog.querySelector('.dialog-close')!.addEventListener('click', () => dialog.close());
   dialog.addEventListener('click', event => { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } });
