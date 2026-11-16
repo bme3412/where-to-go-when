@@ -4,3 +4,4 @@ dist/
 *.local
 coverage/
 .site-local/
+.climate-cache/

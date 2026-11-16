@@ -2,20 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
-import { DAY, DEFAULT_WEIGHTS, defaultTrip, easter, geometricMean, interp, matchesDestinationScope, rankCities, sampleDays, scoreCities, thanksgiving, travel, tripEvents, validateTrip, weatherFit } from './scoring';
-import { band } from './format';
+import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
+import { band, displayedContributions } from './format';
+import { climateFor, CLIMATE_SOURCE, temperatureFrequency } from './climate';
+import type { ClimateMonth, Weights } from './types';
 
 const boston = ORIGINS.find(city => city.name === 'Boston')!;
 const london = ORIGINS.find(city => city.name === 'London')!;
 const destination = (name: string) => CITIES.find(city => city.name === name)!;
 const results = (start: string, end: string, home = boston) => scoreCities({ start, end }, home, DEFAULT_WEIGHTS);
-const topFive = (start: string, end: string, home = boston) => rankCities(results(start, end, home)).slice(0, 5).map(result => result.city.name);
 
 describe('reference data', () => {
   it('contains all 71 destinations, 24 origins, and timezone offsets', () => {
     expect(CITIES).toHaveLength(71);
     expect(ORIGINS).toHaveLength(24);
-    expect(CITIES.every(city => Number.isFinite(TZ[city.name]) && city.high.length === 12 && city.rain.length === 12)).toBe(true);
+    expect(CITIES.every(city => Number.isFinite(TZ[city.name]))).toBe(true);
   });
 });
 
@@ -75,22 +76,6 @@ describe('travel and scoring', () => {
     expect(result.factor).toBeLessThan(0.4);
     expect(result.timeShift).toBe(11);
   });
-  it('uses a geometric mean and a neutral fallback when all climate weights are zero', () => {
-    expect(geometricMean([[1, 1], [0.25, 1]])).toBeCloseTo(0.5);
-    expect(geometricMean([[0, 0], [1, 0]])).toBe(0.5);
-    expect(weatherFit(19, 3)).toBe(1);
-  });
-  it('recommends San Diego and Mexico City for the holidays', () => {
-    expect(topFive('2026-12-20', '2027-01-03')).toEqual(expect.arrayContaining(['San Diego', 'Mexico City']));
-  });
-  it('ranks San Diego first, with Cusco and Lisbon for April from Boston', () => {
-    const picks = topFive('2027-04-03', '2027-04-12');
-    expect(picks[0]).toBe('San Diego');
-    expect(picks).toEqual(expect.arrayContaining(['Cusco', 'Lisbon']));
-  });
-  it('recommends the Mediterranean and Cairo for April from London', () => {
-    expect(topFive('2027-04-01', '2027-04-14', london)).toEqual(expect.arrayContaining(['Santorini', 'Athens', 'Cairo', 'Lisbon', 'Barcelona']));
-  });
   it('flags July monsoon rain in Goa and September hurricanes in Miami', () => {
     expect(results('2027-07-10', '2027-07-20').find(result => result.city.name === 'Goa')!.dealbreakers).toContain('Very rainy');
     expect(results('2027-09-12', '2027-09-18').find(result => result.city.name === 'Miami')!.risks).toContain('Hurricane season');
@@ -102,45 +87,131 @@ describe('travel and scoring', () => {
   });
 });
 
-describe('transparent score breakdown', () => {
-  it('reconstructs each final score from the displayed categories of deductions', () => {
+describe('sourced climate baseline', () => {
+  it('covers every destination and home city with the same complete 30-year period', () => {
+    expect(CLIMATE_SOURCE.start).toBe('1991-01-01');
+    expect(CLIMATE_SOURCE.end).toBe('2020-12-31');
+    const expected = [930, 848, 930, 900, 930, 900, 930, 930, 900, 930, 900, 930];
+    for (const place of [...CITIES, ...ORIGINS]) {
+      const climate = climateFor(place.name);
+      expect(climate.months.map(month => month.days)).toEqual(expected);
+      expect(climate.sha256).toMatch(/^[a-f0-9]{64}$/);
+      const url = new URL(climate.sourceUrl);
+      expect(url.hostname).toBe('power.larc.nasa.gov');
+      expect(url.searchParams.get('start')).toBe('19910101');
+      expect(url.searchParams.get('end')).toBe('20201231');
+      expect(Number(url.searchParams.get('latitude'))).toBe(climate.lat);
+      expect(Number(url.searchParams.get('longitude'))).toBe(climate.lon);
+    }
+  });
+  it('has complete temperature distributions and valid wet-day counts', () => {
+    for (const climate of Object.values(CLIMATE_SOURCE.locations)) for (const month of climate.months) {
+      expect(month.highHistogram.reduce((a, b) => a + b, 0)).toBe(month.days);
+      expect(month.highHistogram.every(n => Number.isInteger(n) && n >= 0)).toBe(true);
+      expect(month.wetDays).toBeGreaterThanOrEqual(0);
+      expect(month.wetDays).toBeLessThanOrEqual(month.days);
+      expect(month.monthlyPrecip).toBeGreaterThanOrEqual(0);
+      expect(month.meanHigh).toBeGreaterThanOrEqual(month.meanLow);
+      expect(month.highP90).toBeGreaterThanOrEqual(month.highP10);
+    }
+  });
+  it('retains different local climates inside the same country', () => {
+    expect(climateFor('Miami').months[0].meanHigh - climateFor('New York').months[0].meanHigh).toBeGreaterThan(10);
+    expect(climateFor('San Diego').months[6].wetDays / 930).toBeLessThan(climateFor('San Diego').months[0].wetDays / 930);
+  });
+  it('does not substitute unsourced values for an unknown place', () => {
+    expect(() => climateFor('Unknown destination')).toThrow('No sourced climate baseline');
+  });
+  it('counts inclusive temperature bounds against the full historical distribution', () => {
+    const histogram = Array(201).fill(0); histogram[0] = 25; histogram[100] = 50; histogram[200] = 25;
+    const month: ClimateMonth = { days: 100, meanHigh: 20, meanLow: 10, highP10: 10, highP90: 30, monthlyPrecip: 20, wetDays: 20, histogramStart: 100, highHistogram: histogram };
+    expect(temperatureFrequency(month, { min: 15, max: 25 })).toBe(0.5);
+    expect(temperatureFrequency(month, { min: 10, max: 20 })).toBe(0.75);
+    expect(temperatureFrequency(month, { min: 10, max: 30 })).toBe(1);
+    expect(temperatureFrequency(month, { min: 31, max: 35 })).toBe(0);
+    expect(temperatureFrequency(month, { min: 20 + 1e-12, max: 30 })).toBe(0.75);
+  });
+});
+
+describe('percentage priorities', () => {
+  it('keeps each requested slider value and exactly 100% at every setting', () => {
+    for (const key of WEIGHT_KEYS) for (let value = 0; value <= 100; value++) {
+      const weights = setWeight({ ...DEFAULT_WEIGHTS }, key, value);
+      expect(weights[key]).toBe(value);
+      expect(Object.values(weights).reduce((a, b) => a + b, 0)).toBe(100);
+      expect(Object.values(weights).every(n => Number.isInteger(n) && n >= 0 && n <= 100)).toBe(true);
+    }
+  });
+  it('preserves proportions of the other factors within a percentage point', () => {
+    const weights = setWeight({ ...DEFAULT_WEIGHTS }, 'weather', 37);
+    expect(weights).toEqual({ weather: 37, dry: 26, crowds: 11, travel: 26 });
+  });
+  it('recovers from 100% on one factor without all-zero or NaN weights', () => {
+    const single: Weights = { weather: 100, dry: 0, crowds: 0, travel: 0 };
+    expect(setWeight(single, 'weather', 0)).toEqual({ weather: 0, dry: 34, crowds: 33, travel: 33 });
+    let weights = { ...DEFAULT_WEIGHTS };
+    for (let i = 0; i < 400; i++) weights = setWeight(weights, WEIGHT_KEYS[i % 4], (i * 23) % 101);
+    expect(Object.values(weights).reduce((a, b) => a + b, 0)).toBe(100);
+  });
+  it('normalizes arbitrary positive ratios and handles invalid input explicitly', () => {
+    expect(normalizeWeights({ weather: 4, dry: 3, crowds: 2, travel: 1 })).toEqual({ weather: 40, dry: 30, crowds: 20, travel: 10 });
+    expect(normalizeWeights({ weather: 0, dry: 0, crowds: 0, travel: 0 })).toEqual(DEFAULT_WEIGHTS);
+    expect(() => normalizeWeights({ ...DEFAULT_WEIGHTS, dry: NaN })).toThrow();
+    expect(() => setWeight({ ...DEFAULT_WEIGHTS }, 'dry', NaN)).toThrow();
+  });
+});
+
+describe('personalized additive score', () => {
+  const trip = { start: '2027-01-01', end: '2027-01-14' };
+  it('sums the four contributions exactly with no extra penalties or bonuses', () => {
     for (const result of results('2027-09-12', '2027-09-18')) {
       const b = result.breakdown;
-      expect(b.baseScore - b.riskDeduction - b.travelDeduction).toBeCloseTo(result.score, 10);
-      expect(b.riskDeduction).toBeGreaterThanOrEqual(0);
-      expect(b.travelDeduction).toBeGreaterThanOrEqual(0);
-      expect([b.weatherFit, b.dryFit, b.crowdFit].every(fit => fit >= 0 && fit <= 1)).toBe(true);
-    }
-    const miami = results('2027-09-12', '2027-09-18').find(result => result.city.name === 'Miami')!;
-    expect(miami.breakdown.riskDeduction).toBeGreaterThan(5);
-  });
-  it('shows no travel deduction when Short travel is off', () => {
-    const trip = { start: '2027-07-10', end: '2027-07-20' };
-    const withoutTravel = scoreCities(trip, boston, { ...DEFAULT_WEIGHTS, travel: 0 });
-    for (const result of withoutTravel) {
-      expect(result.breakdown.travelMultiplier).toBe(1);
-      expect(result.breakdown.travelDeduction).toBe(0);
+      expect(Object.values(b.contributions).reduce((a, b) => a + b, 0)).toBeCloseTo(result.score, 10);
+      expect(Object.values(b.weights).reduce((a, b) => a + b, 0)).toBe(100);
+      expect(Object.values(b.fits).every(fit => fit >= 0 && fit <= 1)).toBe(true);
+      expect(Object.values(displayedContributions(result)).reduce((a, b) => a + b, 0)).toBeCloseTo(Number(result.score.toFixed(1)), 10);
     }
   });
-  it('preserves component measurements while preferences change and snapshots the weights', () => {
-    const trip = { start: '2026-12-20', end: '2027-01-03' };
-    const weights = { ...DEFAULT_WEIGHTS };
-    const before = scoreCities(trip, boston, weights);
-    weights.weather = 0; weights.crowds = 10;
-    const after = scoreCities(trip, boston, weights);
-    before.forEach((result, i) => {
-      expect(result.breakdown.weights).toEqual(DEFAULT_WEIGHTS);
-      for (const key of ['weatherFit', 'dryFit', 'crowdFit'] as const) expect(result.breakdown[key]).toBe(after[i].breakdown[key]);
-    });
-    expect(before.some((result, i) => result.score !== after[i].score)).toBe(true);
-  });
-  it('makes the all-zero climate fallback visible as a 50-point base', () => {
-    for (const result of scoreCities({ start: '2027-01-01', end: '2027-01-03' }, boston, { weather: 0, dry: 0, crowds: 0, travel: 0 })) {
-      expect(result.breakdown.baseScore).toBe(50);
-      expect(result.score + result.breakdown.riskDeduction).toBeCloseTo(50, 10);
+  it('gives a zero-weight factor zero contribution', () => {
+    const weights: Weights = { weather: 50, dry: 50, crowds: 0, travel: 0 };
+    for (const r of scoreCities(trip, boston, weights)) {
+      expect(r.breakdown.contributions.crowds).toBe(0);
+      expect(r.breakdown.contributions.travel).toBe(0);
     }
   });
-  it('keeps colors consistent with the rounded number and printed threshold ranges', () => {
+  it('uses dry-day frequency alone when that is the only priority, even in storm season', () => {
+    const r = scoreCities({ start: '2027-09-12', end: '2027-09-18' }, boston, { weather: 0, dry: 100, crowds: 0, travel: 0 }).find(r => r.city.name === 'Miami')!;
+    expect(r.risks).toContain('Hurricane season');
+    expect(r.score).toBeCloseTo(100 * (1 - r.wetFrequency), 10);
+  });
+  it('changes the preferred city when the user changes from cool to warm temperatures', () => {
+    const weights: Weights = { weather: 100, dry: 0, crowds: 0, travel: 0 };
+    const cool = scoreCities(trip, boston, weights, { min: 0, max: 15 });
+    const warm = scoreCities(trip, boston, weights, { min: 22, max: 32 });
+    const score = (rows: typeof cool, name: string) => rows.find(r => r.city.name === name)!.score;
+    expect(score(cool, 'London')).toBeGreaterThan(score(cool, 'Miami'));
+    expect(score(warm, 'Miami')).toBeGreaterThan(score(warm, 'London'));
+  });
+  it('never lowers temperature fit when the preferred range expands', () => {
+    const weights: Weights = { weather: 100, dry: 0, crowds: 0, travel: 0 };
+    const narrow = scoreCities(trip, boston, weights, { min: 20, max: 25 });
+    const wide = scoreCities(trip, boston, weights, { min: 15, max: 30 });
+    narrow.forEach((r, i) => expect(wide[i].score).toBeGreaterThanOrEqual(r.score));
+  });
+  it('keeps climate fit independent of home city and snapshots preferences', () => {
+    const weights: Weights = { weather: 100, dry: 0, crowds: 0, travel: 0 }, range = { ...DEFAULT_TEMPERATURE };
+    const first = scoreCities(trip, boston, weights, range), second = scoreCities(trip, london, weights, range);
+    first.forEach((r, i) => expect(r.score).toBe(second[i].score));
+    weights.weather = 0; range.min = 10;
+    expect(first[0].breakdown.weights.weather).toBe(100);
+    expect(first[0].breakdown.temperatureRange.min).toBe(20);
+  });
+  it('validates empty, inverted and out-of-bounds preferred ranges', () => {
+    for (const range of [{ min: NaN, max: 30 }, { min: 30, max: 20 }, { min: 20, max: 20 }, { min: -41, max: 10 }, { min: 20, max: 51 }]) expect(validateTemperature(range)).not.toBeNull();
+    expect(validateTemperature({ min: -10, max: 5 })).toBeNull();
+    expect(() => scoreCities(trip, boston, DEFAULT_WEIGHTS, { min: 30, max: 20 })).toThrow();
+  });
+  it('keeps colors consistent with printed threshold ranges', () => {
     for (const threshold of [48, 62, 75]) {
       expect(band(threshold - 0.49)).toBe(band(threshold));
       expect(band(threshold - 0.51)).not.toBe(band(threshold));

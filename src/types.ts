@@ -1,27 +1,32 @@
 export type Months = readonly [number, number, number, number, number, number, number, number, number, number, number, number];
-export type CityRow = readonly [string, string, number, number, Months, Months, readonly number[], readonly number[]];
-export type OriginRow = readonly [string, number, number, number, Months];
+export type CityRow = readonly [string, string, number, number, readonly number[], readonly number[]];
+export type OriginRow = readonly [string, number, number, number];
 export interface Place { name: string; lat: number; lon: number; tz: number }
-export interface Origin extends Place { country: string; high: Months }
+export interface Origin extends Place { country: string }
 export type DestinationScope = 'all' | 'domestic' | 'international';
-export interface City extends Place { country: string; high: Months; rain: Months; peak: readonly number[]; shoulder: readonly number[] }
+export interface City extends Place { country: string; peak: readonly number[]; shoulder: readonly number[] }
 export interface Weights { weather: number; dry: number; crowds: number; travel: number }
+export interface TemperatureRange { min: number; max: number }
 export interface Trip { start: string; end: string }
 export interface Sample { timestamp: number; month: number }
 export interface SampledTrip { tripDays: number; step: number; days: Sample[] }
 export interface Travel { km: number; mode: 'drive' | 'flight'; hours: number; timeShift: number; lost: number; usable: number; factor: number }
 export type Dealbreaker = 'Too hot' | 'Too cold' | 'Very rainy' | 'Packed';
-export interface ScoreBreakdown {
-  weatherFit: number;
-  dryFit: number;
-  crowdFit: number;
-  weights: Weights;
-  baseScore: number;
-  riskDeduction: number;
-  travelMultiplier: number;
-  travelDeduction: number;
+export interface ClimateMonth {
+  days: number; meanHigh: number; meanLow: number; highP10: number; highP90: number;
+  monthlyPrecip: number; wetDays: number; histogramStart: number; highHistogram: number[];
 }
-export interface CityScore { city: City; score: number; high: number; homeHigh: number; rain: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[] }
+export interface CityClimate {
+  name: string; lat: number; lon: number; gridElevation: number; sourceUrl: string;
+  retrieved: string; sha256: string; apiVersion: string; months: ClimateMonth[];
+}
+export interface ScoreBreakdown {
+  fits: Weights;
+  contributions: Weights;
+  weights: Weights;
+  temperatureRange: TemperatureRange;
+}
+export interface CityScore { city: City; climate: CityClimate; score: number; high: number; low: number; homeHigh: number; rain: number; wetFrequency: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[] }
 export type RankedCity = CityScore & { rank: number };
 export interface Country { name: string; lat: number; lon: number }
 export interface TripEvent { cities: ReadonlySet<string>; start: number; end: number; crowd: number; name: string; festival: boolean }

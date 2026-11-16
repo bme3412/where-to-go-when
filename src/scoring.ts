@@ -2,11 +2,14 @@ import { CITIES } from './data/cities';
 import { DOMESTIC_COUNTRY_GROUPS } from './data/origins';
 import { eventsForYear } from './data/events';
 import { RISKS } from './data/risks';
-import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, Travel, Trip, TripEvent, Weights } from './types';
+import { climateFor, temperatureFrequency } from './climate';
+import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, TemperatureRange, Travel, Trip, TripEvent, Weights } from './types';
 
 export { easter, thanksgiving, eventsForYear } from './data/events';
 export const DAY = 86_400_000;
-export const DEFAULT_WEIGHTS: Readonly<Weights> = { weather: 6, dry: 5, crowds: 3, travel: 5 };
+export const DEFAULT_WEIGHTS: Readonly<Weights> = { weather: 40, dry: 25, crowds: 10, travel: 25 };
+export const DEFAULT_TEMPERATURE: Readonly<TemperatureRange> = { min: 20, max: 30 };
+export const WEIGHT_KEYS = ['weather', 'dry', 'crowds', 'travel'] as const;
 export const clamp = (value: number, low: number, high: number): number => Math.max(low, Math.min(high, value));
 const mean = (values: readonly number[]): number => values.reduce((sum, value) => sum + value, 0) / values.length;
 const mod = (value: number, divisor: number): number => ((value % divisor) + divisor) % divisor;
@@ -64,23 +67,37 @@ export function bump(month: number, center: number, width: number): number {
   return Math.exp(-((Math.min(distance, 12 - distance) / width) ** 2));
 }
 
-export function tempFit(temperature: number): number {
-  if (temperature < 20) return Math.max(0, 1 - (20 - temperature) / 13);
-  if (temperature > 29) return Math.max(0, 1 - (temperature - 29) / 8);
-  return 1;
+/** Integer percentage allocation with stable largest-remainder rounding. */
+function allocate(total: number, keys: readonly (keyof Weights)[], shares: Weights): Partial<Weights> {
+  const sum = keys.reduce((value, key) => value + Math.max(0, shares[key]), 0);
+  const portions = keys.map((key, index) => {
+    const exact = total * (sum ? Math.max(0, shares[key]) / sum : 1 / keys.length);
+    return { key, index, exact, value: Math.floor(exact) };
+  });
+  const remaining = total - portions.reduce((sum, item) => sum + item.value, 0);
+  [...portions].sort((a, b) => (b.exact - b.value) - (a.exact - a.value) || a.index - b.index)
+    .slice(0, remaining).forEach(item => item.value++);
+  return Object.fromEntries(portions.map(item => [item.key, item.value]));
 }
 
-export function weatherFit(temperature: number, homeTemperature: number): number {
-  let fit = tempFit(temperature);
-  if (homeTemperature < 12 && temperature > homeTemperature) fit += 0.15 * clamp((temperature - homeTemperature) / 15, 0, 1);
-  if (homeTemperature > 31 && temperature < homeTemperature) fit += 0.15 * clamp((homeTemperature - temperature) / 10, 0, 1);
-  return Math.min(1, fit);
+export function normalizeWeights(weights: Weights): Weights {
+  if (WEIGHT_KEYS.some(key => !Number.isFinite(weights[key]) || weights[key] < 0)) throw new RangeError('Weights must be nonnegative finite numbers');
+  if (WEIGHT_KEYS.every(key => weights[key] === 0)) return { ...DEFAULT_WEIGHTS };
+  return allocate(100, WEIGHT_KEYS, weights) as Weights;
 }
 
-export function geometricMean(factors: readonly (readonly [number, number])[]): number {
-  const weight = factors.reduce((sum, [, w]) => sum + w, 0);
-  if (weight === 0) return 0.5;
-  return Math.exp(factors.reduce((sum, [value, w]) => sum + w * Math.log(Math.max(0.03, value)), 0) / weight);
+export function setWeight(weights: Weights, key: keyof Weights, value: number): Weights {
+  if (!Number.isFinite(value)) throw new RangeError('Weight must be finite');
+  const selected = clamp(Math.round(value), 0, 100);
+  const others = WEIGHT_KEYS.filter(item => item !== key);
+  return { ...weights, ...allocate(100 - selected, others, weights), [key]: selected };
+}
+
+export function validateTemperature(range: TemperatureRange): string | null {
+  if (!Number.isFinite(range.min) || !Number.isFinite(range.max)) return 'Enter both preferred temperatures.';
+  if (range.min < -40 || range.max > 50) return 'Choose temperatures between −40°C and 50°C (−40°F and 122°F).';
+  if (range.min >= range.max) return 'The upper temperature must be above the lower temperature.';
+  return null;
 }
 
 export function distance(from: Pick<Place, 'lat' | 'lon'>, to: Pick<Place, 'lat' | 'lon'>): number {
@@ -98,7 +115,7 @@ export function travel(home: Place, destination: Place, tripDays: number): Trave
   const timeShift = Math.min(difference, 24 - difference);
   const lost = Math.min(tripDays, 2 * hours / 14 + Math.min(1.2, 0.1 * timeShift));
   const usable = tripDays - lost;
-  return { km, mode, hours, timeShift, lost, usable, factor: Math.max(0.03, usable / tripDays) };
+  return { km, mode, hours, timeShift, lost, usable, factor: usable / tripDays };
 }
 
 export function tripEvents(trip: Trip): TripEvent[] {
@@ -107,21 +124,30 @@ export function tripEvents(trip: Trip): TripEvent[] {
   return events;
 }
 
-export function scoreCity(city: City, home: Origin, samples: SampledTrip, weights: Weights, events: readonly TripEvent[]): CityScore {
+export function scoreCity(city: City, home: Origin, samples: SampledTrip, weights: Weights, events: readonly TripEvent[], temperatureRange: TemperatureRange = DEFAULT_TEMPERATURE): CityScore {
+  const temperatureError = validateTemperature(temperatureRange);
+  if (temperatureError) throw new RangeError(temperatureError);
+  const shares = normalizeWeights(weights);
+  const climate = climateFor(city.name), homeClimate = climateFor(home.name);
+  const monthlyFits = climate.months.map(month => temperatureFrequency(month, temperatureRange));
+  const monthlyHighs = climate.months.map(month => month.meanHigh);
+  const monthlyLows = climate.months.map(month => month.meanLow);
+  const monthlyRain = climate.months.map(month => month.monthlyPrecip);
+  const monthlyWet = climate.months.map(month => month.wetDays / month.days);
+  const monthlyHome = homeClimate.months.map(month => month.meanHigh);
   const relevantEvents = events.filter(event => event.cities.has(city.name));
   const relevantRisks = RISKS.filter(([cities]) => cities.has(city.name));
   const crowds = Array.from({ length: 12 }, (_, month) => city.peak.includes(month + 1) ? 0.8 : city.shoulder.includes(month + 1) ? 0.5 : 0.2);
   const eventNames = new Set<string>();
   const riskNames = new Set<string>();
   const dealbreakers = new Set<Dealbreaker>();
-  const highs: number[] = [], homeHighs: number[] = [], rains: number[] = [], crowdLevels: number[] = [], scores: number[] = [];
-  const weatherFits: number[] = [], dryFits: number[] = [], baseScores: number[] = [];
+  const highs: number[] = [], lows: number[] = [], homeHighs: number[] = [], rains: number[] = [], crowdLevels: number[] = [], wetLevels: number[] = [], weatherFits: number[] = [];
   for (const { timestamp, month } of samples.days) {
-    const high = interp(city.high, month);
-    const rain = interp(city.rain, month);
-    const homeHigh = interp(home.high, month);
-    const fit = weatherFit(high, homeHigh);
-    const dry = clamp(1 - rain / 240, 0, 1);
+    const high = interp(monthlyHighs, month);
+    const rain = interp(monthlyRain, month);
+    const homeHigh = interp(monthlyHome, month);
+    const fit = interp(monthlyFits, month);
+    const wetFrequency = interp(monthlyWet, month);
     let crowd = interp(crowds, month);
     for (const event of relevantEvents) {
       if (timestamp >= event.start && timestamp <= event.end) {
@@ -130,41 +156,35 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
       }
     }
     crowd = clamp(crowd, 0.05, 0.92);
-    let risk = 0;
     for (const [, peak, width, penalty, label] of relevantRisks) {
       const contribution = penalty * bump(month, peak, width);
-      risk += contribution;
       if (contribution > 0.04) riskNames.add(label);
     }
-    const baseScore = geometricMean([[fit, weights.weather], [dry, weights.dry], [1 - crowd, weights.crowds]]);
-    const dayScore = baseScore * (1 - risk);
-    if (fit < 0.25) dealbreakers.add(high < 20 ? 'Too cold' : 'Too hot');
-    if (dry < 0.2) dealbreakers.add('Very rainy');
+    if (fit < 0.25 && high < temperatureRange.min) dealbreakers.add('Too cold');
+    if (fit < 0.25 && high > temperatureRange.max) dealbreakers.add('Too hot');
+    if (wetFrequency > 0.65) dealbreakers.add('Very rainy');
     if (crowd > 0.86) dealbreakers.add('Packed');
-    weatherFits.push(fit); dryFits.push(dry); baseScores.push(baseScore);
-    highs.push(high); homeHighs.push(homeHigh); rains.push(rain); crowdLevels.push(crowd); scores.push(dayScore);
+    weatherFits.push(fit); wetLevels.push(wetFrequency);
+    highs.push(high); lows.push(interp(monthlyLows, month)); homeHighs.push(homeHigh); rains.push(rain); crowdLevels.push(crowd);
   }
   const journey = travel(home, city, samples.tripDays);
-  const baseScore = 100 * mean(baseScores);
-  const afterRisk = 100 * mean(scores);
-  const travelMultiplier = journey.factor ** (weights.travel / 7);
-  const score = afterRisk * travelMultiplier;
+  const fits: Weights = { weather: mean(weatherFits), dry: 1 - mean(wetLevels), crowds: 1 - mean(crowdLevels), travel: journey.factor };
+  const contributions = Object.fromEntries(WEIGHT_KEYS.map(key => [key, fits[key] * shares[key]])) as unknown as Weights;
+  const score = WEIGHT_KEYS.reduce((sum, key) => sum + contributions[key], 0);
   return {
-    city, score,
-    high: mean(highs), homeHigh: mean(homeHighs), rain: mean(rains), crowd: mean(crowdLevels),
+    city, climate, score,
+    high: mean(highs), low: mean(lows), homeHigh: mean(homeHighs), rain: mean(rains), wetFrequency: mean(wetLevels), crowd: mean(crowdLevels),
     tripDays: samples.tripDays, travel: journey,
     breakdown: {
-      weatherFit: mean(weatherFits), dryFit: mean(dryFits), crowdFit: 1 - mean(crowdLevels),
-      weights: { ...weights }, baseScore, riskDeduction: baseScore - afterRisk,
-      travelMultiplier, travelDeduction: afterRisk - score,
+      fits, weights: shares, contributions, temperatureRange: { ...temperatureRange },
     },
     events: [...eventNames], risks: [...riskNames], dealbreakers: [...dealbreakers],
   };
 }
 
-export function scoreCities(trip: Trip, home: Origin, weights: Weights = DEFAULT_WEIGHTS): CityScore[] {
+export function scoreCities(trip: Trip, home: Origin, weights: Weights = DEFAULT_WEIGHTS, temperatureRange: TemperatureRange = DEFAULT_TEMPERATURE): CityScore[] {
   const samples = sampleDays(trip), events = tripEvents(trip);
-  return CITIES.map(city => scoreCity(city, home, samples, weights, events));
+  return CITIES.map(city => scoreCity(city, home, samples, weights, events, temperatureRange));
 }
 
 export function rankCities(scores: readonly CityScore[]): RankedCity[] {
