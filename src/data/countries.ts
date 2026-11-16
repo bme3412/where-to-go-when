@@ -1,0 +1,9 @@
+export const DESERT: ReadonlySet<string>=new Set(['Egypt','Saudi Arabia','United Arab Emirates','Qatar','Kuwait','Oman','Libya','Algeria','Niger','Mali','Chad','Mauritania','Sudan','Iraq','Iran','Jordan','Yemen','W. Sahara','Turkmenistan']);
+export const ALT: ReadonlySet<string>=new Set(['Bolivia','Nepal','Bhutan','Ethiopia','Lesotho','Kyrgyzstan','Tajikistan','Rwanda','Afghanistan','Peru','Ecuador']);
+export const CONT: ReadonlySet<string>=new Set(['Russia','Kazakhstan','Mongolia','Canada','Uzbekistan','Belarus','Ukraine','Finland','China']);
+export const OCEAN: ReadonlySet<string>=new Set(['United Kingdom','Ireland','Iceland','Norway','Denmark','Netherlands','Belgium','New Zealand','Chile','Portugal']);
+export const MONSOON: ReadonlySet<string>=new Set(['India','Bangladesh','Myanmar','Thailand','Vietnam','Cambodia','Laos','Nepal','Bhutan','Philippines','Sri Lanka','Pakistan']);
+export const HURR: ReadonlySet<string>=new Set(['Cuba','Dominican Rep.','Haiti','Jamaica','Bahamas','Puerto Rico','Mexico','Belize','Honduras','Nicaragua','Guatemala']);
+export const MED: ReadonlySet<string>=new Set(['Spain','Italy','Greece','Portugal','Turkey','Croatia','Morocco','Tunisia','Cyprus','Israel','Lebanon','Albania','Montenegro','Syria']);
+export const POP: ReadonlySet<string>=new Set(['France','Spain','Italy','United States of America','Greece','Thailand','Japan','Mexico','United Kingdom','Turkey','Portugal','Croatia','Austria','Germany','China','Indonesia','Iceland','Netherlands','Switzerland','Egypt','Morocco','United Arab Emirates','Vietnam','Australia','New Zealand','Dominican Rep.','Cuba','Jamaica','Bahamas','Puerto Rico','Peru','Costa Rica']);
+export const SPRING: ReadonlySet<string>=new Set(['Mexico','Bahamas','Dominican Rep.','Jamaica','Puerto Rico','Cuba','Costa Rica','Belize']);
