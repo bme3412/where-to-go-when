@@ -13,12 +13,24 @@ export interface SampledTrip { tripDays: number; step: number; days: Sample[] }
 export interface Travel { km: number; mode: 'drive' | 'flight'; hours: number; timeShift: number; lost: number; usable: number; factor: number }
 export type Dealbreaker = 'Too hot' | 'Too cold' | 'Very rainy' | 'Packed';
 export interface ClimateMonth {
-  days: number; meanHigh: number; meanLow: number; highP10: number; highP90: number;
+  temperatureDays: number; precipitationDays: number; meanHigh: number; meanLow: number; highP10: number; highP90: number;
   monthlyPrecip: number; wetDays: number; histogramStart: number; highHistogram: number[];
 }
+export interface ClimateCoverage { days: number; expectedDays: number; years: number; decadeYears: number[] }
+interface SourceBase {
+  provider: string; sourceUrl: string; retrieved: string; sha256: string; version: string;
+  coverage: ClimateCoverage[];
+}
+export interface StationSource extends SourceBase {
+  kind: 'station'; stationId: string; stationName: string; lat: number; lon: number;
+  elevation: number; distanceKm: number; elevationDifferenceM: number; sourceFlags: string[];
+}
+export interface GridSource extends SourceBase { kind: 'grid'; reason: string }
+export type ClimateSource = StationSource | GridSource;
 export interface CityClimate {
-  name: string; lat: number; lon: number; gridElevation: number; sourceUrl: string;
+  name: string; lat: number; lon: number; elevation: number; gridElevation: number; sourceUrl: string;
   retrieved: string; sha256: string; apiVersion: string; months: ClimateMonth[];
+  sources: { temperature: ClimateSource; precipitation: ClimateSource };
 }
 export interface ScoreBreakdown {
   fits: Weights;

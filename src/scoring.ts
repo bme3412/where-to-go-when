@@ -2,7 +2,7 @@ import { CITIES } from './data/cities';
 import { DOMESTIC_COUNTRY_GROUPS } from './data/origins';
 import { eventsForYear } from './data/events';
 import { RISKS } from './data/risks';
-import { climateFor, temperatureFrequency } from './climate';
+import { climateFor, temperatureFrequency, wetDayFrequency } from './climate';
 import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, TemperatureRange, Travel, Trip, TripEvent, Weights } from './types';
 
 export { easter, thanksgiving, eventsForYear } from './data/events';
@@ -133,7 +133,7 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const monthlyHighs = climate.months.map(month => month.meanHigh);
   const monthlyLows = climate.months.map(month => month.meanLow);
   const monthlyRain = climate.months.map(month => month.monthlyPrecip);
-  const monthlyWet = climate.months.map(month => month.wetDays / month.days);
+  const monthlyWet = climate.months.map(wetDayFrequency);
   const monthlyHome = homeClimate.months.map(month => month.meanHigh);
   const relevantEvents = events.filter(event => event.cities.has(city.name));
   const relevantRisks = RISKS.filter(([cities]) => cities.has(city.name));

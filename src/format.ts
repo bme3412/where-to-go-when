@@ -1,5 +1,6 @@
-import type { CityScore, Country, Origin, Unit, Weights } from './types';
+import type { CityClimate, CityScore, ClimateSource, Country, Origin, Unit, Weights } from './types';
 import { WEIGHT_KEYS } from './scoring';
+import { climateLabel, climateSourceKind } from './climate';
 
 export const BANDS = [
   { minimum: 75, range: '75–100', label: 'Strong match', key: 'great', color: '#3B6D11' },
@@ -33,7 +34,7 @@ export function cityTooltip(result: CityScore, home: Origin, unit: Unit): string
     ...result.dealbreakers.map(text => ({ text, kind: 'dealbreaker' })),
   ];
   return `<div class="tooltip-heading"><strong>${escapeHtml(result.city.name)}</strong><span class="badge ${rating.key}"><span class="swatch" style="--swatch:${rating.color}"></span>${rating.label} · ${Math.round(result.score)}</span></div>
-    <div class="tooltip-country">${escapeHtml(displayCountry(result.city.country))}<span class="climate-caption">NASA POWER · 1991–2020 · gridded climate</span></div>
+    <div class="tooltip-country">${escapeHtml(displayCountry(result.city.country))}<span class="climate-caption source-${climateSourceKind(result.climate)}">${climateLabel(result.climate)} · 1991–2020</span></div>
     <p>Avg daytime high ${temperature(result.high, unit)} <span class="muted">(${difference(result.high - result.homeHigh, unit)} vs ${escapeHtml(home.name)})</span></p>
     <p>${rainWord(result.wetFrequency)} historically · ~${Math.round(result.rain)} mm/month</p><p>${crowdWord(result.crowd)} <span class="muted">(crowd estimate)</span></p>
     <div class="tooltip-divider"></div>
@@ -59,8 +60,8 @@ export function displayedContributions(result: CityScore): Weights {
 export function scoreBreakdown(result: CityScore, unit: Unit): string {
   const b = result.breakdown, points = displayedContributions(result);
   const components: { key: keyof Weights; label: string; quality: string; note: string }[] = [
-    { key: 'weather', label: 'Temperature', quality: 'Sourced climate', note: `${Math.round(b.fits.weather * 100)}% of historical daily highs in your ${temperatureBound(b.temperatureRange.min, unit)}–${temperatureBound(b.temperatureRange.max, unit)} range.` },
-    { key: 'dry', label: 'Dry days', quality: 'Sourced climate', note: `${Math.round(b.fits.dry * 100)}% of historical days had less than 1 mm of precipitation. This is a historical frequency, not a forecast.` },
+    { key: 'weather', label: 'Temperature', quality: sourceLabel(result.climate.sources.temperature), note: `${Math.round(b.fits.weather * 100)}% of historical daily highs in your ${temperatureBound(b.temperatureRange.min, unit)}–${temperatureBound(b.temperatureRange.max, unit)} range.` },
+    { key: 'dry', label: 'Dry days', quality: sourceLabel(result.climate.sources.precipitation), note: `${Math.round(b.fits.dry * 100)}% of historical days had less than 1 mm of precipitation. This is a historical frequency, not a forecast.` },
     { key: 'crowds', label: 'Few crowds', quality: 'Estimated', note: `${crowdWord(result.crowd)}. Seasonal levels and listed event adjustments are assigned estimates, not measured visitor counts.` },
     { key: 'travel', label: 'Short travel', quality: 'Estimated', note: `${result.travel.usable.toFixed(1)} of ${result.tripDays} days usable after modeled travel and time-zone recovery. Routes and schedules are not checked.` },
   ];
@@ -69,7 +70,25 @@ export function scoreBreakdown(result: CityScore, unit: Unit): string {
     <div class="score-components">${components.map(c => `<div class="score-component${b.weights[c.key] === 0 ? ' component-off' : ''}"><div class="component-heading"><strong>${c.label}</strong><span>${b.weights[c.key]}% weight</span><b>+${points[c.key].toFixed(1)}<small>points</small></b></div><meter min="0" max="100" value="${b.fits[c.key] * 100}" aria-label="${c.label}: ${Math.round(b.fits[c.key] * 100)} out of 100 fit">${Math.round(b.fits[c.key] * 100)}</meter><p>${c.note}</p><span class="quality-label">${c.quality}${b.weights[c.key] === 0 ? ' · excluded from score' : ''}</span></div>`).join('')}</div>
     <div class="score-sum" aria-label="Score calculation">${WEIGHT_KEYS.map(key => points[key].toFixed(1)).join(' + ')} <strong>= ${result.score.toFixed(1)}</strong></div>
     <p class="calculation-note">Each contribution = fit × weight. Contributions are rounded to 0.1 point. Seasonal risk notes do not reduce the score.</p>
-    <div class="data-note"><strong>Climate source · 1991–2020</strong><p><a href="${escapeHtml(result.climate.sourceUrl)}" target="_blank" rel="noopener noreferrer">NASA POWER daily data for ${escapeHtml(result.city.name)} ↗</a><br>MERRA-2 reanalysis at ${result.climate.lat.toFixed(2)}°, ${result.climate.lon.toFixed(2)}°. A 0.5° × 0.625° grid estimate, not a city weather station; local coasts and mountains can differ.</p><p>10,958 daily records; retrieved ${escapeHtml(result.climate.retrieved.slice(0, 10))}. Derived here into monthly temperature distributions and wet-day frequencies. The selected dates blend those monthly baselines. Crowds and travel have separate, estimated inputs.</p></div>
+    ${climateProvenance(result.climate)}
     <button type="button" class="text-button method-link" data-show-method aria-haspopup="dialog">See all scoring rules and color thresholds →</button>
   </section>`;
+}
+
+const sourceLabel = (source: ClimateSource): string => source.kind === 'station' ? 'Nearby station observations' : 'Regional grid estimate';
+
+export function climateProvenance(climate: CityClimate): string {
+  return `<section class="climate-provenance" aria-label="Climate data sources"><h3>Climate data · 1991–2020</h3><p class="source-intro">${escapeHtml(climate.name)} reference point: ${climate.lat.toFixed(2)}°, ${climate.lon.toFixed(2)}° · about ${Math.round(climate.elevation)} m elevation.</p>
+    ${(['temperature', 'precipitation'] as const).map(variable => {
+      const source = climate.sources[variable];
+      const records = source.coverage.reduce((sum, month) => sum + month.days, 0);
+      const coverage = Math.min(...source.coverage.map(month => month.days / month.expectedDays));
+      const years = Math.min(...source.coverage.map(month => month.years));
+      const label = variable === 'temperature' ? 'Temperature' : 'Precipitation';
+      const context = source.kind === 'station'
+        ? `<p><a href="${escapeHtml(source.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.stationName)} ↗</a><br>${escapeHtml(source.provider)} · ${escapeHtml(source.stationId)}</p><p>${source.distanceKm.toFixed(1)} km from the reference point · station elevation ${Math.round(source.elevation)} m (${Math.abs(Math.round(source.elevationDifferenceM))} m ${source.elevationDifferenceM < 0 ? 'lower' : 'higher'}).<br>${records.toLocaleString('en-US')} accepted daily observations. Every calendar month has at least ${Math.floor(coverage * 100)}% of the baseline’s days and ${years} qualifying years.</p>`
+        : `<p><a href="${escapeHtml(source.sourceUrl)}" target="_blank" rel="noopener noreferrer">NASA POWER / MERRA-2 daily data ↗</a><br>Regional grid estimate · 0.5° × 0.625°. Grid elevation ${Math.round(climate.gridElevation)} m; local coasts and mountains may differ substantially.</p><p><strong>Why a grid estimate?</strong> ${escapeHtml(source.reason)}</p>`;
+      return `<div class="data-note source-${source.kind}"><strong>${label} · ${sourceLabel(source)}</strong>${context}<p class="retrieved">Retrieved ${escapeHtml(source.retrieved.slice(0, 10))}.</p></div>`;
+    }).join('')}
+    <p class="source-caveat">A station describes its own site. Beaches, slopes, valleys and nearby neighborhoods can still differ. Regional destination names represent the listed point, not an entire island or region. Missing station days are excluded, never treated as dry. Monthly precipitation is scaled from the available daily sample.</p></section>`;
 }

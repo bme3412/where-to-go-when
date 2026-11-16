@@ -323,3 +323,13 @@ dialog::backdrop { background: #14231a78; }
   .event { background: #342a45; color: #ccb2ef; } .risk { background: #43272a; color: #f2a0a5; } .dealbreaker { background: #43351f; color: #efc078; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Provenance stays in destination cards and details, outside the globe. */
+.pick-source, .option-source { display: block; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.pick-source { margin: 4px 0 0 36px; }
+.option-source { margin-top: 5px; }
+.source-grid, .source-mixed { font-style: italic; }
+.data-note.source-grid, .data-note.source-mixed { font-style: normal; border-left-style: dashed; }
+.climate-provenance { margin-top: 30px; }
+.source-intro, .source-caveat { font-size: 11px; line-height: 1.7; color: var(--muted); }
+.data-note .retrieved { font-size: 10px; }

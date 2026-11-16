@@ -49,23 +49,32 @@ Calendar calculations use UTC days to avoid daylight-saving errors. Destination 
 
 ## Climate data and provenance
 
-The bundled baseline is derived from **NASA POWER / MERRA-2 daily point data, 1991-01-01 through 2020-12-31**, at each destination/home coordinate. There are 83 unique locations covering all 71 destinations and 24 origins; every location has 10,958 daily records. No original unsourced temperature/rainfall arrays are used.
+The bundled **1991–2020** baseline covers 83 reference points: all 71 destinations and 24 origins, with overlap. Temperature and precipitation each retain their own source, record counts and coverage. The app makes no runtime weather requests.
 
-- Source methodology: https://power.larc.nasa.gov/docs/methodology/
-- Daily API: https://power.larc.nasa.gov/docs/services/api/temporal/daily/
-- Variables: `T2M_MAX` and `T2M_MIN` in °C, and `PRECTOTCORR` in mm/day, with Local Solar Time day boundaries.
-- Resolution: source-native **0.5° latitude × 0.625° longitude** MERRA-2 grid. This is reanalysis at a location, not a city weather-station measurement. Coastal microclimates, elevation, and within-city differences may not be resolved. Regions/islands represent their listed point.
-- Derived monthly values: mean daily high/low, 10th/90th high percentiles, mean monthly precipitation, count of days with at least 1 mm precipitation, and a 0.1°C histogram of daily highs. Histograms retain sample counts so temperature fits can be recalculated for any preferred range.
-- `src/data/climate.json` retains each source request URL, retrieval timestamp, API version, grid elevation, and SHA-256 of the raw response. Each city links to its data request in the app.
-- Data provided by the NASA POWER Project at NASA Langley Research Center. Aggregation and preference scoring are this app's transformations; NASA does not endorse the rankings.
+- **Nearby observations:** NOAA NCEI [GHCN-Daily Version 3](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily), [dataset DOI](https://doi.org/10.7289/V5D21VHZ), plus **Source: MeteoSwiss**, [SwissMetNet historical daily observations](https://opendatadocs.meteoswiss.ch/a-data-groundbased/a1-automatic-weather-stations) for Interlaken station INT.
+- **Regional fallback:** [NASA POWER / MERRA-2](https://power.larc.nasa.gov/docs/methodology/) at the destination coordinate. Native 0.5° latitude × 0.625° longitude grid; `T2M_MAX`, `T2M_MIN` (°C) and `PRECTOTCORR` (mm/day), Local Solar Time. Data provided by the NASA POWER Project at NASA Langley Research Center.
+- **Reference elevations:** [Copernicus DEM GLO-90, 2021](https://doi.org/10.5270/ESA-c5d3d65) via [Open-Meteo](https://open-meteo.com/en/docs/elevation-api), 90 m resolution. Used for station screening, not temperature adjustment.
 
-To reproduce or refresh the import (Python standard library only):
+Station selection is deterministic: nearest first, at most **15 km away and 150 m elevation difference**. NOAA inventory is prefiltered for a potential baseline spanning 1996–2015 or longer, then actual daily records are checked. MeteoSwiss supplements the known NOAA coverage gap at Interlaken, with the same distance, elevation and completeness rules. Selection is independent for temperature and precipitation, so two nearby stations may be used. Distance and elevation are screening choices, not proof of identical coastal exposure or terrain. No automatic blending of stations or lapse-rate correction is applied.
+
+A station year-month needs ≥90% valid daily observations. For every calendar month, retained observations must cover ≥80% of possible 1991–2020 days, with ≥20 qualifying years and ≥5 in each baseline decade (1991–2000, 2001–2010, 2011–2020). One failing calendar month keeps that whole variable on the grid baseline; station and grid days are never silently mixed. The UI labels all-grid and mixed-source destinations, identifies the grid variable, and explains the fallback reason.
+
+[NOAA flags](https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt): exclude missing -9999 values, any nonblank quality flag, and missing source flags. Temperature requires paired high/low values, no measurement flags (including hourly-derived extrema), and low ≤ high. Precipitation excludes partial/ambiguous reports, missing-presumed-zero records and GSOD/SSOD source flags S/2; accept only blank/B/D/F/G/T measurement flags. Trace is below the 1 mm wet-day threshold. Multiday totals are not used. MeteoSwiss daily CSV uses `tre200dx`, `tre200dn` and `rre150d0`, °C/°C/mm, published provider quality checks, and empty fields for missing values. Its precipitation interval is 06:00–06:00 UTC. Observation day boundaries can differ by provider/station. These historical distributions are not a homogenized trend analysis.
+
+Monthly outputs: paired mean high/low, high-temperature percentiles and 0.1°C histogram; precipitation count, wet-day count (≥1 mm, including snow water equivalent), and mean daily precipitation × average calendar-month length. **Each variable has its own denominator. Missing rain is never dry.** No claim that station observations describe every beach, slope or neighborhood; regional destinations represent the listed coordinate.
+
+`src/data/climate.json` stores per-variable source URLs, station IDs/names, coordinates, elevation/distance differences, retrieval dates, raw SHA-256 hashes, version and month-by-month coverage. `data/station-audit.json` records evaluated candidates and accepted/rejected coverage. Raw public responses are cached in ignored `.climate-cache/`; no keys are needed. Aggregation and scoring are this app’s transformations; providers do not endorse the rankings.
+
+Rebuild from the cached source responses or fetch missing ones (Python standard library, two concurrent requests):
 
 ```sh
-python3 scripts/import-climate.py
+python3 scripts/import-stations.py
+python3 -m unittest discover -s scripts
+npm test
+npm run build
 ```
 
-Coordinates live in `data/climate-locations.json`. The importer caches full responses in ignored `.climate-cache/`, uses two concurrent requests, validates dates, units, fill values, and physical bounds, then atomically replaces the bundled JSON after all locations pass. Remove a cached response only when intentionally refreshing it. The app makes no runtime data requests.
+`import-stations.py` reuses the NASA importer and caches; it is the final dataset entry point. `import-climate.py` alone creates a grid-only intermediate dataset and must be followed by the station importer before building. Remove cached files only for intentional refreshes. A failed download or validation aborts rather than silently degrading a source. Coordinates live in `data/climate-locations.json`.
 
 ## Scoring model
 

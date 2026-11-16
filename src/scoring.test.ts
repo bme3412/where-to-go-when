@@ -3,8 +3,8 @@ import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
 import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
-import { band, displayedContributions } from './format';
-import { climateFor, CLIMATE_SOURCE, temperatureFrequency } from './climate';
+import { band, displayedContributions, climateProvenance, scoreBreakdown } from './format';
+import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency } from './climate';
 import type { ClimateMonth, Weights } from './types';
 
 const boston = ORIGINS.find(city => city.name === 'Boston')!;
@@ -88,13 +88,34 @@ describe('travel and scoring', () => {
 });
 
 describe('sourced climate baseline', () => {
-  it('covers every destination and home city with the same complete 30-year period', () => {
+  it('covers every destination and home city with auditable sources in the same baseline', () => {
     expect(CLIMATE_SOURCE.start).toBe('1991-01-01');
     expect(CLIMATE_SOURCE.end).toBe('2020-12-31');
     const expected = [930, 848, 930, 900, 930, 900, 930, 930, 900, 930, 900, 930];
     for (const place of [...CITIES, ...ORIGINS]) {
       const climate = climateFor(place.name);
-      expect(climate.months.map(month => month.days)).toEqual(expected);
+      for (const variable of ['temperature', 'precipitation'] as const) {
+        const source = climate.sources[variable];
+        expect(source.sha256).toMatch(/^[a-f0-9]{64}$/);
+        expect(source.coverage).toHaveLength(12);
+        source.coverage.forEach((coverage, month) => {
+          expect(coverage.expectedDays).toBe(expected[month]);
+          expect(coverage.days).toBe(climate.months[month][variable === 'temperature' ? 'temperatureDays' : 'precipitationDays']);
+          expect(coverage.days).toBeGreaterThanOrEqual(expected[month] * .8);
+          expect(coverage.days).toBeLessThanOrEqual(expected[month]);
+          expect(coverage.years).toBeGreaterThanOrEqual(20);
+          expect(Math.min(...coverage.decadeYears)).toBeGreaterThanOrEqual(5);
+        });
+        if (source.kind === 'station') {
+          expect(source.distanceKm).toBeLessThanOrEqual(15);
+          expect(Math.abs(source.elevationDifferenceM)).toBeLessThanOrEqual(150);
+          expect(source.stationId.length).toBeGreaterThan(0);
+          expect(new URL(source.sourceUrl).hostname).toMatch(/(ncei.noaa.gov|data.geo.admin.ch)$/);
+        } else {
+          expect(source.reason.length).toBeGreaterThan(20);
+          expect(source.coverage.map(c => c.days)).toEqual(expected);
+        }
+      }
       expect(climate.sha256).toMatch(/^[a-f0-9]{64}$/);
       const url = new URL(climate.sourceUrl);
       expect(url.hostname).toBe('power.larc.nasa.gov');
@@ -106,14 +127,43 @@ describe('sourced climate baseline', () => {
   });
   it('has complete temperature distributions and valid wet-day counts', () => {
     for (const climate of Object.values(CLIMATE_SOURCE.locations)) for (const month of climate.months) {
-      expect(month.highHistogram.reduce((a, b) => a + b, 0)).toBe(month.days);
+      expect(month.highHistogram.reduce((a, b) => a + b, 0)).toBe(month.temperatureDays);
       expect(month.highHistogram.every(n => Number.isInteger(n) && n >= 0)).toBe(true);
       expect(month.wetDays).toBeGreaterThanOrEqual(0);
-      expect(month.wetDays).toBeLessThanOrEqual(month.days);
+      expect(month.wetDays).toBeLessThanOrEqual(month.precipitationDays);
       expect(month.monthlyPrecip).toBeGreaterThanOrEqual(0);
       expect(month.meanHigh).toBeGreaterThanOrEqual(month.meanLow);
       expect(month.highP90).toBeGreaterThanOrEqual(month.highP10);
     }
+  });
+  it('clearly identifies station, mixed and grid data without changing match colors', () => {
+    const station = climateFor('San Diego'), grid = climateFor('Kathmandu'), mixed = climateFor('Reykjavik');
+    expect(climateSourceKind(station)).toBe('station');
+    expect(climateLabel(grid)).toBe('Regional grid estimate');
+    expect(climateLabel(mixed)).toBe('Station temp · grid precipitation');
+    expect(climateProvenance(station)).toContain('SAN DIEGO INTL AP');
+    expect(climateProvenance(grid)).toContain('Why a grid estimate?');
+    expect(climateProvenance(mixed)).toContain('Regional grid estimate');
+    const result = results('2027-07-01', '2027-07-15').find(r => r.city.name === 'Reykjavik')!;
+    expect(scoreBreakdown(result, 'C')).toContain('Nearby station observations');
+    expect(scoreBreakdown(result, 'C')).toContain('Regional grid estimate');
+  });
+  it('uses a local valley station for Interlaken and flags unqualified mountain data', () => {
+    const local = climateFor('Interlaken');
+    expect(climateSourceKind(local)).toBe('station');
+    const source = local.sources.temperature;
+    expect(source.kind).toBe('station');
+    if (source.kind === 'station') {
+      expect(source.stationId).toBe('INT');
+      expect(source.distanceKm).toBeLessThan(3);
+      expect(Math.abs(source.elevationDifferenceM)).toBeLessThan(5);
+    }
+    expect(climateSourceKind(climateFor('Banff'))).toBe('grid');
+    expect(climateProvenance(climateFor('Banff'))).toContain('coverage requirements');
+  });
+  it('uses precipitation coverage rather than temperature coverage for wet-day frequency', () => {
+    const month = { ...climateFor('San Diego').months[0], temperatureDays: 100, precipitationDays: 80, wetDays: 40 };
+    expect(wetDayFrequency(month)).toBe(.5);
   });
   it('retains different local climates inside the same country', () => {
     expect(climateFor('Miami').months[0].meanHigh - climateFor('New York').months[0].meanHigh).toBeGreaterThan(10);
@@ -124,7 +174,7 @@ describe('sourced climate baseline', () => {
   });
   it('counts inclusive temperature bounds against the full historical distribution', () => {
     const histogram = Array(201).fill(0); histogram[0] = 25; histogram[100] = 50; histogram[200] = 25;
-    const month: ClimateMonth = { days: 100, meanHigh: 20, meanLow: 10, highP10: 10, highP90: 30, monthlyPrecip: 20, wetDays: 20, histogramStart: 100, highHistogram: histogram };
+    const month: ClimateMonth = { temperatureDays: 100, precipitationDays: 100, meanHigh: 20, meanLow: 10, highP10: 10, highP90: 30, monthlyPrecip: 20, wetDays: 20, histogramStart: 100, highHistogram: histogram };
     expect(temperatureFrequency(month, { min: 15, max: 25 })).toBe(0.5);
     expect(temperatureFrequency(month, { min: 10, max: 20 })).toBe(0.75);
     expect(temperatureFrequency(month, { min: 10, max: 30 })).toBe(1);
