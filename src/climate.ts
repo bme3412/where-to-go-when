@@ -39,3 +39,9 @@ export function climateSourceKind(climate: CityClimate): 'station' | 'mixed' | '
   const kinds = Object.values(climate.sources).map(source => source.kind);
   return kinds.every(kind => kind === 'station') ? 'station' : kinds.every(kind => kind === 'grid') ? 'grid' : 'mixed';
 }
+
+/** Flag unresolved terrain mismatch; this is not an extra scoring penalty. */
+export function gridElevationMismatch(climate: CityClimate): number | null {
+  const difference = Math.round(climate.gridElevation - climate.elevation);
+  return Object.values(climate.sources).some(source => source.kind === 'grid') && Math.abs(difference) >= 300 ? difference : null;
+}

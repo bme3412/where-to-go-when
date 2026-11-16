@@ -1,6 +1,8 @@
 import './style.css';
 import { ORIGINS } from './data/origins';
 import { climateLabel, climateSourceKind } from './climate';
+import { auditContent, auditDestinations, auditRows } from './audit';
+import type { AuditFilter } from './audit';
 import { band, BANDS, cityTooltip, countryTooltip, crowdWord, difference, displayCountry, escapeHtml, hours, rainWord, scoreBreakdown, temperature } from './format';
 import { Globe } from './globe';
 import { methodContent } from './method';
@@ -26,7 +28,7 @@ const closeIcon = icon('<path d="m6 6 12 12M18 6 6 18"/>');
 const globeIcon = icon('<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4.5" ry="9"/><path d="M3 12h18M5 6.5h14M5 17.5h14"/>');
 const preferences: { key: keyof Weights; label: string; hint: string; paths: string }[] = [
   { key: 'weather', label: 'Temperature', hint: 'Historical highs in your range', paths: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>' },
-  { key: 'dry', label: 'Dry days', hint: 'Historical days below 1 mm of rain', paths: '<path d="M12 3C10 6 6 10 6 14a6 6 0 0 0 12 0c0-4-4-8-6-11Z"/>' },
+  { key: 'dry', label: 'Dry days', hint: 'Historical days below 1 mm precipitation', paths: '<path d="M12 3C10 6 6 10 6 14a6 6 0 0 0 12 0c0-4-4-8-6-11Z"/>' },
   { key: 'crowds', label: 'Few crowds', hint: 'Seasonal estimate + events', paths: '<circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M17 4a3 3 0 0 1 0 6m1 4a5 5 0 0 1 4 5v2"/>' },
   { key: 'travel', label: 'Short travel', hint: 'Estimated usable trip time', paths: '<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>' },
 ];
@@ -69,9 +71,10 @@ app.innerHTML = `
     <button type="button" id="panel-backdrop" class="panel-backdrop" aria-label="Close open panel" tabindex="-1" hidden></button>
     <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
   </section>
-  <footer class="app-footer"><button type="button" class="text-button" data-show-method aria-haspopup="dialog" aria-controls="method-dialog">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>')}Scoring & data</button><span>Climate averages, not a forecast.</span></footer>
+  <footer class="app-footer"><button type="button" class="text-button" data-show-method aria-haspopup="dialog" aria-controls="method-dialog">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>')}Scoring & data</button><button type="button" class="text-button" id="show-audit" aria-haspopup="dialog" aria-controls="audit-dialog">Data audit · all destinations</button><span>Climate averages, not a forecast.</span></footer>
   <p id="rank-announcement" class="sr-only" role="status" aria-live="polite"></p>
   <dialog id="details-dialog" class="detail-dialog" aria-label="Destination details"><button type="button" class="icon-button dialog-close" aria-label="Close destination details">${closeIcon}</button><div id="details-content"></div></dialog>
+  <dialog id="audit-dialog" class="method-dialog audit-dialog" aria-labelledby="audit-title"><button type="button" class="icon-button dialog-close" aria-label="Close data audit">${closeIcon}</button>${auditContent}</dialog>
   <dialog id="method-dialog" class="method-dialog" aria-labelledby="method-title"><button type="button" class="icon-button dialog-close" aria-label="Close scoring explanation">${closeIcon}</button>${methodContent}</dialog>
 `;
 
@@ -131,7 +134,7 @@ function renderLists(): void {
     const delta = r.high - r.homeHigh;
     const note = [...r.events.filter(e => !e.startsWith('Ramadan')), ...r.risks, ...r.dealbreakers][0];
     const escape = delta * 1.8 >= 15 ? `${difference(delta, unit)} vs ${home.name}` : crowdWord(r.crowd);
-    return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(r.city.name)}, rank ${r.rank}, ${rating.label}, ${Math.round(r.score)}. ${climateLabel(r.climate)}. Center on globe."><span class="pick-heading"><span class="rank-circle" style="--swatch:${rating.color}">${r.rank}</span><span class="pick-place"><strong class="city-name">${escapeHtml(r.city.name)}</strong><span class="country-name">${escapeHtml(displayCountry(r.city.country))}</span></span><span class="rating ${rating.key}"><strong>${Math.round(r.score)}</strong><span>${rating.label}</span></span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span><span>${rainWord(r.wetFrequency)}</span><span>${travel}</span></span><span class="pick-note">${escapeHtml(note ?? escape)}</span><span class="pick-source source-${climateSourceKind(r.climate)}">${climateLabel(r.climate)}</span></button>`;
+    return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(r.city.name)}, rank ${r.rank}, ${rating.label}, ${Math.round(r.score)}. ${climateLabel(r.climate)}. Center on globe."><span class="pick-heading"><span class="rank-circle" style="--swatch:${rating.color}">${r.rank}</span><span class="pick-place"><strong class="city-name">${escapeHtml(r.city.name)}</strong><span class="country-name">${escapeHtml(displayCountry(r.city.country))}${r.climate.referenceLabel ? ` · ${escapeHtml(r.climate.referenceLabel)}` : ''}</span></span><span class="rating ${rating.key}"><strong>${Math.round(r.score)}</strong><span>${rating.label}</span></span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span><span>${rainWord(r.wetFrequency)}</span><span>${travel}</span></span><span class="pick-note">${escapeHtml(note ?? escape)}</span><span class="pick-source source-${climateSourceKind(r.climate)}">${climateLabel(r.climate)}</span></button>`;
   }).join('');
   if (!ranked.length) topList.innerHTML = `<div class="empty-results"><strong>No ${scope === 'all' ? 'matching' : scope} destinations</strong><p>There aren’t any destinations in this list beyond your home city for this filter.</p><button type="button" class="small-button" data-clear-scope>Show all destinations</button></div>`;
   moreGrid.innerHTML = ranked.slice(5, 17).map(r => {
@@ -262,6 +265,26 @@ document.addEventListener('click', event => {
     const methodDialog = document.querySelector<HTMLDialogElement>('#method-dialog')!;
     methodDialog.showModal(); methodDialog.scrollTop = 0;
   }
+});
+const auditDialog = document.querySelector<HTMLDialogElement>('#audit-dialog')!;
+const auditSearch = document.querySelector<HTMLInputElement>('#audit-search')!;
+const auditFilter = document.querySelector<HTMLSelectElement>('#audit-filter')!;
+function renderAudit(): void {
+  const filter = auditFilter.value as AuditFilter;
+  document.querySelector('#audit-list')!.innerHTML = auditRows(auditSearch.value, filter);
+  const count = auditDestinations(auditSearch.value, filter).length;
+  document.querySelector('#audit-count')!.textContent = `${count} ${count === 1 ? 'destination' : 'destinations'}`;
+}
+document.querySelector('#show-audit')!.addEventListener('click', () => {
+  hideTooltip(); panels.closeDrawer(); auditDialog.showModal(); auditDialog.scrollTop = 0; auditSearch.focus();
+});
+auditSearch.addEventListener('input', renderAudit);
+auditFilter.addEventListener('change', renderAudit);
+auditDialog.addEventListener('click', event => {
+  const button = (event.target as Element).closest<HTMLButtonElement>('[data-audit-city]');
+  const result = cityScores.find(r => r.city.name === button?.dataset.auditCity);
+  if (!result) return;
+  selectDestination(result); detailsDialog.showModal(); detailsDialog.scrollTop = 0;
 });
 for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog')) {
   dialog.querySelector('.dialog-close')!.addEventListener('click', () => dialog.close());

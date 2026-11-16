@@ -11,7 +11,7 @@ export interface Trip { start: string; end: string }
 export interface Sample { timestamp: number; month: number }
 export interface SampledTrip { tripDays: number; step: number; days: Sample[] }
 export interface Travel { km: number; mode: 'drive' | 'flight'; hours: number; timeShift: number; lost: number; usable: number; factor: number }
-export type Dealbreaker = 'Too hot' | 'Too cold' | 'Very rainy' | 'Packed';
+export type Dealbreaker = 'Too hot' | 'Too cold' | 'Frequent precipitation' | 'Packed';
 export interface ClimateMonth {
   temperatureDays: number; precipitationDays: number; meanHigh: number; meanLow: number; highP10: number; highP90: number;
   monthlyPrecip: number; wetDays: number; histogramStart: number; highHistogram: number[];
@@ -20,10 +20,14 @@ export interface ClimateCoverage { days: number; expectedDays: number; years: nu
 interface SourceBase {
   provider: string; sourceUrl: string; retrieved: string; sha256: string; version: string;
   coverage: ClimateCoverage[];
+  hashScope?: string;
+  rawInputs?: { url: string; label: string; retrieved: string; sha256: string }[];
 }
 export interface StationSource extends SourceBase {
   kind: 'station'; stationId: string; stationName: string; lat: number; lon: number;
   elevation: number; distanceKm: number; elevationDifferenceM: number; sourceFlags: string[];
+  metadataUrl?: string; lineageUrl?: string; qualityNote?: string;
+  stationMembers?: { stationId: string; stationName: string; lat: number; lon: number; elevation: number; start: string; end: string }[];
 }
 export interface GridSource extends SourceBase { kind: 'grid'; reason: string }
 export type ClimateSource = StationSource | GridSource;
@@ -31,6 +35,8 @@ export interface CityClimate {
   name: string; lat: number; lon: number; elevation: number; gridElevation: number; sourceUrl: string;
   retrieved: string; sha256: string; apiVersion: string; months: ClimateMonth[];
   sources: { temperature: ClimateSource; precipitation: ClimateSource };
+  referenceLabel?: string; referenceUrl?: string; referenceNote?: string;
+  agencyReview?: { agency: string; note: string; url: string };
 }
 export interface ScoreBreakdown {
   fits: Weights;

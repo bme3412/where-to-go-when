@@ -1,5 +1,6 @@
 """Data-quality regression tests: python3 -m unittest discover -s scripts."""
 import calendar
+import gzip
 import importlib.util
 import pathlib
 import unittest
@@ -81,6 +82,45 @@ class StationQualityTests(unittest.TestCase):
         self.assertEqual(values['PRCP'][(1991, 1, 2)][0], 0)
         with self.assertRaises(AssertionError):
             stations.parse_swiss(raw, 'BER')
+
+    def test_france_rejects_doubtful_filtered_and_missing_values(self):
+        text = 'NUM_POSTE;NOM_USUEL;LAT;LON;ALTI;AAAAMMJJ;TX;QTX;TN;QTN;RR;QRR\n'
+        text += '123;Station;48;2;50;19910101;20;1;10;0;0;1\n'
+        text += '123;Station;48;2;50;19910102;20;9;10;2;50;2\n'
+        text += '123;Station;48;2;50;19910103;20;1;10;1;;1\n'
+        values, metadata = stations.agencies.parse_france(gzip.compress(text.encode()), '123')
+        self.assertEqual(metadata['elevation'], 50)
+        self.assertNotIn((1991, 1, 2), values['TMAX'])
+        self.assertNotIn((1991, 1, 2), values['TMIN'])
+        self.assertEqual(values['PRCP'], {(1991, 1, 1): (0, '1')})
+
+    def test_hko_complete_trace_and_zero_are_distinct_from_missing(self):
+        raw = b'title\ntitle\nYear,Month,Day,Value,Completeness\n1991,1,1,Trace,C\n1991,1,2,5,#\n1991,1,3,***,C\n1991,1,4,0,C\n'
+        values = stations.agencies.parse_hko(raw, 'PRCP')
+        self.assertEqual(set(values), {(1991, 1, 1), (1991, 1, 4)})
+        self.assertEqual(values[(1991, 1, 1)][0], 0)
+
+    def test_canada_estimates_and_dates_outside_station_succession_are_excluded(self):
+        rows = []
+        for date, flag, rain in [('1995-03-31', None, 3), ('1995-04-01', 'E', 3), ('1995-04-02', None, None), ('1995-04-03', None, 0)]:
+            rows.append(dict(properties=dict(CLIMATE_IDENTIFIER='3050519', LOCAL_DATE=date,
+                MAX_TEMPERATURE=10, MAX_TEMPERATURE_FLAG=flag, MIN_TEMPERATURE=0, MIN_TEMPERATURE_FLAG=flag,
+                TOTAL_PRECIPITATION=rain, TOTAL_PRECIPITATION_FLAG=flag)))
+        values = stations.agencies.parse_canada([{'features': rows}], '3050519', '1995-04-01', '2020-12-31')
+        self.assertEqual(len(values['TMAX']), 2)
+        self.assertEqual(values['PRCP'], {(1995, 4, 3): (0, 'observed')})
+        with self.assertRaises(ValueError):
+            stations.agencies.parse_canada([{'features': rows}, {'features': rows}], '3050519', '1995-04-01', '2020-12-31')
+
+    def test_singapore_both_encodings_and_missing_rain(self):
+        text = 'Station,Year,Month,Day,Maximum Temperature (°C),Minimum Temperature (°C),Daily Rainfall Total (mm)\nPaya Lebar,1991,1,1,30,24,—\nPaya Lebar,1991,1,2,31,-,0\n'
+        for raw in (text.encode('cp1252'), text.encode('utf-8-sig')):
+            values = stations.agencies.parse_singapore(raw, 1991, 1)
+            self.assertEqual(len(values['TMAX']), 2)
+            self.assertEqual(len(values['TMIN']), 1)
+            self.assertEqual(values['PRCP'], {(1991, 1, 2): (0, 'agency-published')})
+        with self.assertRaises(ValueError):
+            stations.agencies.parse_singapore(text.encode('cp1252'), 1991, 2)
 
 
 if __name__ == '__main__':

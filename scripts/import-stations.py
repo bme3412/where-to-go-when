@@ -30,10 +30,14 @@ POLICY = dict(maxDistanceKm=15, maxElevationDifferenceM=150,
 spec = importlib.util.spec_from_file_location('grid_import', ROOT / 'scripts/import-climate.py')
 grid = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(grid)
+agency_spec = importlib.util.spec_from_file_location('agency_sources', ROOT / 'scripts/agency_sources.py')
+agencies = importlib.util.module_from_spec(agency_spec)
+agency_spec.loader.exec_module(agencies)
 
 
 def cached(url, name):
     path = CACHE / name
+    path.parent.mkdir(parents=True, exist_ok=True)
     if not path.exists():
         for attempt in range(3):
             try:
@@ -214,6 +218,9 @@ def build_place(place, stations, version):
     for month in result['months']:
         month['temperatureDays'] = month['precipitationDays'] = month.pop('days')
     result['elevation'] = place['elevation']
+    for key in ('referenceLabel', 'referenceUrl', 'referenceNote', 'agencyReview'):
+        if key in place:
+            result[key] = place[key]
     candidates = sorted([s for s in stations if eligible(place, s)], key=lambda s: (distance(place, s), s['id']))
     found, audit = {}, []
     for station in candidates:
@@ -241,11 +248,16 @@ def build_place(place, stations, version):
         if len(found) == 2:
             break
     supplement_swiss(place, result, found, audit)
+    if len(found) < 2:
+        # Pass helpers explicitly; no network, parsing or quality rules run in the browser.
+        from types import SimpleNamespace
+        agencies.supplement(place, result, found, audit, SimpleNamespace(cached=cached, eligible=eligible, distance=distance, summarize=summarize))
     for variable in ('temperature', 'precipitation'):
         if variable in found:
             continue
         has_candidates = any((all(e in s['elements'] for e in ('TMAX', 'TMIN')) if variable == 'temperature' else 'PRCP' in s['elements']) for s in candidates)
-        reason = ('Nearby station records did not meet daily quality and monthly coverage requirements for 1991–2020.' if has_candidates else
+        has_agency_candidates = any(variable in item.get('variables', {}) for item in audit if item.get('provider'))
+        reason = ('Nearby station records did not meet daily quality and monthly coverage requirements for 1991–2020.' if has_candidates or has_agency_candidates else
                   'No station in the screened NOAA archive met the 15 km distance, 150 m elevation and historical inventory requirements.')
         found[variable] = dict(kind='grid', provider='NASA POWER / MERRA-2', sourceUrl=result['sourceUrl'],
                                retrieved=result['retrieved'], sha256=result['sha256'], version=result['apiVersion'],
@@ -266,8 +278,9 @@ def main():
     for place, elevation in zip(places, elevations):
         place['elevation'] = elevation
     stations = inventory()
-    raw_version, _ = cached(BASE + 'ghcnd-version.txt', 'ghcnd-version.txt')
-    version = raw_version.decode().split(' is ')[1].split(' ')[0]
+    # Individual files can be refreshed independently. A cached global revision
+    # cannot identify new bytes: retain each file's retrieval date and hash instead.
+    version = 'GHCN-Daily Version 3; individual file identified by retrieval date and SHA-256'
     cached(BASE + 'readme.txt', 'readme.txt')
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(lambda p: build_place(p, stations, version), places))

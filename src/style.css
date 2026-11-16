@@ -333,3 +333,33 @@ dialog::backdrop { background: #14231a78; }
 .climate-provenance { margin-top: 30px; }
 .source-intro, .source-caveat { font-size: 11px; line-height: 1.7; color: var(--muted); }
 .data-note .retrieved { font-size: 10px; }
+.source-intro a, .source-files a { color: var(--accent); text-underline-offset: 3px; }
+.source-files { margin: 12px 0; }
+.source-files summary { cursor: pointer; color: var(--ink); }
+.source-files ul { padding-left: 18px; max-height: 260px; overflow: auto; }
+.source-files li { margin: 10px 0; overflow-wrap: anywhere; }
+.source-files small { display: block; font-size: 9px; line-height: 1.6; }
+.terrain-warning { padding: 12px; border: 1px dashed var(--border-strong); border-radius: 7px; font-size: 11px; line-height: 1.7; }
+.audit-dialog { width: min(760px, calc(100vw - 36px)); }
+.audit-intro, .audit-policy { color: var(--muted); font-size: 12px; line-height: 1.7; }
+.audit-counts { display: flex; flex-wrap: wrap; gap: 12px 24px; padding: 15px 0; border-bottom: 1px solid var(--border); }
+.audit-counts span { font-size: 11px; color: var(--muted); }
+.audit-counts strong { font-size: 21px; font-weight: 550; color: var(--ink); margin-right: 5px; }
+.audit-controls { display: grid; grid-template-columns: 1fr 175px; gap: 14px; margin-top: 20px; }
+.audit-controls input { width: 100%; border: 1px solid var(--border); border-radius: 7px; padding: 11px; background: var(--surface); color: var(--ink); font: inherit; font-size: 12px; }
+.audit-count { font-size: 11px; color: var(--muted); }
+.audit-row { display: grid; gap: 6px; width: 100%; padding: 16px 0; background: transparent; border: 0; border-bottom: 1px solid var(--border); color: var(--muted); text-align: left; font: inherit; font-size: 11px; line-height: 1.6; cursor: pointer; }
+.audit-row:hover { background: var(--page); }
+.audit-row-heading { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px 12px; }
+.audit-row-heading strong { color: var(--ink); font-weight: 550; font-size: 14px; }
+.audit-row b { font-weight: 500; color: var(--ink); margin-right: 4px; }
+.audit-source, .audit-locality { font-size: 10px; }
+.terrain-flag { color: var(--ink); font-size: 10px; }
+.app-footer { gap: 12px; flex-wrap: wrap; }
+.app-footer > span { margin-left: auto; }
+@media (max-width: 600px) {
+  .audit-controls { grid-template-columns: 1fr; gap: 0; }
+  .app-footer { gap: 8px 16px; }
+  .app-footer > span { display: none; }
+  .audit-dialog { padding-left: 22px; padding-right: 22px; }
+}

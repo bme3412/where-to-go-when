@@ -38,7 +38,7 @@ The build produces **only `dist/index.html`**. JavaScript, CSS, reference data, 
 
 - `src/data/`: destination and origin metadata, fixed time zones, estimated event/crowd/risk reference data, and the imported climate baseline.
 - `src/scoring.ts`: pure date sampling, interpolation, climate scoring, distance/travel calculations, and ranking functions.
-- `src/scoring.test.ts`: 35 tests covering source completeness, climate distributions, percentage rebalancing, personalized temperature ranges, additive score reconstruction, seasonal notes, domestic/international filters, and color thresholds.
+- `src/scoring.test.ts`: 41 tests covering source completeness, climate distributions, percentage rebalancing, personalized temperature ranges, additive score reconstruction, seasonal notes, domestic/international filters, and color thresholds.
 - `src/globe.ts`: bundled topology, orthographic projection, gestures, animation, markers, and label placement.
 - `src/panels.ts`: responsive panel toggles, modal drawers, keyboard focus, and backdrop behavior.
 - `src/format.ts`: rating bands, units, reasons, and tooltip presentation.
@@ -49,13 +49,13 @@ Calendar calculations use UTC days to avoid daylight-saving errors. Destination 
 
 ## Climate data and provenance
 
-The bundled **1991–2020** baseline covers 83 reference points: all 71 destinations and 24 origins, with overlap. Temperature and precipitation each retain their own source, record counts and coverage. The app makes no runtime weather requests.
+The bundled **1991–2020** baseline covers 83 reference points: all 71 destinations and 24 origins, with overlap. Temperature and precipitation each retain their own source, record counts and coverage. The app makes no runtime weather requests. Current destination coverage: **22 station / 4 mixed / 45 grid**.
 
 - **Nearby observations:** NOAA NCEI [GHCN-Daily Version 3](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily), [dataset DOI](https://doi.org/10.7289/V5D21VHZ), plus **Source: MeteoSwiss**, [SwissMetNet historical daily observations](https://opendatadocs.meteoswiss.ch/a-data-groundbased/a1-automatic-weather-stations) for Interlaken station INT.
 - **Regional fallback:** [NASA POWER / MERRA-2](https://power.larc.nasa.gov/docs/methodology/) at the destination coordinate. Native 0.5° latitude × 0.625° longitude grid; `T2M_MAX`, `T2M_MIN` (°C) and `PRECTOTCORR` (mm/day), Local Solar Time. Data provided by the NASA POWER Project at NASA Langley Research Center.
 - **Reference elevations:** [Copernicus DEM GLO-90, 2021](https://doi.org/10.5270/ESA-c5d3d65) via [Open-Meteo](https://open-meteo.com/en/docs/elevation-api), 90 m resolution. Used for station screening, not temperature adjustment.
 
-Station selection is deterministic: nearest first, at most **15 km away and 150 m elevation difference**. NOAA inventory is prefiltered for a potential baseline spanning 1996–2015 or longer, then actual daily records are checked. MeteoSwiss supplements the known NOAA coverage gap at Interlaken, with the same distance, elevation and completeness rules. Selection is independent for temperature and precipitation, so two nearby stations may be used. Distance and elevation are screening choices, not proof of identical coastal exposure or terrain. No automatic blending of stations or lapse-rate correction is applied.
+NOAA station selection is deterministic, nearest first. National-agency supplements are reviewed by station identity and location. Every accepted site is at most **15 km away and 150 m elevation difference**. NOAA inventory is prefiltered for a potential baseline spanning 1996–2015 or longer, then actual daily records are checked. MeteoSwiss supplements the known NOAA coverage gap at Interlaken, with the same distance, elevation and completeness rules. Selection is independent for temperature and precipitation, so two nearby stations may be used. Distance and elevation are screening choices, not proof of identical coastal exposure or terrain. No arbitrary blending or lapse-rate correction is applied. Banff is the explicit exception for a documented station succession: ECCC specifies 3050520 through 1995-03-31 and 3050519 from 1995-04-01. Both sites pass the same geography checks; no estimates or neighboring observations fill gaps.
 
 A station year-month needs ≥90% valid daily observations. For every calendar month, retained observations must cover ≥80% of possible 1991–2020 days, with ≥20 qualifying years and ≥5 in each baseline decade (1991–2000, 2001–2010, 2011–2020). One failing calendar month keeps that whole variable on the grid baseline; station and grid days are never silently mixed. The UI labels all-grid and mixed-source destinations, identifies the grid variable, and explains the fallback reason.
 
@@ -65,11 +65,24 @@ Monthly outputs: paired mean high/low, high-temperature percentiles and 0.1°C h
 
 `src/data/climate.json` stores per-variable source URLs, station IDs/names, coordinates, elevation/distance differences, retrieval dates, raw SHA-256 hashes, version and month-by-month coverage. `data/station-audit.json` records evaluated candidates and accepted/rejected coverage. Raw public responses are cached in ignored `.climate-cache/`; no keys are needed. Aggregation and scoring are this app’s transformations; providers do not endorse the rankings.
 
+National-agency additions in `scripts/agency_sources.py`:
+
+- [Météo-France](https://www.data.gouv.fr/datasets/donnees-climatologiques-de-base-quotidiennes): Paris-Montsouris 75114001 and Tahiti/Faaa 98715002. Daily TX/TN/RR with quality flags 0/1 only; exclude doubtful 2 and filtered-only 9. Licence Ouverte 2.0 attribution: Météo-France.
+- [Hong Kong Observatory](https://data.gov.hk/en-data/dataset/hk-hko-rss-daily-temperature-info-hko): HKO headquarters, complete C records only; exclude #/missing. Trace <0.05 mm is below the wet-day threshold.
+- [Meteorological Service Singapore](https://www.weather.gov.sg/climate-historical-daily/): Paya Lebar S06, 360 monthly files. Agency-published values, no per-record QC flag; skip missing dash/blank values. Metadata is from the 2015 agency report; current coordinates differ by about 0.6 km.
+- **Data Source: Environment and Climate Change Canada.** [Banff agency station succession](https://climate.weather.gc.ca/climate_normals/results_1991_2020_e.html?climate_id=3050519#metadata-thread) supports temperature; observed-only precipitation still fails coverage. Exclude E estimates; follow API pagination and exact transition dates. [ECCC licence](https://eccc-msc.github.io/open-data/licence/readme_en/).
+- Tenerife now explicitly represents **El Médano south coast**, using [AEMET’s coordinates](https://www.aemet.es/es/eltiempo/prediccion/playas/el-medano-3801705) and qualifying NOAA station SPE00120476 (AEMET C429I). The old mountain point did not represent a coastal getaway.
+
+For multi-file sources, `rawInputs` lists every URL/hash/retrieval date and `hashScope: "input manifest"` identifies a digest of ordered `{url,sha256}` pairs, canonical JSON with sorted keys and compact separators. A single raw-file hash is not misrepresented as the full series. The detail dialog exposes all files and both Banff station periods. NOAA’s global revision is no longer inferred from a stale metadata cache.
+
+Regional reference areas are explicit; locality names were checked against [© OpenStreetMap contributors](https://www.openstreetmap.org/copyright), with individual reference links. Remaining grid terrain mismatches ≥300 m are flagged, separately from match scores. The **Data audit** view allows keyboard inspection of every destination, irrespective of its rank. `data/climate-audit.json` records the completed audit; `data/climate-audit-before.json` preserves the preceding version’s source counts for comparison; `data/station-audit.json` retains candidate coverage. Agency research was targeted, not exhaustive: Queenstown’s NIWA daily archive requires agency access; Nepal DHM uses a request process; no verified Cusco baseline was obtained. These remain grid estimates.
+
 Rebuild from the cached source responses or fetch missing ones (Python standard library, two concurrent requests):
 
 ```sh
 python3 scripts/import-stations.py
 python3 -m unittest discover -s scripts
+python3 scripts/audit-climate.py
 npm test
 npm run build
 ```

@@ -162,7 +162,7 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
     }
     if (fit < 0.25 && high < temperatureRange.min) dealbreakers.add('Too cold');
     if (fit < 0.25 && high > temperatureRange.max) dealbreakers.add('Too hot');
-    if (wetFrequency > 0.65) dealbreakers.add('Very rainy');
+    if (wetFrequency > 0.65) dealbreakers.add('Frequent precipitation');
     if (crowd > 0.86) dealbreakers.add('Packed');
     weatherFits.push(fit); wetLevels.push(wetFrequency);
     highs.push(high); lows.push(interp(monthlyLows, month)); homeHighs.push(homeHigh); rains.push(rain); crowdLevels.push(crowd);

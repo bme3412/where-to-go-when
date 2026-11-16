@@ -1,6 +1,6 @@
 import type { CityClimate, CityScore, ClimateSource, Country, Origin, Unit, Weights } from './types';
 import { WEIGHT_KEYS } from './scoring';
-import { climateLabel, climateSourceKind } from './climate';
+import { climateLabel, climateSourceKind, gridElevationMismatch } from './climate';
 
 export const BANDS = [
   { minimum: 75, range: '75–100', label: 'Strong match', key: 'great', color: '#3B6D11' },
@@ -34,7 +34,7 @@ export function cityTooltip(result: CityScore, home: Origin, unit: Unit): string
     ...result.dealbreakers.map(text => ({ text, kind: 'dealbreaker' })),
   ];
   return `<div class="tooltip-heading"><strong>${escapeHtml(result.city.name)}</strong><span class="badge ${rating.key}"><span class="swatch" style="--swatch:${rating.color}"></span>${rating.label} · ${Math.round(result.score)}</span></div>
-    <div class="tooltip-country">${escapeHtml(displayCountry(result.city.country))}<span class="climate-caption source-${climateSourceKind(result.climate)}">${climateLabel(result.climate)} · 1991–2020</span></div>
+    <div class="tooltip-country">${escapeHtml(displayCountry(result.city.country))}${result.climate.referenceLabel ? ` · ${escapeHtml(result.climate.referenceLabel)}` : ''}<span class="climate-caption source-${climateSourceKind(result.climate)}">${climateLabel(result.climate)} · 1991–2020</span></div>
     <p>Avg daytime high ${temperature(result.high, unit)} <span class="muted">(${difference(result.high - result.homeHigh, unit)} vs ${escapeHtml(home.name)})</span></p>
     <p>${rainWord(result.wetFrequency)} historically · ~${Math.round(result.rain)} mm/month</p><p>${crowdWord(result.crowd)} <span class="muted">(crowd estimate)</span></p>
     <div class="tooltip-divider"></div>
@@ -75,20 +75,35 @@ export function scoreBreakdown(result: CityScore, unit: Unit): string {
   </section>`;
 }
 
-const sourceLabel = (source: ClimateSource): string => source.kind === 'station' ? 'Nearby station observations' : 'Regional grid estimate';
+const sourceLabel = (source: ClimateSource): string => source.kind === 'station' ? (source.stationMembers ? 'Agency station series' : 'Nearby station observations') : 'Regional grid estimate';
 
 export function climateProvenance(climate: CityClimate): string {
-  return `<section class="climate-provenance" aria-label="Climate data sources"><h3>Climate data · 1991–2020</h3><p class="source-intro">${escapeHtml(climate.name)} reference point: ${climate.lat.toFixed(2)}°, ${climate.lon.toFixed(2)}° · about ${Math.round(climate.elevation)} m elevation.</p>
+  const mismatch = gridElevationMismatch(climate);
+  const displayedInputs = new Set<string>();
+  const locality = climate.referenceLabel ?? climate.name;
+  return `<section class="climate-provenance" aria-label="Climate data sources"><h3>Climate data · 1991–2020</h3><p class="source-intro"><strong>${escapeHtml(locality)}</strong><br>${climate.lat.toFixed(4)}°, ${climate.lon.toFixed(4)}° · about ${Math.round(climate.elevation)} m elevation.${climate.referenceUrl ? ` <a href="${escapeHtml(climate.referenceUrl)}" target="_blank" rel="noopener noreferrer">Reference location ↗</a>` : ''}${climate.referenceNote ? `<br>${escapeHtml(climate.referenceNote)}` : ''}</p>
+    ${mismatch !== null ? `<p class="terrain-warning"><strong>Grid terrain mismatch:</strong> the regional model elevation is ${Math.abs(mismatch).toLocaleString('en-US')} m ${mismatch > 0 ? 'higher' : 'lower'} than this reference point. Grid-based factors may miss local conditions. No elevation correction or extra score penalty is applied.</p>` : ''}
     ${(['temperature', 'precipitation'] as const).map(variable => {
       const source = climate.sources[variable];
       const records = source.coverage.reduce((sum, month) => sum + month.days, 0);
       const coverage = Math.min(...source.coverage.map(month => month.days / month.expectedDays));
       const years = Math.min(...source.coverage.map(month => month.years));
       const label = variable === 'temperature' ? 'Temperature' : 'Precipitation';
-      const context = source.kind === 'station'
-        ? `<p><a href="${escapeHtml(source.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.stationName)} ↗</a><br>${escapeHtml(source.provider)} · ${escapeHtml(source.stationId)}</p><p>${source.distanceKm.toFixed(1)} km from the reference point · station elevation ${Math.round(source.elevation)} m (${Math.abs(Math.round(source.elevationDifferenceM))} m ${source.elevationDifferenceM < 0 ? 'lower' : 'higher'}).<br>${records.toLocaleString('en-US')} accepted daily observations. Every calendar month has at least ${Math.floor(coverage * 100)}% of the baseline’s days and ${years} qualifying years.</p>`
-        : `<p><a href="${escapeHtml(source.sourceUrl)}" target="_blank" rel="noopener noreferrer">NASA POWER / MERRA-2 daily data ↗</a><br>Regional grid estimate · 0.5° × 0.625°. Grid elevation ${Math.round(climate.gridElevation)} m; local coasts and mountains may differ substantially.</p><p><strong>Why a grid estimate?</strong> ${escapeHtml(source.reason)}</p>`;
-      return `<div class="data-note source-${source.kind}"><strong>${label} · ${sourceLabel(source)}</strong>${context}<p class="retrieved">Retrieved ${escapeHtml(source.retrieved.slice(0, 10))}.</p></div>`;
+      let context: string;
+      if (source.kind === 'station') {
+        const members = source.stationMembers ? `<details class="source-files"><summary>Agency-documented station succession</summary><ul>${source.stationMembers.map(member => `<li><strong>${escapeHtml(member.stationName)} · ${escapeHtml(member.stationId)}</strong><br>${member.start} to ${member.end} · ${Math.round(member.elevation)} m elevation · ${member.lat.toFixed(4)}°, ${member.lon.toFixed(4)}°</li>`).join('')}</ul><a href="${escapeHtml(source.lineageUrl!)}" target="_blank" rel="noopener noreferrer">Agency station history ↗</a><p>The agency’s published succession dates are used; observations are not averaged across sites or filled from neighboring stations.</p></details>` : '';
+        context = `<p><a href="${escapeHtml(source.metadataUrl ?? source.lineageUrl ?? source.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.stationName)} ↗</a><br>${escapeHtml(source.provider)} · ${escapeHtml(source.stationId)}</p><p>${source.stationMembers ? 'Both stations within' : 'Station'} ${source.distanceKm.toFixed(1)} km ${source.stationMembers ? 'of' : 'from'} the reference point · ${source.stationMembers ? 'latest station' : 'station'} elevation ${Math.round(source.elevation)} m (${Math.abs(Math.round(source.elevationDifferenceM))} m ${source.elevationDifferenceM < 0 ? 'lower' : 'higher'}).<br>${records.toLocaleString('en-US')} accepted daily observations. Every calendar month has at least ${Math.floor(coverage * 100)}% of the baseline’s days and ${years} qualifying years.</p>${members}${source.qualityNote ? `<p>${escapeHtml(source.qualityNote)}</p>` : ''}`;
+      } else {
+        context = `<p><a href="${escapeHtml(source.sourceUrl)}" target="_blank" rel="noopener noreferrer">NASA POWER / MERRA-2 daily data ↗</a><br>Regional grid estimate · 0.5° × 0.625°. Grid elevation ${Math.round(climate.gridElevation)} m; local coasts and mountains may differ substantially.</p><p><strong>Why a grid estimate?</strong> ${escapeHtml(source.reason)}</p>`;
+      }
+      let inputs = '';
+      if (source.rawInputs?.length) {
+        const key = source.rawInputs.map(file => file.sha256).join(',');
+        inputs = displayedInputs.has(key) ? '<p class="retrieved">Uses the same source files listed under Temperature.</p>' : `<details class="source-files"><summary>${source.rawInputs.length} original source ${source.rawInputs.length === 1 ? 'file' : 'files'}</summary><ul>${source.rawInputs.map(file => `<li><a href="${escapeHtml(file.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(file.label)} ↗</a><small>Retrieved ${escapeHtml(file.retrieved.slice(0, 10))} · SHA-256 <code>${file.sha256}</code></small></li>`).join('')}</ul></details>`;
+        displayedInputs.add(key);
+      }
+      return `<div class="data-note source-${source.kind}"><strong>${label} · ${sourceLabel(source)}</strong>${context}${inputs}<p class="retrieved">Retrieved ${escapeHtml(source.retrieved.slice(0, 10))}.</p></div>`;
     }).join('')}
-    <p class="source-caveat">A station describes its own site. Beaches, slopes, valleys and nearby neighborhoods can still differ. Regional destination names represent the listed point, not an entire island or region. Missing station days are excluded, never treated as dry. Monthly precipitation is scaled from the available daily sample.</p></section>`;
+    ${climate.agencyReview ? `<div class="data-note"><strong>Local agency check</strong><p>${escapeHtml(climate.agencyReview.note)} <a href="${escapeHtml(climate.agencyReview.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(climate.agencyReview.agency)} ↗</a></p></div>` : ''}
+    <p class="source-caveat">A station describes its own site. Beaches, slopes, valleys and nearby neighborhoods can still differ. Regional destination names represent the listed point, not an entire island or region. Missing station days are excluded, never treated as dry. Monthly precipitation is scaled from the available daily sample; trace amounts below the provider’s reporting threshold are treated as zero for volume.</p></section>`;
 }

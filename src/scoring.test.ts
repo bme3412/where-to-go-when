@@ -4,7 +4,8 @@ import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
 import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
 import { band, displayedContributions, climateProvenance, scoreBreakdown } from './format';
-import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency } from './climate';
+import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency, gridElevationMismatch } from './climate';
+import { auditDestinations, auditRows, sourceCounts } from './audit';
 import type { ClimateMonth, Weights } from './types';
 
 const boston = ORIGINS.find(city => city.name === 'Boston')!;
@@ -77,7 +78,7 @@ describe('travel and scoring', () => {
     expect(result.timeShift).toBe(11);
   });
   it('flags July monsoon rain in Goa and September hurricanes in Miami', () => {
-    expect(results('2027-07-10', '2027-07-20').find(result => result.city.name === 'Goa')!.dealbreakers).toContain('Very rainy');
+    expect(results('2027-07-10', '2027-07-20').find(result => result.city.name === 'Goa')!.dealbreakers).toContain('Frequent precipitation');
     expect(results('2027-09-12', '2027-09-18').find(result => result.city.name === 'Miami')!.risks).toContain('Hurricane season');
   });
   it('excludes home from ranking and keeps scores and usable days bounded', () => {
@@ -110,7 +111,7 @@ describe('sourced climate baseline', () => {
           expect(source.distanceKm).toBeLessThanOrEqual(15);
           expect(Math.abs(source.elevationDifferenceM)).toBeLessThanOrEqual(150);
           expect(source.stationId.length).toBeGreaterThan(0);
-          expect(new URL(source.sourceUrl).hostname).toMatch(/(ncei.noaa.gov|data.geo.admin.ch)$/);
+          expect(new URL(source.sourceUrl).hostname).toMatch(/^(www\.ncei\.noaa\.gov|data\.geo\.admin\.ch|meteofrance\.s3\.sbg\.io\.cloud\.ovh\.net|data\.weather\.gov\.hk|api\.weather\.gc\.ca|www\.weather\.gov\.sg)$/);
         } else {
           expect(source.reason.length).toBeGreaterThan(20);
           expect(source.coverage.map(c => c.days)).toEqual(expected);
@@ -158,12 +159,49 @@ describe('sourced climate baseline', () => {
       expect(source.distanceKm).toBeLessThan(3);
       expect(Math.abs(source.elevationDifferenceM)).toBeLessThan(5);
     }
-    expect(climateSourceKind(climateFor('Banff'))).toBe('grid');
+    expect(climateSourceKind(climateFor('Banff'))).toBe('mixed');
     expect(climateProvenance(climateFor('Banff'))).toContain('coverage requirements');
   });
   it('uses precipitation coverage rather than temperature coverage for wet-day frequency', () => {
     const month = { ...climateFor('San Diego').months[0], temperatureDays: 100, precipitationDays: 80, wetDays: 40 };
     expect(wetDayFrequency(month)).toBe(.5);
+  });
+  it('preserves agency lineage, all source inputs and honest mixed labels', () => {
+    const banff = climateFor('Banff');
+    expect(banff.sources.temperature.kind).toBe('station');
+    if (banff.sources.temperature.kind === 'station') {
+      expect(banff.sources.temperature.stationMembers?.map(m => m.stationId)).toEqual(['3050520', '3050519']);
+      expect(banff.sources.temperature.rawInputs).toHaveLength(3);
+      expect(banff.sources.temperature.hashScope).toBe('input manifest');
+    }
+    expect(banff.sources.precipitation.kind).toBe('grid');
+    const html = climateProvenance(banff);
+    expect(html).toContain('1995-04-01');
+    expect(html).toContain('3050519');
+    expect(html).toContain('Agency station history');
+    expect(climateFor('Hong Kong').sources.temperature.rawInputs).toHaveLength(2);
+    expect(climateFor('Singapore').sources.temperature.rawInputs).toHaveLength(360);
+  });
+  it('corrects Tenerife to its named coast and flags unresolved mountain grid elevation', () => {
+    const tenerife = climateFor('Tenerife');
+    expect(tenerife.referenceLabel).toBe('El Médano · south coast');
+    expect(tenerife.lat).toBe(destination('Tenerife').lat);
+    expect(tenerife.lon).toBe(destination('Tenerife').lon);
+    expect(tenerife.elevation).toBeLessThan(100);
+    expect(climateSourceKind(tenerife)).toBe('station');
+    expect(gridElevationMismatch(tenerife)).toBeNull();
+    expect(Math.abs(gridElevationMismatch(climateFor('Queenstown'))!)).toBeGreaterThan(600);
+    expect(climateProvenance(climateFor('Queenstown'))).toContain('Grid terrain mismatch');
+  });
+  it('makes all destinations searchable independently of rankings and source type', () => {
+    expect(auditDestinations('', 'all')).toHaveLength(71);
+    expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(71);
+    expect(sourceCounts).toEqual({station:22,mixed:4,grid:45});
+    expect(auditDestinations('Queenstown', 'grid').map(c => c.name)).toEqual(['Queenstown']);
+    expect(auditDestinations('El Médano', 'station').map(c => c.name)).toEqual(['Tenerife']);
+    expect(auditDestinations('Banff', 'mixed').map(c => c.name)).toEqual(['Banff']);
+    expect(auditRows('Queenstown', 'all')).toContain('data-audit-city="Queenstown"');
+    expect(auditRows('missing place', 'all')).toContain('No destinations match');
   });
   it('retains different local climates inside the same country', () => {
     expect(climateFor('Miami').months[0].meanHigh - climateFor('New York').months[0].meanHigh).toBeGreaterThan(10);

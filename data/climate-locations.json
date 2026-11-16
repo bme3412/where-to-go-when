@@ -76,8 +76,11 @@
   },
   {
     "name": "Tenerife",
-    "lat": 28.29,
-    "lon": -16.63
+    "lat": 28.041389,
+    "lon": -16.541944,
+    "referenceLabel": "El Médano · south coast",
+    "referenceUrl": "https://www.aemet.es/es/eltiempo/prediccion/playas/el-medano-3801705",
+    "referenceNote": "Coastal reference point. Conditions on northern Tenerife and Mount Teide are different."
   },
   {
     "name": "Marrakech",
@@ -157,7 +160,10 @@
   {
     "name": "Bali",
     "lat": -8.65,
-    "lon": 115.22
+    "lon": 115.22,
+    "referenceLabel": "Denpasar area",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=-8.65&lon=115.22&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Singapore",
@@ -167,12 +173,18 @@
   {
     "name": "Maldives",
     "lat": 4.18,
-    "lon": 73.51
+    "lon": 73.51,
+    "referenceLabel": "Malé",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=4.18&lon=73.51&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Goa",
     "lat": 15.3,
-    "lon": 74.12
+    "lon": 74.12,
+    "referenceLabel": "Bandoli area · inland",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=15.3&lon=74.12&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Delhi",
@@ -182,7 +194,12 @@
   {
     "name": "Kathmandu",
     "lat": 27.72,
-    "lon": 85.32
+    "lon": 85.32,
+    "agencyReview": {
+      "agency": "Nepal Department of Hydrology and Meteorology",
+      "note": "Historical station observations are supplied through the agency’s data request process. A downloadable, verified 1991–2020 daily baseline was not obtained.",
+      "url": "https://dhm.gov.np/pages/data"
+    }
   },
   {
     "name": "Colombo",
@@ -202,17 +219,28 @@
   {
     "name": "Queenstown",
     "lat": -45.03,
-    "lon": 168.66
+    "lon": 168.66,
+    "agencyReview": {
+      "agency": "NIWA / Earth Sciences New Zealand",
+      "note": "A nearby Queenstown station is catalogued, but its daily archive requires agency login and purchase access. No verified daily baseline was imported.",
+      "url": "https://data.niwa.co.nz/products/climate-station-daily/files/67d4b548256f92dc33a220c4"
+    }
   },
   {
     "name": "Fiji",
     "lat": -17.76,
-    "lon": 177.44
+    "lon": 177.44,
+    "referenceLabel": "Nadi Airport area",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=-17.76&lon=177.44&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Tahiti",
     "lat": -17.54,
-    "lon": -149.57
+    "lon": -149.57,
+    "referenceLabel": "Papeete coast",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=-17.54&lon=-149.57&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Honolulu",
@@ -232,7 +260,10 @@
   {
     "name": "Cape Cod",
     "lat": 41.67,
-    "lon": -70.3
+    "lon": -70.3,
+    "referenceLabel": "Hyannis",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=41.67&lon=-70.3&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Miami",
@@ -262,7 +293,12 @@
   {
     "name": "Banff",
     "lat": 51.18,
-    "lon": -115.57
+    "lon": -115.57,
+    "agencyReview": {
+      "agency": "Environment and Climate Change Canada",
+      "note": "The agency-documented Banff station succession qualifies for temperature. Precipitation fails the coverage rules after estimated observations are excluded.",
+      "url": "https://climate.weather.gc.ca/climate_normals/results_1991_2020_e.html?climate_id=3050519#metadata-thread"
+    }
   },
   {
     "name": "Vancouver",
@@ -297,7 +333,10 @@
   {
     "name": "Aruba",
     "lat": 12.52,
-    "lon": -70.03
+    "lon": -70.03,
+    "referenceLabel": "Oranjestad",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=12.52&lon=-70.03&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Cartagena",
@@ -307,12 +346,20 @@
   {
     "name": "Galápagos",
     "lat": -0.74,
-    "lon": -90.31
+    "lon": -90.31,
+    "referenceLabel": "Puerto Ayora, Santa Cruz",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=-0.74&lon=-90.31&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Cusco",
     "lat": -13.53,
-    "lon": -71.97
+    "lon": -71.97,
+    "agencyReview": {
+      "agency": "SENAMHI Peru",
+      "note": "Nearby stations were identified, but a complete, quality-documented daily baseline was not obtained from the public agency pages.",
+      "url": "https://www.senamhi.gob.pe/main.php?dp=cusco&p=estaciones"
+    }
   },
   {
     "name": "Rio de Janeiro",
@@ -327,7 +374,10 @@
   {
     "name": "Patagonia",
     "lat": -50.34,
-    "lon": -72.26
+    "lon": -72.26,
+    "referenceLabel": "El Calafate",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=-50.34&lon=-72.26&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Cape Town",
@@ -337,12 +387,18 @@
   {
     "name": "Serengeti",
     "lat": -2.33,
-    "lon": 34.83
+    "lon": 34.83,
+    "referenceLabel": "Ikoma area",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=-2.33&lon=34.83&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Zanzibar",
     "lat": -6.16,
-    "lon": 39.2
+    "lon": 39.2,
+    "referenceLabel": "Zanzibar City",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=-6.16&lon=39.2&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Victoria Falls",
@@ -352,7 +408,10 @@
   {
     "name": "Mauritius",
     "lat": -20.16,
-    "lon": 57.5
+    "lon": 57.5,
+    "referenceLabel": "Port Louis",
+    "referenceNote": "The climate and travel estimate describe this reference area, not the entire region.",
+    "referenceUrl": "https://nominatim.openstreetmap.org/reverse?lat=-20.16&lon=57.5&format=jsonv2&zoom=14&accept-language=en"
   },
   {
     "name": "Washington, DC",

@@ -4,6 +4,7 @@ import world from 'world-atlas/countries-110m.json';
 import type { Feature, Geometry } from 'geojson';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import { band } from './format';
+import { climateLabel } from './climate';
 import { clamp } from './scoring';
 import type { CityScore, Country, Origin, RankedCity } from './types';
 
@@ -123,7 +124,7 @@ export class Globe {
     // Ranked markers are drawn last so small background dots cannot obscure them.
     this.cityNodes = [...cities].sort((a, b) => Number(ranks.has(a.city.name)) - Number(ranks.has(b.city.name))).map(score => {
       const rank = ranks.get(score.city.name);
-      const node = element('g', { class: 'city-marker', 'data-city': score.city.name, role: 'button', tabindex: rank ? '0' : '-1', 'aria-label': `${score.city.name}, ${band(score.score).label}, score ${Math.round(score.score)}. Center on globe.` });
+      const node = element('g', { class: 'city-marker', 'data-city': score.city.name, role: 'button', tabindex: rank ? '0' : '-1', 'aria-label': `${score.city.name}, ${band(score.score).label}, score ${Math.round(score.score)}. ${climateLabel(score.climate)}. Center on globe.` });
       const circle = element('circle', { fill: band(score.score).color, opacity: rank ? '1' : '0.45' });
       const number = element('text', { class: 'rank-number', 'text-anchor': 'middle', 'dominant-baseline': 'central' });
       number.textContent = rank ? String(rank) : '';

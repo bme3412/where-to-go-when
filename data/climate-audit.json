@@ -1,0 +1,1833 @@
+{
+  "auditedAt": "2026-11-16T23:05:06.388238+00:00",
+  "baseline": "1991–2020",
+  "status": "passed",
+  "scope": "All 83 reference points, all 71 destination coordinates, and every climate factor. Local agency search was targeted, not exhaustive.",
+  "checks": {
+    "sourceFingerprints": 887,
+    "monthDenominators": true,
+    "histogramCounts": true,
+    "coveragePolicy": true,
+    "stationDistanceAndElevation": true,
+    "documentedStationSuccession": true,
+    "globeReferenceAlignment": true
+  },
+  "destinationCounts": {
+    "station": 22,
+    "grid": 45,
+    "mixed": 4
+  },
+  "comparisonCommit": "e257480b24f91f96feed339761bf484984dc5a95",
+  "upgrades": [
+    {
+      "name": "Paris",
+      "before": "grid",
+      "after": "station"
+    },
+    {
+      "name": "Tenerife",
+      "before": "grid",
+      "after": "station"
+    },
+    {
+      "name": "Hong Kong",
+      "before": "grid",
+      "after": "station"
+    },
+    {
+      "name": "Singapore",
+      "before": "grid",
+      "after": "station"
+    },
+    {
+      "name": "Tahiti",
+      "before": "grid",
+      "after": "station"
+    },
+    {
+      "name": "Banff",
+      "before": "grid",
+      "after": "mixed"
+    }
+  ],
+  "findings": [
+    {
+      "id": "reference-areas",
+      "status": "fixed",
+      "detail": "Tenerife now explicitly represents El Médano coast; regional names show their reference areas. Remaining grid elevation differences >=300m are flagged."
+    },
+    {
+      "id": "keyboard-access",
+      "status": "fixed",
+      "detail": "Searchable Data audit dialog exposes all 71 destinations independently of ranking; marker labels include provenance."
+    },
+    {
+      "id": "archive-version",
+      "status": "fixed",
+      "detail": "NOAA provenance uses file retrieval dates and hashes; no cached global revision is attributed to independently refreshed files."
+    },
+    {
+      "id": "precipitation-phase",
+      "status": "fixed",
+      "detail": "Frequent precipitation replaces Very rainy; total precipitation includes snow-water equivalent."
+    },
+    {
+      "id": "compound-provenance",
+      "status": "fixed",
+      "detail": "Every source file and the Banff station succession are inspectable, with explicit manifest hash scope."
+    }
+  ],
+  "limitations": [
+    "No station guarantees identical beach, slope or valley exposure.",
+    "Agency quality systems differ; Singapore supplies no per-record quality flag.",
+    "Banff precipitation remains a grid because observed-only coverage fails.",
+    "NIWA Queenstown requires agency access; Nepal DHM requires a data request; a verified Cusco daily baseline was not obtained.",
+    "No climate trend homogenization; 1991–2020 describes historical conditions, not a future forecast.",
+    "Crowd and travel factors remain disclosed estimates."
+  ],
+  "locations": [
+    {
+      "name": "Paris",
+      "kind": "station",
+      "reference": "Paris",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "Météo-France",
+          "station": "PARIS-MONTSOURIS",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "Météo-France",
+          "station": "PARIS-MONTSOURIS",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "London",
+      "kind": "grid",
+      "reference": "London",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Rome",
+      "kind": "grid",
+      "reference": "Rome",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Barcelona",
+      "kind": "station",
+      "reference": "Barcelona",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BARCELONA/AEROPUERTO",
+          "acceptedDays": 10902,
+          "minimumMonthlyCoverage": 0.9622
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BARCELONA/AEROPUERTO",
+          "acceptedDays": 10192,
+          "minimumMonthlyCoverage": 0.8833
+        }
+      }
+    },
+    {
+      "name": "Seville",
+      "kind": "station",
+      "reference": "Seville",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SEVILLA/SAN PABLO",
+          "acceptedDays": 10889,
+          "minimumMonthlyCoverage": 0.9667
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SEVILLA/SAN PABLO",
+          "acceptedDays": 9945,
+          "minimumMonthlyCoverage": 0.8137
+        }
+      }
+    },
+    {
+      "name": "Lisbon",
+      "kind": "station",
+      "reference": "Lisbon",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "LISBOA GEOFISICA",
+          "acceptedDays": 10615,
+          "minimumMonthlyCoverage": 0.9591
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "LISBOA GEOFISICA",
+          "acceptedDays": 10591,
+          "minimumMonthlyCoverage": 0.9333
+        }
+      }
+    },
+    {
+      "name": "Athens",
+      "kind": "grid",
+      "reference": "Athens",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Santorini",
+      "kind": "grid",
+      "reference": "Santorini",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Dubrovnik",
+      "kind": "grid",
+      "reference": "Dubrovnik",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Amsterdam",
+      "kind": "station",
+      "reference": "Amsterdam",
+      "factors": {
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SCHELLINGWOUDE",
+          "acceptedDays": 10836,
+          "minimumMonthlyCoverage": 0.9667
+        },
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SCHIPHOL",
+          "acceptedDays": 10956,
+          "minimumMonthlyCoverage": 0.9989
+        }
+      }
+    },
+    {
+      "name": "Prague",
+      "kind": "grid",
+      "reference": "Prague",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Copenhagen",
+      "kind": "mixed",
+      "reference": "Copenhagen",
+      "factors": {
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "KOEBENHAVN: BOTANISK HAVE",
+          "acceptedDays": 10926,
+          "minimumMonthlyCoverage": 0.9667
+        },
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Interlaken",
+      "kind": "station",
+      "reference": "Interlaken",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "MeteoSwiss SwissMetNet",
+          "station": "Interlaken",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "MeteoSwiss SwissMetNet",
+          "station": "Interlaken",
+          "acceptedDays": 10927,
+          "minimumMonthlyCoverage": 0.9667
+        }
+      }
+    },
+    {
+      "name": "Reykjavik",
+      "kind": "mixed",
+      "reference": "Reykjavik",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "REYKJAVIK",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Istanbul",
+      "kind": "grid",
+      "reference": "Istanbul",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Tenerife",
+      "kind": "station",
+      "reference": "El Médano · south coast",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "TENERIFE/SUR",
+          "acceptedDays": 10651,
+          "minimumMonthlyCoverage": 0.9278
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "TENERIFE/SUR",
+          "acceptedDays": 10749,
+          "minimumMonthlyCoverage": 0.9433
+        }
+      }
+    },
+    {
+      "name": "Marrakech",
+      "kind": "grid",
+      "reference": "Marrakech",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Cairo",
+      "kind": "grid",
+      "reference": "Cairo",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Petra",
+      "kind": "grid",
+      "reference": "Petra",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Dubai",
+      "kind": "grid",
+      "reference": "Dubai",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Tokyo",
+      "kind": "grid",
+      "reference": "Tokyo",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Kyoto",
+      "kind": "grid",
+      "reference": "Kyoto",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Seoul",
+      "kind": "grid",
+      "reference": "Seoul",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Beijing",
+      "kind": "grid",
+      "reference": "Beijing",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Hong Kong",
+      "kind": "station",
+      "reference": "Hong Kong",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "Hong Kong Observatory",
+          "station": "Hong Kong Observatory Headquarters",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "Hong Kong Observatory",
+          "station": "Hong Kong Observatory Headquarters",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Bangkok",
+      "kind": "grid",
+      "reference": "Bangkok",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Phuket",
+      "kind": "grid",
+      "reference": "Phuket",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Chiang Mai",
+      "kind": "grid",
+      "reference": "Chiang Mai",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Hanoi",
+      "kind": "grid",
+      "reference": "Hanoi",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Hoi An",
+      "kind": "grid",
+      "reference": "Hoi An",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Siem Reap",
+      "kind": "grid",
+      "reference": "Siem Reap",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Bali",
+      "kind": "grid",
+      "reference": "Denpasar area",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Singapore",
+      "kind": "station",
+      "reference": "Singapore",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "Meteorological Service Singapore",
+          "station": "Paya Lebar",
+          "acceptedDays": 10950,
+          "minimumMonthlyCoverage": 0.9957
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "Meteorological Service Singapore",
+          "station": "Paya Lebar",
+          "acceptedDays": 10953,
+          "minimumMonthlyCoverage": 0.9968
+        }
+      }
+    },
+    {
+      "name": "Maldives",
+      "kind": "grid",
+      "reference": "Malé",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Goa",
+      "kind": "grid",
+      "reference": "Bandoli area · inland",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Delhi",
+      "kind": "grid",
+      "reference": "Delhi",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Kathmandu",
+      "kind": "grid",
+      "reference": "Kathmandu",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Colombo",
+      "kind": "grid",
+      "reference": "Colombo",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Sydney",
+      "kind": "station",
+      "reference": "Sydney",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SYDNEY (OBSERVATORY HILL)",
+          "acceptedDays": 10793,
+          "minimumMonthlyCoverage": 0.9333
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SYDNEY (OBSERVATORY HILL)",
+          "acceptedDays": 10827,
+          "minimumMonthlyCoverage": 0.9622
+        }
+      }
+    },
+    {
+      "name": "Cairns",
+      "kind": "station",
+      "reference": "Cairns",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "CAIRNS AERO",
+          "acceptedDays": 10934,
+          "minimumMonthlyCoverage": 0.9944
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "CAIRNS AERO",
+          "acceptedDays": 10480,
+          "minimumMonthlyCoverage": 0.8978
+        }
+      }
+    },
+    {
+      "name": "Queenstown",
+      "kind": "grid",
+      "reference": "Queenstown",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Fiji",
+      "kind": "mixed",
+      "reference": "Nadi Airport area",
+      "factors": {
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "Nadi Airport",
+          "acceptedDays": 10955,
+          "minimumMonthlyCoverage": 0.9978
+        },
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Tahiti",
+      "kind": "station",
+      "reference": "Papeete coast",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "Météo-France",
+          "station": "FAAA",
+          "acceptedDays": 10952,
+          "minimumMonthlyCoverage": 0.9967
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "Météo-France",
+          "station": "FAAA",
+          "acceptedDays": 10950,
+          "minimumMonthlyCoverage": 0.9968
+        }
+      }
+    },
+    {
+      "name": "Honolulu",
+      "kind": "station",
+      "reference": "Honolulu",
+      "factors": {
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "PUNCHBOWL CRATER 709",
+          "acceptedDays": 10219,
+          "minimumMonthlyCoverage": 0.9301
+        },
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "HONOLULU INTL AP",
+          "acceptedDays": 10925,
+          "minimumMonthlyCoverage": 0.9667
+        }
+      }
+    },
+    {
+      "name": "New York",
+      "kind": "station",
+      "reference": "New York",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "NY CITY CNTRL PARK",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "NY CITY CNTRL PARK",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Boston",
+      "kind": "station",
+      "reference": "Boston",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BOSTON",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BOSTON",
+          "acceptedDays": 10956,
+          "minimumMonthlyCoverage": 0.9978
+        }
+      }
+    },
+    {
+      "name": "Cape Cod",
+      "kind": "grid",
+      "reference": "Hyannis",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Miami",
+      "kind": "station",
+      "reference": "Miami",
+      "factors": {
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "MIAMI BEACH",
+          "acceptedDays": 9809,
+          "minimumMonthlyCoverage": 0.8633
+        },
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "MIAMI INTL AP",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "New Orleans",
+      "kind": "station",
+      "reference": "New Orleans",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "NEW ORLEANS LAKEFRONT AP",
+          "acceptedDays": 10060,
+          "minimumMonthlyCoverage": 0.8522
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "NEW ORLEANS LAKEFRONT AP",
+          "acceptedDays": 10210,
+          "minimumMonthlyCoverage": 0.8989
+        }
+      }
+    },
+    {
+      "name": "San Francisco",
+      "kind": "station",
+      "reference": "San Francisco",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SAN FRANCISCO DWTN",
+          "acceptedDays": 10938,
+          "minimumMonthlyCoverage": 0.9933
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SAN FRANCISCO DWTN",
+          "acceptedDays": 10957,
+          "minimumMonthlyCoverage": 0.9988
+        }
+      }
+    },
+    {
+      "name": "San Diego",
+      "kind": "station",
+      "reference": "San Diego",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SAN DIEGO INTL AP",
+          "acceptedDays": 10956,
+          "minimumMonthlyCoverage": 0.9989
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SAN DIEGO INTL AP",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Las Vegas",
+      "kind": "station",
+      "reference": "Las Vegas",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "MCCARRAN INTL AP",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "MCCARRAN INTL AP",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Banff",
+      "kind": "mixed",
+      "reference": "Banff",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "Environment and Climate Change Canada",
+          "station": "Banff → Banff CS",
+          "acceptedDays": 10485,
+          "minimumMonthlyCoverage": 0.8578
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Vancouver",
+      "kind": "station",
+      "reference": "Vancouver",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "VANCOUVER HARBOUR CS",
+          "acceptedDays": 10101,
+          "minimumMonthlyCoverage": 0.8602
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "VANCOUVER HARBOUR CS",
+          "acceptedDays": 9722,
+          "minimumMonthlyCoverage": 0.829
+        }
+      }
+    },
+    {
+      "name": "Cancún",
+      "kind": "grid",
+      "reference": "Cancún",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Mexico City",
+      "kind": "grid",
+      "reference": "Mexico City",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "San José",
+      "kind": "grid",
+      "reference": "San José",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Havana",
+      "kind": "grid",
+      "reference": "Havana",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "San Juan",
+      "kind": "station",
+      "reference": "San Juan",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SAN JUAN L M MARIN INTL AP",
+          "acceptedDays": 10956,
+          "minimumMonthlyCoverage": 0.9978
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SAN JUAN L M MARIN INTL AP",
+          "acceptedDays": 10955,
+          "minimumMonthlyCoverage": 0.9968
+        }
+      }
+    },
+    {
+      "name": "Aruba",
+      "kind": "grid",
+      "reference": "Oranjestad",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Cartagena",
+      "kind": "grid",
+      "reference": "Cartagena",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Galápagos",
+      "kind": "grid",
+      "reference": "Puerto Ayora, Santa Cruz",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Cusco",
+      "kind": "grid",
+      "reference": "Cusco",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Rio de Janeiro",
+      "kind": "grid",
+      "reference": "Rio de Janeiro",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Buenos Aires",
+      "kind": "grid",
+      "reference": "Buenos Aires",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Patagonia",
+      "kind": "grid",
+      "reference": "El Calafate",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Cape Town",
+      "kind": "grid",
+      "reference": "Cape Town",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Serengeti",
+      "kind": "grid",
+      "reference": "Ikoma area",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Zanzibar",
+      "kind": "grid",
+      "reference": "Zanzibar City",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Victoria Falls",
+      "kind": "grid",
+      "reference": "Victoria Falls",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Mauritius",
+      "kind": "grid",
+      "reference": "Port Louis",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Washington, DC",
+      "kind": "station",
+      "reference": "Washington, DC",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "WASHINGTON REAGAN NATL AP",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "WASHINGTON REAGAN NATL AP",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Chicago",
+      "kind": "grid",
+      "reference": "Chicago",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Dallas",
+      "kind": "station",
+      "reference": "Dallas",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "DALLAS FAA AP",
+          "acceptedDays": 10921,
+          "minimumMonthlyCoverage": 0.9667
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "DALLAS FAA AP",
+          "acceptedDays": 10805,
+          "minimumMonthlyCoverage": 0.9667
+        }
+      }
+    },
+    {
+      "name": "Denver",
+      "kind": "station",
+      "reference": "Denver",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "DENVER-STAPLETON",
+          "acceptedDays": 10866,
+          "minimumMonthlyCoverage": 0.9602
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "DENVER-STAPLETON",
+          "acceptedDays": 10862,
+          "minimumMonthlyCoverage": 0.9667
+        }
+      }
+    },
+    {
+      "name": "Los Angeles",
+      "kind": "station",
+      "reference": "Los Angeles",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "LOS ANGELES DOWNTOWN/USC",
+          "acceptedDays": 10957,
+          "minimumMonthlyCoverage": 0.9989
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "LOS ANGELES DOWNTOWN/USC",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Seattle",
+      "kind": "mixed",
+      "reference": "Seattle",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "SEATTLE SAND PT WFO",
+          "acceptedDays": 10493,
+          "minimumMonthlyCoverage": 0.9311
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Toronto",
+      "kind": "grid",
+      "reference": "Toronto",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "São Paulo",
+      "kind": "grid",
+      "reference": "São Paulo",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Frankfurt",
+      "kind": "station",
+      "reference": "Frankfurt",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "FRANKFURT/MAIN-WESTEND",
+          "acceptedDays": 10866,
+          "minimumMonthlyCoverage": 0.9667
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "FRANKFURT/MAIN-WESTEND",
+          "acceptedDays": 10866,
+          "minimumMonthlyCoverage": 0.9667
+        }
+      }
+    },
+    {
+      "name": "Madrid",
+      "kind": "station",
+      "reference": "Madrid",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "MADRID - RETIRO",
+          "acceptedDays": 10954,
+          "minimumMonthlyCoverage": 0.9978
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "MADRID - RETIRO",
+          "acceptedDays": 10856,
+          "minimumMonthlyCoverage": 0.9844
+        }
+      }
+    },
+    {
+      "name": "Johannesburg",
+      "kind": "grid",
+      "reference": "Johannesburg",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Mumbai",
+      "kind": "grid",
+      "reference": "Mumbai",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    }
+  ]
+}
