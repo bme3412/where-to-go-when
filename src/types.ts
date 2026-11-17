@@ -10,7 +10,22 @@ export interface TemperatureRange { min: number; max: number }
 export interface Trip { start: string; end: string }
 export interface Sample { timestamp: number; month: number }
 export interface SampledTrip { tripDays: number; step: number; days: Sample[] }
-export interface Travel { km: number; mode: 'drive' | 'flight'; hours: number; timeShift: number; lost: number; usable: number; factor: number }
+export interface FlightLeg { from: string; to: string; minutes: number; airlines: string[] }
+export interface FlightRoute { path: string[]; flightMinutes: number; legs: FlightLeg[] }
+export interface AirportTransfer {
+  iata: string; minutes: number | null; mode: string; basis: 'distance' | 'reviewed' | 'unverified';
+  note: string; sourceUrl: string | null; checked: string | null;
+}
+export interface BostonDestination {
+  gateways: AirportTransfer[]; outbound: FlightRoute | null; inbound: FlightRoute | null; note: string | null;
+  nonstopOutbound: FlightRoute | null; nonstopInbound: FlightRoute | null;
+}
+export interface FlightJourney { route: FlightRoute; gateway: AirportTransfer; connectionMinutes: number; totalMinutes: number | null }
+export interface BostonTrip { outbound: FlightJourney | null; inbound: FlightJourney | null; note: string | null; hasGateway: boolean }
+export interface Travel {
+  km: number; mode: 'drive' | 'flight'; hours: number; returnHours: number; timeShift: number;
+  lost: number; usable: number; factor: number; basis: 'distance' | 'routes' | 'mixed'; flights?: BostonTrip;
+}
 export type Dealbreaker = 'Too hot' | 'Too cold' | 'Frequent precipitation' | 'Packed';
 export interface ClimateMonth {
   temperatureDays: number; precipitationDays: number; meanHigh: number; meanLow: number; highP10: number; highP90: number;
@@ -48,7 +63,20 @@ export interface ScoreBreakdown {
   weights: Weights;
   temperatureRange: TemperatureRange;
 }
-export interface CityScore { city: City; climate: CityClimate; score: number; high: number; low: number; homeHigh: number; rain: number; wetFrequency: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[] }
+export type WeatherKind = 'wet' | 'heat' | 'cold' | 'storm';
+export type WeatherLayer = 'temperature' | 'all' | WeatherKind | 'off';
+export interface WeatherFlag {
+  kind: WeatherKind; label: string; detail: string; basis: 'climate' | 'calendar' | 'estimate';
+  sourceLabel: string; sourceUrl?: string; temperature?: number;
+}
+export interface WeatherPeriod {
+  start: number;
+  days: number;
+  high: number;
+  rain: { source: 'forecast'; millimeters: number } | { source: 'historical'; wetFrequency: number };
+  comfortableDryDays: number;
+}
+export interface CityScore { weatherPeriods: WeatherPeriod[]; weatherDates: { start: string; end: string; forecast: string[] }; city: City; climate: CityClimate; score: number; comfortableDryDays: number; usableTemperatureFit: number; high: number; low: number; homeHigh: number; rain: number; wetFrequency: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[]; weatherFlags: WeatherFlag[] }
 export type RankedCity = CityScore & { rank: number };
 export interface Country { name: string; lat: number; lon: number }
 export interface TripEvent { cities: ReadonlySet<string>; start: number; end: number; crowd: number; name: string; festival: boolean }

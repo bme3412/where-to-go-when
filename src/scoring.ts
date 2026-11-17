@@ -1,12 +1,15 @@
+import type { DailyForecast, Forecasts } from './forecast';
 import { CITIES } from './data/cities';
 import { DOMESTIC_COUNTRY_GROUPS } from './data/origins';
 import { eventsForYear } from './data/events';
-import { RISKS } from './data/risks';
+import { weatherFlagsFor } from './weather';
 import { climateFor, temperatureFrequency, wetDayFrequency } from './climate';
-import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, TemperatureRange, Travel, Trip, TripEvent, Weights } from './types';
+import { bostonTrip } from './flights';
+import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, TemperatureRange, Travel, Trip, TripEvent, WeatherPeriod, Weights } from './types';
 
 export { easter, thanksgiving, eventsForYear } from './data/events';
 export const DAY = 86_400_000;
+export const TRAVEL_HOURS_PER_USABLE_DAY = 14;
 export const DEFAULT_WEIGHTS: Readonly<Weights> = { weather: 40, dry: 25, crowds: 10, travel: 25 };
 export const DEFAULT_TEMPERATURE: Readonly<TemperatureRange> = { min: 20, max: 30 };
 export const WEIGHT_KEYS = ['weather', 'dry', 'crowds', 'travel'] as const;
@@ -26,6 +29,30 @@ export function validateTrip(trip: Trip): string | null {
   if (start === null || end === null) return 'Pick both dates';
   if (end < start) return 'End date must be after the start date';
   return null;
+}
+
+/** Shift the departure month, clamp month-end dates, and retain inclusive trip length. */
+export function shiftTripMonth(trip: Trip, offset: number): Trip | null {
+  if (validateTrip(trip) || !Number.isInteger(offset)) return null;
+  const first = parseDate(trip.start)!, duration = parseDate(trip.end)! - first;
+  const shifted = new Date(first), day = shifted.getUTCDate();
+  shifted.setUTCDate(1); shifted.setUTCMonth(shifted.getUTCMonth() + offset);
+  const lastDay = new Date(shifted); lastDay.setUTCMonth(lastDay.getUTCMonth() + 1, 0);
+  shifted.setUTCDate(Math.min(day, lastDay.getUTCDate()));
+  const finish = new Date(shifted.getTime() + duration);
+  if (!Number.isFinite(shifted.getTime()) || !Number.isFinite(finish.getTime())) return null;
+  const result = { start: shifted.toISOString().slice(0, 10), end: finish.toISOString().slice(0, 10) };
+  return validateTrip(result) ? null : result;
+}
+
+/** Shift both dates in UTC, preserving the inclusive length across calendar boundaries. */
+export function shiftTripDays(trip: Trip, days: number): Trip | null {
+  if (validateTrip(trip) || !Number.isInteger(days)) return null;
+  const shift = (value: string) => new Date(parseDate(value)! + days * DAY);
+  const start = shift(trip.start), end = shift(trip.end);
+  if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime())) return null;
+  const shifted = { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
+  return validateTrip(shifted) ? null : shifted;
 }
 
 /** The next December 20 that has not passed, evaluated in the visitor's local calendar. */
@@ -107,15 +134,21 @@ export function distance(from: Pick<Place, 'lat' | 'lon'>, to: Pick<Place, 'lat'
   return 12742 * Math.asin(Math.sqrt(clamp(a, 0, 1)));
 }
 
-export function travel(home: Place, destination: Place, tripDays: number): Travel {
+export function travel(home: Place, destination: Place, tripDays: number, nonstopOnly = false): Travel {
   const km = distance(home, destination);
   const mode = km < 450 ? 'drive' : 'flight';
-  const hours = mode === 'drive' ? km / 75 : km / 780 + 0.6 + 2 + (km > 7000 ? 2 : 0) + (km > 12500 ? 2 : 0);
+  const estimate = mode === 'drive' ? km / 75 : km / 780 + 0.6 + 2 + (km > 7000 ? 2 : 0) + (km > 12500 ? 2 : 0);
+  const flights = home.name === 'Boston' && mode === 'flight' ? bostonTrip(destination.name, nonstopOnly) : undefined;
+  const outMinutes = flights?.outbound?.totalMinutes, backMinutes = flights?.inbound?.totalMinutes;
+  const hasOutbound = outMinutes != null, hasReturn = backMinutes != null;
+  const hours = hasOutbound ? outMinutes / 60 : estimate;
+  const returnHours = hasReturn ? backMinutes / 60 : estimate;
+  const basis = hasOutbound && hasReturn ? 'routes' : hasOutbound || hasReturn ? 'mixed' : 'distance';
   const difference = Math.abs(home.tz - destination.tz);
   const timeShift = Math.min(difference, 24 - difference);
-  const lost = Math.min(tripDays, 2 * hours / 14 + Math.min(1.2, 0.1 * timeShift));
+  const lost = Math.min(tripDays, (hours + returnHours) / TRAVEL_HOURS_PER_USABLE_DAY + Math.min(1.2, 0.1 * timeShift));
   const usable = tripDays - lost;
-  return { km, mode, hours, timeShift, lost, usable, factor: usable / tripDays };
+  return { km, mode, hours, returnHours, timeShift, lost, usable, factor: usable / tripDays, basis, flights };
 }
 
 export function tripEvents(trip: Trip): TripEvent[] {
@@ -124,7 +157,7 @@ export function tripEvents(trip: Trip): TripEvent[] {
   return events;
 }
 
-export function scoreCity(city: City, home: Origin, samples: SampledTrip, weights: Weights, events: readonly TripEvent[], temperatureRange: TemperatureRange = DEFAULT_TEMPERATURE): CityScore {
+export function scoreCity(city: City, home: Origin, samples: SampledTrip, weights: Weights, events: readonly TripEvent[], temperatureRange: TemperatureRange = DEFAULT_TEMPERATURE, nonstopOnly = false, forecast?: DailyForecast, homeForecast?: DailyForecast): CityScore {
   const temperatureError = validateTemperature(temperatureRange);
   if (temperatureError) throw new RangeError(temperatureError);
   const shares = normalizeWeights(weights);
@@ -136,60 +169,112 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const monthlyWet = climate.months.map(wetDayFrequency);
   const monthlyHome = homeClimate.months.map(month => month.meanHigh);
   const relevantEvents = events.filter(event => event.cities.has(city.name) || Boolean(city.region && event.cities.has(city.region)));
-  const relevantRisks = RISKS.filter(([cities]) => cities.has(city.name) || Boolean(city.region && cities.has(city.region)));
   const crowds = Array.from({ length: 12 }, (_, month) => city.peak.includes(month + 1) ? 0.8 : city.shoulder.includes(month + 1) ? 0.5 : 0.2);
   const eventNames = new Set<string>();
-  const riskNames = new Set<string>();
   const dealbreakers = new Set<Dealbreaker>();
   const highs: number[] = [], lows: number[] = [], homeHighs: number[] = [], rains: number[] = [], crowdLevels: number[] = [], wetLevels: number[] = [], weatherFits: number[] = [];
-  for (const { timestamp, month } of samples.days) {
-    const high = interp(monthlyHighs, month);
+  const start = samples.days[0].timestamp, end = start + (samples.tripDays - 1) * DAY;
+  const forecastDates = [...(forecast?.keys() ?? [])].filter(day => day >= start && day <= end).sort((a, b) => a - b);
+  const originDates = [...(homeForecast?.keys() ?? [])].filter(day => day >= start && day <= end);
+  const exactDates = [...forecastDates, ...originDates];
+  const days = samples.days;
+  // Forecast days get individual buckets even in trips with spaced climate samples.
+  const weatherSamples = exactDates.length ? [...new Set([...days.map(day => day.timestamp),
+    ...exactDates.flatMap(day => day < end ? [day, day + DAY] : [day])])].sort((a, b) => a - b) : days.map(day => day.timestamp);
+  const widths: number[] = [], historicalHighs: number[] = [], historicalLows: number[] = [], historicalWet: number[] = [];
+  for (const [index, timestamp] of weatherSamples.entries()) {
+    const month = fractionalMonth(timestamp);
+    const forecastDay = forecast?.get(timestamp);
+    const width = ((weatherSamples[index + 1] ?? end + DAY) - timestamp) / DAY;
+    const historicalHigh = interp(monthlyHighs, month), historicalLow = interp(monthlyLows, month);
+    const baselineWet = interp(monthlyWet, month);
+    const high = forecastDay?.high ?? historicalHigh;
     const rain = interp(monthlyRain, month);
-    const homeHigh = interp(monthlyHome, month);
-    const fit = interp(monthlyFits, month);
-    const wetFrequency = interp(monthlyWet, month);
+    const homeHigh = homeForecast?.get(timestamp)?.high ?? interp(monthlyHome, month);
+    const fit = forecastDay ? Number(high >= temperatureRange.min - 1e-8 && high <= temperatureRange.max + 1e-8) : interp(monthlyFits, month);
+    const wetFrequency = forecastDay ? Number(forecastDay.precipitation >= 1) : baselineWet;
     let crowd = interp(crowds, month);
-    for (const event of relevantEvents) {
-      if (timestamp >= event.start && timestamp <= event.end) {
-        crowd += event.crowd;
-        eventNames.add(event.name);
+    if ((timestamp - start) % (samples.step * DAY) === 0) {
+      for (const event of relevantEvents) {
+        if (timestamp >= event.start && timestamp <= event.end) {
+          crowd += event.crowd;
+          eventNames.add(event.name);
+        }
       }
-    }
-    crowd = clamp(crowd, 0.05, 0.92);
-    for (const [, peak, width, penalty, label] of relevantRisks) {
-      const contribution = penalty * bump(month, peak, width);
-      if (contribution > 0.04) riskNames.add(label);
+      crowd = clamp(crowd, 0.05, 0.92);
+      if (crowd > 0.86) dealbreakers.add('Packed');
+      crowdLevels.push(crowd); rains.push(rain);
+      historicalHighs.push(historicalHigh); historicalLows.push(historicalLow); historicalWet.push(baselineWet);
     }
     if (fit < 0.25 && high < temperatureRange.min) dealbreakers.add('Too cold');
     if (fit < 0.25 && high > temperatureRange.max) dealbreakers.add('Too hot');
     if (wetFrequency > 0.65) dealbreakers.add('Frequent precipitation');
-    if (crowd > 0.86) dealbreakers.add('Packed');
     weatherFits.push(fit); wetLevels.push(wetFrequency);
-    highs.push(high); lows.push(interp(monthlyLows, month)); homeHighs.push(homeHigh); rains.push(rain); crowdLevels.push(crowd);
+    highs.push(high); lows.push(forecastDay?.low ?? historicalLow); homeHighs.push(homeHigh);
+    widths.push(width);
   }
-  const journey = travel(home, city, samples.tripDays);
-  const fits: Weights = { weather: mean(weatherFits), dry: 1 - mean(wetLevels), crowds: 1 - mean(crowdLevels), travel: journey.factor };
+  const journey = travel(home, city, samples.tripDays, nonstopOnly);
+  // Place travel loss at the trip boundaries. Recovery is charged on arrival.
+  const usableEnd = samples.tripDays - journey.returnHours / TRAVEL_HOURS_PER_USABLE_DAY;
+  const usableStart = usableEnd - journey.usable;
+  let comfortableDays = 0, comfortableDryDays = 0;
+  const weatherPeriods: WeatherPeriod[] = [];
+  for (let index = 0; index < weatherSamples.length; index++) {
+    const offset = (weatherSamples[index] - start) / DAY;
+    const usableDays = Math.max(0, Math.min(offset + widths[index], usableEnd) - Math.max(offset, usableStart));
+    const comfortable = usableDays * weatherFits[index];
+    comfortableDays += comfortable;
+    const contribution = comfortable * (1 - wetLevels[index]);
+    comfortableDryDays += contribution;
+    const timestamp = weatherSamples[index], forecastDay = forecast?.get(timestamp);
+    weatherPeriods.push({
+      start: timestamp,
+      days: widths[index],
+      high: highs[index],
+      rain: forecastDay ? { source: 'forecast', millimeters: forecastDay.precipitation }
+        : { source: 'historical', wetFrequency: wetLevels[index] },
+      comfortableDryDays: contribution,
+    });
+  }
+  const usableTemperatureFit = journey.usable > 0 ? clamp(comfortableDays / journey.usable, 0, 1) : 0;
+  const weatherMean = (values: number[]) => exactDates.length
+    ? values.reduce((sum, value, index) => sum + value * widths[index], 0) / samples.tripDays : mean(values);
+  const fits: Weights = { weather: weatherMean(weatherFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: journey.factor };
   const contributions = Object.fromEntries(WEIGHT_KEYS.map(key => [key, fits[key] * shares[key]])) as unknown as Weights;
   const score = WEIGHT_KEYS.reduce((sum, key) => sum + contributions[key], 0);
+  const weatherFlags = weatherFlagsFor(city, climate, samples, { highs: historicalHighs, lows: historicalLows, wet: historicalWet });
+  const iso = (day: number) => new Date(day).toISOString().slice(0, 10);
   return {
-    city, climate, score,
-    high: mean(highs), low: mean(lows), homeHigh: mean(homeHighs), rain: mean(rains), wetFrequency: mean(wetLevels), crowd: mean(crowdLevels),
+    city, climate, score, comfortableDryDays, usableTemperatureFit,
+    weatherPeriods,
+    weatherDates: { start: iso(start), end: iso(end), forecast: forecastDates.map(iso) },
+    high: weatherMean(highs), low: weatherMean(lows), homeHigh: weatherMean(homeHighs), rain: mean(rains), wetFrequency: weatherMean(wetLevels), crowd: mean(crowdLevels),
     tripDays: samples.tripDays, travel: journey,
     breakdown: {
       fits, weights: shares, contributions, temperatureRange: { ...temperatureRange },
     },
-    events: [...eventNames], risks: [...riskNames], dealbreakers: [...dealbreakers],
+    events: [...eventNames], risks: weatherFlags.filter(flag => flag.basis !== 'climate').map(flag => flag.label), dealbreakers: [...dealbreakers], weatherFlags,
   };
 }
 
-export function scoreCities(trip: Trip, home: Origin, weights: Weights = DEFAULT_WEIGHTS, temperatureRange: TemperatureRange = DEFAULT_TEMPERATURE): CityScore[] {
+export function scoreCities(trip: Trip, home: Origin, weights: Weights = DEFAULT_WEIGHTS, temperatureRange: TemperatureRange = DEFAULT_TEMPERATURE, nonstopOnly = false, forecasts?: Forecasts): CityScore[] {
   const samples = sampleDays(trip), events = tripEvents(trip);
-  return CITIES.map(city => scoreCity(city, home, samples, weights, events, temperatureRange));
+  return CITIES.map(city => scoreCity(city, home, samples, weights, events, temperatureRange, nonstopOnly, forecasts?.get(city.name), forecasts?.get(home.name)));
 }
 
-export function rankCities(scores: readonly CityScore[]): RankedCity[] {
-  return scores.filter(result => result.travel.km >= 40)
-    .sort((a, b) => b.score - a.score || a.city.name.localeCompare(b.city.name))
+export function matchesTemperaturePreferences(result: CityScore, strict: boolean, warmerThanHome: boolean): boolean {
+  return (!strict || result.usableTemperatureFit >= 0.5)
+    && (!warmerThanHome || result.high > result.homeHigh);
+}
+
+export function isRankableCity(result: CityScore): boolean {
+  return result.travel.km >= 40 && result.travel.usable > 0;
+}
+
+export function rankCities(scores: readonly CityScore[], order: 'weather-days' | 'weighted' = 'weather-days'): RankedCity[] {
+  return scores.filter(isRankableCity)
+    .sort((a, b) => (order === 'weather-days' ? b.comfortableDryDays - a.comfortableDryDays : 0)
+      || b.score - a.score || a.city.name.localeCompare(b.city.name))
     .map((result, index) => ({ ...result, rank: index + 1 }));
 }
 

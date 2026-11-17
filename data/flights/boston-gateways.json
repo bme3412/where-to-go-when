@@ -1,0 +1,54 @@
+{
+  "Banff": {
+    "gateways": [{
+      "iata": "YYC",
+      "minutes": 120,
+      "mode": "ground",
+      "basis": "reviewed",
+      "note": "Calgary gateway. The tourism board describes about 90 minutes to Banff National Park; this app allows 120 minutes for the onward trip to Banff. Traffic and shuttle waits vary.",
+      "sourceUrl": "https://www.banfflakelouise.com/getting-here",
+      "checked": "2026-11-17"
+    }],
+    "note": "Uses Calgary as a regional gateway beyond the automatic 80 km radius."
+  },
+  "Interlaken": {
+    "gateways": [{
+      "iata": "ZRH",
+      "minutes": 150,
+      "mode": "train",
+      "basis": "reviewed",
+      "note": "Interlaken Tourism describes roughly 2.5 hours from Zurich Airport by train. This estimate does not check a particular train or waiting time.",
+      "sourceUrl": "https://www.interlaken.ch/fileadmin/pdf/toi/toi-2030-portrait-vision-strategy-en.pdf",
+      "checked": "2026-11-17"
+    }],
+    "note": "Uses Zurich as a regional gateway with an onward train estimate."
+  },
+  "Cape Cod": {
+    "airportCodes": ["HYA"],
+    "note": "Hyannis represents the mainland Cape Cod reference point. Nearby island airports are excluded; short trips from Boston use the driving estimate."
+  },
+  "Maafushi": {
+    "gateways": [{
+      "iata": "MLE",
+      "minutes": null,
+      "mode": "island",
+      "basis": "unverified",
+      "note": "The onward island transfer is not modeled. Route-based door-to-door time is unavailable.",
+      "sourceUrl": null,
+      "checked": null
+    }],
+    "note": "An airport route does not include the onward island transfer. The score uses the distance estimate."
+  },
+  "Galápagos": {
+    "gateways": [{
+      "iata": "GPS",
+      "minutes": null,
+      "mode": "island",
+      "basis": "unverified",
+      "note": "The onward transfer from Baltra to the Puerto Ayora reference point is not modeled.",
+      "sourceUrl": null,
+      "checked": null
+    }],
+    "note": "Both the flight connections and onward island transfer need further coverage."
+  }
+}
