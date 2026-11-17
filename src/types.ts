@@ -31,7 +31,7 @@ export interface StationSource extends SourceBase {
   qualityUrl?: string; qualityEvidenceUrl?: string; licenseUrl?: string; attribution?: string;
   stationMembers?: { stationId: string; stationName: string; lat: number; lon: number; elevation: number; start: string; end: string }[];
 }
-export interface GridSource extends SourceBase { kind: 'grid'; reason: string }
+export interface GridSource extends SourceBase { kind: 'grid'; reason: string; seriesSha256?: string }
 export type ClimateSource = StationSource | GridSource;
 export type AgencyReviewStatus = 'access-required' | 'request-required' | 'coverage-failed' | 'not-verified' | 'imported';
 export interface AgencyReview { agency: string; note: string; url: string; status?: AgencyReviewStatus; checked?: string }

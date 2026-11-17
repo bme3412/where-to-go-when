@@ -1,7 +1,7 @@
-import { destinationName } from './regions';
+import { destinationName, regionMetadata } from './regions';
 import type { CityClimate, CityScore, ClimateSource, Country, Origin, Unit, Weights } from './types';
 import { WEIGHT_KEYS } from './scoring';
-import { AGENCY_STATUS_LABELS, climateLabel, climateSourceKind, gridElevationMismatch } from './climate';
+import { AGENCY_STATUS_LABELS, climateLabel, climateSourceKind, gridElevationMismatch, sharedGridHistory } from './climate';
 
 export const BANDS = [
   { minimum: 75, range: '75–100', label: 'Strong match', key: 'great', color: '#3B6D11' },
@@ -86,6 +86,7 @@ function originalSourceFile(file: NonNullable<ClimateSource['rawInputs']>[number
 export function climateProvenance(climate: CityClimate): string {
   const mismatch = gridElevationMismatch(climate);
   const displayedInputs = new Set<string>();
+  const shared = sharedGridHistory(climate);
   const locality = climate.referenceLabel ?? climate.name;
   return `<section class="climate-provenance" aria-label="Climate data sources"><h3>Climate data · 1991–2020</h3><p class="source-intro"><strong>${escapeHtml(locality)}</strong><br>${climate.lat.toFixed(4)}°, ${climate.lon.toFixed(4)}° · about ${Math.round(climate.elevation)} m elevation.${climate.referenceUrl ? ` <a href="${escapeHtml(climate.referenceUrl)}" target="_blank" rel="noopener noreferrer">${climate.referenceUrl.includes('geonames.org') ? 'Reference location · GeoNames (CC BY 4.0)' : 'Reference location'} ↗</a>` : ''}${climate.referenceNote ? `<br>${escapeHtml(climate.referenceNote)}` : ''}</p>
     ${mismatch !== null ? `<p class="terrain-warning"><strong>Grid terrain mismatch:</strong> the regional model elevation is ${Math.abs(mismatch).toLocaleString('en-US')} m ${mismatch > 0 ? 'higher' : 'lower'} than this reference point. Grid-based factors may miss local conditions. No elevation correction or extra score penalty is applied.</p>` : ''}
@@ -101,6 +102,10 @@ export function climateProvenance(climate: CityClimate): string {
         context = `<p><a href="${escapeHtml(source.metadataUrl ?? source.lineageUrl ?? source.sourcePage ?? source.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.stationName)} ↗</a><br>${escapeHtml(source.provider)} · ${escapeHtml(source.stationId)}</p><p>${source.stationMembers ? 'All station locations within' : 'Station'} ${source.distanceKm.toFixed(1)} km ${source.stationMembers ? 'of' : 'from'} the reference point · ${source.stationMembers ? 'latest station' : 'station'} elevation ${Math.round(source.elevation)} m (${Math.abs(Math.round(source.elevationDifferenceM))} m ${source.elevationDifferenceM < 0 ? 'lower' : 'higher'}).<br>${records.toLocaleString('en-US')} accepted daily observations. Every calendar month has at least ${Math.floor(coverage * 100)}% of the baseline’s days and ${years} qualifying years.</p>${members}${source.qualityNote ? `<p>${escapeHtml(source.qualityNote)}</p>` : ''}${source.attribution ? `<p>${escapeHtml(source.attribution)}</p>` : ''}${source.qualityUrl || source.qualityEvidenceUrl ? `<a href="${escapeHtml(source.qualityUrl ?? source.qualityEvidenceUrl!)}" target="_blank" rel="noopener noreferrer">Agency quality notes ↗</a>` : ''}${source.licenseUrl ? ` <a href="${escapeHtml(source.licenseUrl)}" target="_blank" rel="noopener noreferrer">Source usage terms ↗</a>` : ''}`;
       } else {
         context = `<p><a href="${escapeHtml(source.sourceUrl)}" target="_blank" rel="noopener noreferrer">NASA POWER / MERRA-2 daily data ↗</a><br>Regional grid estimate · 0.5° × 0.625°. Grid elevation ${Math.round(climate.gridElevation)} m; local coasts and mountains may differ substantially.</p><p><strong>Why a grid estimate?</strong> ${escapeHtml(source.reason)}</p>`;
+      }
+      if (shared[variable].length) {
+        const peers = shared[variable].map(name => escapeHtml(destinationName({ name, ...regionMetadata(name) }))).join(', ');
+        context += `<p class="resolution-warning"><strong>Same ${variable === 'temperature' ? 'temperature' : 'precipitation'} history as ${peers}.</strong> The complete 1991–2020 daily grid values are identical. This factor cannot distinguish these places; any score difference comes from other factors. This does not establish identical local weather.</p>`;
       }
       let inputs = '';
       if (source.rawInputs?.length) {

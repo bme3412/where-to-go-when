@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Maafushi",
+    "agency": "Maldives Meteorological Service",
+    "status": "request-required",
+    "url": "https://v2.meteorology.gov.mv/climate-data-request",
+    "checked": "2026-11-16",
+    "note": "The current official form offers requested daily maximum/minimum temperature and rainfall as raw CSV and requires applicant details. It warns that nearest-island data may be substituted. This verifies the request route only; availability, station identity, licence, flags and qualifying 1991–2020 coverage for this island remain unverified. Any returned station must pass the unchanged distance/elevation and coverage rules. No request was submitted."
+  },
+  {
+    "name": "Dhigurah",
+    "agency": "Maldives Meteorological Service",
+    "status": "request-required",
+    "url": "https://v2.meteorology.gov.mv/climate-data-request",
+    "checked": "2026-11-16",
+    "note": "The current official form offers requested daily maximum/minimum temperature and rainfall as raw CSV and requires applicant details. It warns that nearest-island data may be substituted. This verifies the request route only; availability, station identity, licence, flags and qualifying 1991–2020 coverage for this island remain unverified. Any returned station must pass the unchanged distance/elevation and coverage rules. No request was submitted."
+  }
+]

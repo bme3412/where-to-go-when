@@ -526,5 +526,59 @@
     "referenceLabel": "Puerto Natales town · Chilean Patagonia",
     "referenceUrl": "https://www.geonames.org/3874958/puerto-natales.html",
     "referenceNote": "The reference point is Puerto Natales town by the Última Esperanza fjord, not Torres del Paine, mountain trails or all Patagonia. Peak and shoulder months inherit the old Patagonia regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Sanur",
+    "lat": -8.675,
+    "lon": 115.26111,
+    "tz": 8,
+    "referenceLabel": "Sanur coastal locality · Bali",
+    "referenceUrl": "https://www.geonames.org/1902387/sanur.html",
+    "referenceNote": "Sanur's coastal populated place is the reference point; it does not represent inland Bali or mountain resorts. Regional grids may not distinguish nearby coastal and inland locations. Peak and shoulder months inherit the existing Bali regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Ubud",
+    "lat": -8.5098,
+    "lon": 115.2654,
+    "tz": 8,
+    "referenceLabel": "Ubud town · inland Bali",
+    "referenceUrl": "https://www.geonames.org/1622846/ubud.html",
+    "referenceNote": "Ubud town in inland Gianyar is the reference point, not the whole district or the coastal Denpasar anchor. Regional grids can smooth local elevation and rainfall differences. Peak and shoulder months inherit the existing Bali regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Puerto de la Cruz",
+    "lat": 28.41686,
+    "lon": -16.55085,
+    "tz": 0,
+    "referenceLabel": "Puerto de la Cruz · north-coast Tenerife",
+    "referenceUrl": "https://www.geonames.org/2512196/puerto-de-la-cruz.html",
+    "referenceNote": "The reference point is the coastal town on Tenerife's north side, not the island as a whole or the existing El Médano anchor. Regional grids may smooth coast and slope differences. Peak and shoulder months inherit the existing Tenerife regional estimates, not measured local crowds."
+  },
+  {
+    "name": "La Orotava",
+    "lat": 28.39076,
+    "lon": -16.52309,
+    "tz": 0,
+    "referenceLabel": "La Orotava town · inland north Tenerife",
+    "referenceUrl": "https://www.geonames.org/2515692/la-orotava.html",
+    "referenceNote": "La Orotava town is the reference point, not the municipality's high mountain terrain or Teide summit. Regional grids can smooth the sharp elevation change from the nearby coast. Peak and shoulder months inherit the existing Tenerife regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Maafushi",
+    "lat": 3.94231,
+    "lon": 73.4907,
+    "tz": 5,
+    "referenceLabel": "Maafushi island · Kaafu Atoll",
+    "referenceUrl": "https://www.geonames.org/11777962/maafushi.html",
+    "referenceNote": "The reference point is the inhabited coral island of Maafushi in Kaafu Atoll, not all Maldives islands. Its 1991–2020 daily climate grid series is identical to the Malé reference; island and beach differences are unresolved. Peak and shoulder months inherit the old Maldives regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Dhigurah",
+    "lat": 3.53514,
+    "lon": 72.92896,
+    "tz": 5,
+    "referenceLabel": "Dhigurah island · South Ari Atoll",
+    "referenceUrl": "https://www.geonames.org/11103189/dhigurah.html",
+    "referenceNote": "The reference point is Dhigurah's inhabited village in South Ari Atoll, as identified by Visit Maldives, not the whole atoll or the Maldives. Regional grid estimates cannot resolve individual beaches, reefs or lagoons. Peak and shoulder months inherit the old Maldives regional estimates, not measured local crowds."
   }
 ]

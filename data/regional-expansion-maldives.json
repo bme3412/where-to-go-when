@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Maafushi",
+    "region": "Maldives",
+    "lat": 3.94231,
+    "lon": 73.4907,
+    "country": "Maldives",
+    "tz": 5,
+    "referenceLabel": "Maafushi island · Kaafu Atoll",
+    "referenceUrl": "https://www.geonames.org/11777962/maafushi.html",
+    "referenceNote": "The reference point is the inhabited coral island of Maafushi in Kaafu Atoll, not all Maldives islands. Its 1991–2020 daily climate grid series is identical to the Malé reference; island and beach differences are unresolved. Peak and shoulder months inherit the old Maldives regional estimates, not measured local crowds.",
+    "peak": [
+      12,
+      1,
+      2,
+      3
+    ],
+    "shoulder": [
+      4,
+      11
+    ]
+  },
+  {
+    "name": "Dhigurah",
+    "region": "Maldives",
+    "lat": 3.53514,
+    "lon": 72.92896,
+    "country": "Maldives",
+    "tz": 5,
+    "referenceLabel": "Dhigurah island · South Ari Atoll",
+    "referenceUrl": "https://www.geonames.org/11103189/dhigurah.html",
+    "referenceNote": "The reference point is Dhigurah's inhabited village in South Ari Atoll, as identified by Visit Maldives, not the whole atoll or the Maldives. Regional grid estimates cannot resolve individual beaches, reefs or lagoons. Peak and shoulder months inherit the old Maldives regional estimates, not measured local crowds.",
+    "peak": [
+      12,
+      1,
+      2,
+      3
+    ],
+    "shoulder": [
+      4,
+      11
+    ]
+  }
+]

@@ -1,10 +1,11 @@
 {
-  "auditedAt": "2026-11-17T01:13:10.139152+00:00",
+  "auditedAt": "2026-11-17T01:26:16.418019+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 89 reference points, all 77 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 95 reference points, all 83 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 969,
+    "sourceFingerprints": 981,
+    "dailyGridFingerprints": true,
     "monthDenominators": true,
     "histogramCounts": true,
     "coveragePolicy": true,
@@ -15,7 +16,7 @@
   },
   "destinationCounts": {
     "station": 28,
-    "grid": 43,
+    "grid": 49,
     "mixed": 6
   },
   "additions": [
@@ -41,6 +42,30 @@
     },
     {
       "name": "Puerto Natales",
+      "source": "grid"
+    },
+    {
+      "name": "Sanur",
+      "source": "grid"
+    },
+    {
+      "name": "Ubud",
+      "source": "grid"
+    },
+    {
+      "name": "Puerto de la Cruz",
+      "source": "grid"
+    },
+    {
+      "name": "La Orotava",
+      "source": "grid"
+    },
+    {
+      "name": "Maafushi",
+      "source": "grid"
+    },
+    {
+      "name": "Dhigurah",
       "source": "grid"
     }
   ],
@@ -465,7 +490,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 77 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 83 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -2344,6 +2369,132 @@
       "name": "Puerto Natales",
       "kind": "grid",
       "reference": "Puerto Natales town · Chilean Patagonia",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Sanur",
+      "kind": "grid",
+      "reference": "Sanur coastal locality · Bali",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Ubud",
+      "kind": "grid",
+      "reference": "Ubud town · inland Bali",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Puerto de la Cruz",
+      "kind": "grid",
+      "reference": "Puerto de la Cruz · north-coast Tenerife",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "La Orotava",
+      "kind": "grid",
+      "reference": "La Orotava town · inland north Tenerife",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Maafushi",
+      "kind": "grid",
+      "reference": "Maafushi island · Kaafu Atoll",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Dhigurah",
+      "kind": "grid",
+      "reference": "Dhigurah island · South Ari Atoll",
       "factors": {
         "temperature": {
           "kind": "grid",

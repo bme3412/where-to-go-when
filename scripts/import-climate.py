@@ -22,6 +22,11 @@ CACHE = ROOT / '.climate-cache'
 START, END = '19910101', '20201231'
 EXPECTED = (dt.date(2020, 12, 31) - dt.date(1991, 1, 1)).days + 1
 PARAMETERS = ['T2M_MAX', 'T2M_MIN', 'PRECTOTCORR']
+BASELINE_DATES = {(dt.date(1991, 1, 1) + dt.timedelta(days=index)).strftime('%Y%m%d') for index in range(EXPECTED)}
+
+
+def validate_calendar(values):
+    assert all(set(values[parameter]) == BASELINE_DATES for parameter in PARAMETERS), 'Invalid or incomplete daily calendar'
 
 
 def source_url(place):
@@ -38,6 +43,14 @@ def quantile(values, fraction):
     return round(ordered[low] + (ordered[min(low + 1, len(ordered) - 1)] - ordered[low]) * (position - low), 2)
 
 
+def series_fingerprints(values):
+    """Compare complete dated readings, independent of requested point or API metadata."""
+    return {factor: hashlib.sha256(json.dumps({key: values[key] for key in keys},
+            sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+            for factor, keys in [('temperature', ['T2M_MAX', 'T2M_MIN']),
+                                 ('precipitation', ['PRECTOTCORR'])]}
+
+
 def aggregate(place, raw, fetched):
     data = json.loads(raw)
     header = data['header']
@@ -48,6 +61,7 @@ def aggregate(place, raw, fetched):
     assert data['parameters']['T2M_MIN']['units'] == 'C'
     assert data['parameters']['PRECTOTCORR']['units'] == 'mm/day'
     values = data['properties']['parameter']
+    validate_calendar(values)
     dates = sorted(values['T2M_MAX'])
     assert len(dates) == EXPECTED and dates[0] == START and dates[-1] == END, 'Incomplete date coverage'
     months = [[] for _ in range(12)]
@@ -74,7 +88,7 @@ def aggregate(place, raw, fetched):
                 gridElevation=data['geometry']['coordinates'][2],
                 sourceUrl=source_url(place), retrieved=fetched,
                 sha256=hashlib.sha256(raw).hexdigest(), apiVersion=header['api']['version'],
-                months=summaries)
+                months=summaries, seriesSha256=series_fingerprints(values))
 
 
 def fetch(place):

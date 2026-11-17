@@ -4,7 +4,7 @@ import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
 import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
 import { band, displayedContributions, climateProvenance, scoreBreakdown } from './format';
-import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency, gridElevationMismatch } from './climate';
+import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency, gridElevationMismatch, sharedGridHistory, climateResolutionLabel } from './climate';
 import { auditDestinations, auditRows, sourceCounts } from './audit';
 import type { ClimateMonth, Weights } from './types';
 
@@ -14,8 +14,8 @@ const destination = (name: string) => CITIES.find(city => city.name === name)!;
 const results = (start: string, end: string, home = boston) => scoreCities({ start, end }, home, DEFAULT_WEIGHTS);
 
 describe('reference data', () => {
-  it('contains all 77 destinations, 24 origins, and timezone offsets', () => {
-    expect(CITIES).toHaveLength(77);
+  it('contains all 83 destinations, 24 origins, and timezone offsets', () => {
+    expect(CITIES).toHaveLength(83);
     expect(ORIGINS).toHaveLength(24);
     expect(CITIES.every(city => Number.isFinite(TZ[city.name]))).toBe(true);
   });
@@ -194,9 +194,9 @@ describe('sourced climate baseline', () => {
     expect(climateProvenance(climateFor('Queenstown'))).toContain('Grid terrain mismatch');
   });
   it('makes all destinations searchable independently of rankings and source type', () => {
-    expect(auditDestinations('', 'all')).toHaveLength(77);
-    expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(77);
-    expect(sourceCounts).toEqual({station:28,mixed:6,grid:43});
+    expect(auditDestinations('', 'all')).toHaveLength(83);
+    expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(83);
+    expect(sourceCounts).toEqual({station:28,mixed:6,grid:49});
     expect(auditDestinations('Queenstown', 'grid').map(c => c.name)).toEqual(['Queenstown']);
     expect(auditDestinations('El Médano', 'station').map(c => c.name)).toEqual(['Tenerife']);
     expect(auditDestinations('Banff', 'mixed').map(c => c.name)).toEqual(['Banff']);
@@ -413,5 +413,43 @@ describe('specific regional destinations', () => {
     }
     expect(gridElevationMismatch(climateFor('El Chaltén'))).not.toBeNull();
     expect(climateProvenance(climateFor('Puerto Natales'))).toContain('Grid terrain mismatch');
+  });
+});
+
+
+describe('island and inland climate resolution', () => {
+  it('names the original reference points and exposes three places per new region', () => {
+    for (const [key, name] of [['Bali', 'Denpasar'], ['Tenerife', 'El Médano'], ['Maldives', 'Malé']]) {
+      expect(destination(key).displayName).toBe(name);
+      expect(auditDestinations(key, 'all')).toHaveLength(3);
+    }
+    expect(climateFor('Tenerife').sources.temperature.kind).toBe('station');
+    for (const name of ['Sanur', 'Ubud', 'Puerto de la Cruz', 'La Orotava', 'Maafushi', 'Dhigurah']) {
+      const city = destination(name), climate = climateFor(name);
+      expect([climate.lat, climate.lon]).toEqual([city.lat, city.lon]);
+      const query = new URL(climate.sourceUrl).searchParams;
+      expect(Number(query.get('latitude'))).toBe(city.lat);
+      expect(Number(query.get('longitude'))).toBe(city.lon);
+    }
+  });
+  it('flags confirmed identical daily histories without claiming identical local weather', () => {
+    expect(sharedGridHistory(climateFor('Ubud'))).toEqual({temperature:['Bali', 'Sanur'], precipitation:['Bali', 'Sanur']});
+    expect(sharedGridHistory(climateFor('La Orotava'))).toEqual({temperature:['Puerto de la Cruz'], precipitation:['Puerto de la Cruz']});
+    expect(sharedGridHistory(climateFor('Maafushi'))).toEqual({temperature:['Maldives'], precipitation:['Maldives']});
+    expect(sharedGridHistory(climateFor('Dhigurah'))).toEqual({temperature:[], precipitation:[]});
+    expect(climateResolutionLabel(climateFor('Dhigurah'))).toBe('Local differences unresolved by grid');
+    expect(climateProvenance(climateFor('Ubud'))).toContain('Same temperature history as Denpasar, Sanur');
+    expect(climateProvenance(climateFor('Maafushi'))).toContain('does not establish identical local weather');
+  });
+  it('ignores matching summaries, absent fingerprints, other regions and station factors', () => {
+    const sanur = climateFor('Sanur');
+    const source = sanur.sources.temperature;
+    if (source.kind !== 'grid') throw new Error('Expected grid fixture');
+    const changed = {...sanur, sources:{...sanur.sources, temperature:{...source, seriesSha256:'different'}}};
+    expect(sharedGridHistory(changed).temperature).toEqual([]);
+    expect(sharedGridHistory(changed).precipitation).toEqual(['Bali', 'Ubud']);
+    expect(sharedGridHistory({...changed, sources:{...changed.sources, temperature:{...source, seriesSha256:undefined}}}).temperature).toEqual([]);
+    expect(sharedGridHistory({...sanur, name:'Patagonia'})).toEqual({temperature:[], precipitation:[]});
+    expect(sharedGridHistory({...sanur, sources:{...sanur.sources, temperature:climateFor('Tenerife').sources.temperature}}).temperature).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
-import { destinationName, REGIONS } from './regions';
+import { destinationName, REGIONS, REGION_DESCRIPTIONS } from './regions';
 import './style.css';
 import { ORIGINS } from './data/origins';
-import { climateLabel, climateSourceKind } from './climate';
+import { climateLabel, climateSourceKind, climateResolutionLabel } from './climate';
 import { auditContent, auditDestinations, auditRows } from './audit';
 import type { AuditFilter } from './audit';
 import { band, cityTooltip, countryTooltip, crowdWord, difference, displayCountry, escapeHtml, hours, rainWord, scoreBreakdown, temperature } from './format';
@@ -79,7 +79,7 @@ app.innerHTML = `
   </section>
   <footer class="app-footer"><button type="button" class="text-button" id="explore-regions" aria-haspopup="dialog">Explore regions</button><button type="button" class="text-button" data-show-method aria-haspopup="dialog" aria-controls="method-dialog">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>')}Scoring & data</button><button type="button" class="text-button" id="show-audit" aria-haspopup="dialog" aria-controls="audit-dialog">Data audit · all destinations</button><span>Climate averages, not a forecast.</span></footer>
   <p id="rank-announcement" class="sr-only" role="status" aria-live="polite"></p>
-  <dialog id="regions-dialog" class="method-dialog regions-dialog" aria-labelledby="regions-title"><button type="button" class="icon-button dialog-close" aria-label="Close region explorer">${closeIcon}</button><h2 id="regions-title">Explore a region</h2><p>Compare specific towns, islands and coastlines.</p><div class="region-choices">${REGIONS.map(region => `<button type="button" class="region-choice" data-region="${region}"><strong>${region}</strong><span>${region === 'Galápagos' ? 'Santa Cruz · San Cristóbal · Isabela' : region === 'Goa' ? 'Panaji · Palolem · inland Bandoli' : 'El Calafate · El Chaltén · Puerto Natales'}</span></button>`).join('')}</div></dialog>
+  <dialog id="regions-dialog" class="method-dialog regions-dialog" aria-labelledby="regions-title"><button type="button" class="icon-button dialog-close" aria-label="Close region explorer">${closeIcon}</button><h2 id="regions-title">Explore a region</h2><p>Compare specific towns, islands and coastlines.</p><div class="region-choices">${REGIONS.map(region => `<button type="button" class="region-choice" data-region="${region}"><strong>${region}</strong><span>${REGION_DESCRIPTIONS[region]}</span></button>`).join('')}</div></dialog>
   <dialog id="details-dialog" class="detail-dialog" aria-label="Destination details"><button type="button" class="icon-button dialog-close" aria-label="Close destination details">${closeIcon}</button><div id="details-content"></div></dialog>
   <dialog id="audit-dialog" class="method-dialog audit-dialog" aria-labelledby="audit-title"><button type="button" class="icon-button dialog-close" aria-label="Close data audit">${closeIcon}</button>${auditContent}</dialog>
   <dialog id="method-dialog" class="method-dialog" aria-labelledby="method-title"><button type="button" class="icon-button dialog-close" aria-label="Close scoring explanation">${closeIcon}</button>${methodContent}</dialog>
@@ -289,7 +289,7 @@ function renderRegion(): void {
   panel.hidden = !activeRegion;
   if (!activeRegion) return;
   const places = rankCities(cityScores.filter(result => result.city.region === activeRegion));
-  panel.innerHTML = `<div class="region-heading"><strong>${escapeHtml(activeRegion)}</strong><button type="button" class="text-button" data-region-fit>View region</button><button type="button" class="icon-button" data-region-close aria-label="Close regional places">${closeIcon}</button></div><div class="region-places">${places.map(result => `<button type="button" data-city="${escapeHtml(result.city.name)}" aria-pressed="${result.city.name === selectedName}"><strong><i class="swatch" style="--swatch:${band(result.score).color}"></i>${escapeHtml(destinationName(result.city))}</strong><span>${Math.round(result.score)} match · ${temperature(result.high, unit)}</span><small>${climateLabel(result.climate)}</small></button>`).join('')}</div><p>${places.length ? 'Separate reference points. Regional grids may smooth local differences; crowd estimates are shared across the region.' : 'No places in this region match your destination filter.'}</p>`;
+  panel.innerHTML = `<div class="region-heading"><strong>${escapeHtml(activeRegion)}</strong><button type="button" class="text-button" data-region-fit>View region</button><button type="button" class="icon-button" data-region-close aria-label="Close regional places">${closeIcon}</button></div><div class="region-places">${places.map(result => `<button type="button" data-city="${escapeHtml(result.city.name)}" aria-pressed="${result.city.name === selectedName}"><strong><i class="swatch" style="--swatch:${band(result.score).color}"></i>${escapeHtml(destinationName(result.city))}</strong><span>${Math.round(result.score)} match · ${temperature(result.high, unit)}</span><small>${climateLabel(result.climate)}</small>${climateResolutionLabel(result.climate) ? `<small class="resolution-flag">${climateResolutionLabel(result.climate)}</small>` : ''}</button>`).join('')}</div><p>${places.length ? `Separate reference points. ${activeRegion === 'Maldives' ? 'Island comparisons, not an inland/coastal split. Small islands may be absent from the basemap. ' : ''}Grid estimates cannot establish local beach, slope or neighborhood differences. Crowd estimates are shared across the region.` : 'No places in this region match your destination filter.'}</p>`;
   if (focusedCity) [...panel.querySelectorAll<HTMLButtonElement>('[data-city]')].find(button => button.dataset.city === focusedCity)?.focus();
 }
 function fitRegion(): void {
@@ -300,7 +300,8 @@ document.querySelector('#explore-regions')!.addEventListener('click', () => { hi
 regionsDialog.addEventListener('click', event => {
   const region = (event.target as Element).closest<HTMLElement>('[data-region]')?.dataset.region;
   if (!region) return;
-  activeRegion = region; regionsDialog.close(); renderRegion(); fitRegion();
+  activeRegion = region; selectedName = null; globe.setSelected(null); renderLists(); renderSelection();
+  regionsDialog.close(); renderRegion(); fitRegion();
   regionExplorer.querySelector<HTMLButtonElement>('[data-city]')?.focus();
 });
 regionExplorer.addEventListener('click', event => {

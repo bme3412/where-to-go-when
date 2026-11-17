@@ -1,0 +1,214 @@
+{
+  "checked": "2026-11-16",
+  "coordinateLicense": "CC BY 4.0",
+  "coordinateLicenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "coordinateAttribution": "Coordinates and locality records: GeoNames, https://www.geonames.org/.",
+  "coordinateLicenseSourceUrl": "https://www.geonames.org/about.html",
+  "referencePolicy": "Use verified populated-place points; preserve existing Bali/Denpasar (-8.65, 115.22) and Tenerife/El Médano (28.041389, -16.541944) anchors. These coordinates identify places, not weather stations.",
+  "crowdSeasonPolicy": "Peak and shoulder arrays inherit existing CITY_ROWS regional estimates verbatim. They are not measured local crowds.",
+  "timeZonePolicy": "Numeric tz fields follow the app's existing fixed standard-offset model: Bali +8, Tenerife 0. Atlantic/Canary has seasonal daylight saving; fixed offsets are a travel heuristic, not a date-specific time-zone conversion.",
+  "climatePolicy": "Each new point has an independently requested and validated 1991–2020 NASA POWER baseline. Identical actual daily series are explicitly identified; no neighbouring station observations are copied. Exact point labels do not increase the regional MERRA-2 source resolution.",
+  "records": [
+    {
+      "name": "Sanur",
+      "region": "Bali",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/1902387/sanur.html",
+      "lat": -8.675,
+      "lon": 115.26111,
+      "geographicElevationM": 10,
+      "tourismSourceUrl": "https://www.indonesia.travel/gb/en/destination/bali-nusa-tenggara/bali/sanur0",
+      "tourismPublisher": "Indonesia Ministry of Tourism / Wonderful Indonesia",
+      "timeZone": "Asia/Makassar",
+      "note": "Official destination page identifies Sanur Beach and its location near Denpasar.",
+      "peak": [
+        7,
+        8,
+        12
+      ],
+      "shoulder": [
+        5,
+        6,
+        9
+      ],
+      "baseline": {
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX%2CT2M_MIN%2CPRECTOTCORR&community=AG&longitude=115.26111&latitude=-8.675&start=19910101&end=20201231&format=JSON&time-standard=LST",
+        "gridElevation": 313.73,
+        "retrieved": "2026-11-17T01:21:02.318045+00:00",
+        "sha256": "1ad7607097f39d5ee2ac8e96532cb17bafcca803933369e0599316410d793f36",
+        "baselineDays": 10958,
+        "dailySeriesSha256": "757f31ec24d8d6a7b658a5342db82b407195b000de2f442b8d354cf5f1ebdbe8",
+        "identicalDailySeriesWith": [
+          "Ubud",
+          "Bali"
+        ],
+        "cachePath": ".climate-cache/b47f64ba1d8db6e14285.json",
+        "elevationDifferenceFromGeographicPointM": 303.73,
+        "qualityNote": "Every daily T2M_MAX, T2M_MIN and PRECTOTCORR value across 1991–2020 is identical to the listed points. This is a shared regional estimate, not independent evidence of identical local climate.",
+        "reportedPointCoordinates": [
+          115.261,
+          -8.675
+        ],
+        "coordinateNote": "The request URL preserves the exact verified locality point; NASA response geometry rounds longitude/latitude to three decimals."
+      }
+    },
+    {
+      "name": "Ubud",
+      "region": "Bali",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/1622846/ubud.html",
+      "lat": -8.5098,
+      "lon": 115.2654,
+      "geographicElevationM": 210,
+      "tourismSourceUrl": "https://www.indonesia.travel/gb/en/destination/bali-nusa-tenggara/bali/ubud",
+      "tourismPublisher": "Indonesia Ministry of Tourism / Wonderful Indonesia",
+      "timeZone": "Asia/Makassar",
+      "note": "Official destination page identifies Ubud in central Bali; selected geographic record is the populated town in Gianyar.",
+      "peak": [
+        7,
+        8,
+        12
+      ],
+      "shoulder": [
+        5,
+        6,
+        9
+      ],
+      "baseline": {
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX%2CT2M_MIN%2CPRECTOTCORR&community=AG&longitude=115.2654&latitude=-8.5098&start=19910101&end=20201231&format=JSON&time-standard=LST",
+        "gridElevation": 313.73,
+        "retrieved": "2026-11-17T01:21:02.432464+00:00",
+        "sha256": "b7a3079bf9b6aaa35f72a047dd7b12391bc30757f5e278a41357594f1bca265e",
+        "baselineDays": 10958,
+        "dailySeriesSha256": "757f31ec24d8d6a7b658a5342db82b407195b000de2f442b8d354cf5f1ebdbe8",
+        "identicalDailySeriesWith": [
+          "Sanur",
+          "Bali"
+        ],
+        "cachePath": ".climate-cache/3c8608951fc3ba363f7a.json",
+        "elevationDifferenceFromGeographicPointM": 103.73,
+        "qualityNote": "Every daily T2M_MAX, T2M_MIN and PRECTOTCORR value across 1991–2020 is identical to the listed points. This is a shared regional estimate, not independent evidence of identical local climate.",
+        "reportedPointCoordinates": [
+          115.265,
+          -8.51
+        ],
+        "coordinateNote": "The request URL preserves the exact verified locality point; NASA response geometry rounds longitude/latitude to three decimals."
+      }
+    },
+    {
+      "name": "Puerto de la Cruz",
+      "region": "Tenerife",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/2512196/puerto-de-la-cruz.html",
+      "lat": 28.41686,
+      "lon": -16.55085,
+      "geographicElevationM": 19,
+      "tourismSourceUrl": "https://www.webtenerife.com/tenerife/la-isla/municipios/puerto-cruz/",
+      "tourismPublisher": "Turismo de Tenerife",
+      "timeZone": "Atlantic/Canary",
+      "note": "Official destination page identifies the coastal town on the coast of the La Orotava valley; selected record is the populated town, not municipality centroid.",
+      "peak": [
+        12,
+        1,
+        2,
+        3,
+        7,
+        8
+      ],
+      "shoulder": [
+        10,
+        11,
+        4
+      ],
+      "baseline": {
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX%2CT2M_MIN%2CPRECTOTCORR&community=AG&longitude=-16.55085&latitude=28.41686&start=19910101&end=20201231&format=JSON&time-standard=LST",
+        "gridElevation": 178.78,
+        "retrieved": "2026-11-17T01:21:03.535650+00:00",
+        "sha256": "1835188cb6097ade97605969c56c5491fceb1d36b3342b3395b059674eb2bebb",
+        "baselineDays": 10958,
+        "dailySeriesSha256": "f40db5f4dae0d64dab5803aaf1013a4332684c0ccce7cddd0b00100a4dd4fd6b",
+        "identicalDailySeriesWith": [
+          "La Orotava"
+        ],
+        "cachePath": ".climate-cache/e68d9a2907e7d932bbee.json",
+        "elevationDifferenceFromGeographicPointM": 159.78,
+        "qualityNote": "Every daily T2M_MAX, T2M_MIN and PRECTOTCORR value across 1991–2020 is identical to the listed points. This is a shared regional estimate, not independent evidence of identical local climate.",
+        "reportedPointCoordinates": [
+          -16.551,
+          28.417
+        ],
+        "coordinateNote": "The request URL preserves the exact verified locality point; NASA response geometry rounds longitude/latitude to three decimals."
+      }
+    },
+    {
+      "name": "La Orotava",
+      "region": "Tenerife",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/2515692/la-orotava.html",
+      "lat": 28.39076,
+      "lon": -16.52309,
+      "geographicElevationM": 355,
+      "tourismSourceUrl": "https://www.webtenerife.com/que-visitar/lugares-historicos/centros-historicos/la-orotava/",
+      "tourismPublisher": "Turismo de Tenerife",
+      "timeZone": "Atlantic/Canary",
+      "note": "Official historic-centre page identifies the town in the upper part of the valley; selected geographic point is the town, not Teide summit or the municipality's mountain territory.",
+      "peak": [
+        12,
+        1,
+        2,
+        3,
+        7,
+        8
+      ],
+      "shoulder": [
+        10,
+        11,
+        4
+      ],
+      "baseline": {
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX%2CT2M_MIN%2CPRECTOTCORR&community=AG&longitude=-16.52309&latitude=28.39076&start=19910101&end=20201231&format=JSON&time-standard=LST",
+        "gridElevation": 178.78,
+        "retrieved": "2026-11-17T01:21:03.603095+00:00",
+        "sha256": "89024d347a47fb2fc91e3211404d74993071cc18276b9179a9cce19e71585d77",
+        "baselineDays": 10958,
+        "dailySeriesSha256": "f40db5f4dae0d64dab5803aaf1013a4332684c0ccce7cddd0b00100a4dd4fd6b",
+        "identicalDailySeriesWith": [
+          "Puerto de la Cruz"
+        ],
+        "cachePath": ".climate-cache/714864d1711ae4290030.json",
+        "elevationDifferenceFromGeographicPointM": -176.22,
+        "qualityNote": "Every daily T2M_MAX, T2M_MIN and PRECTOTCORR value across 1991–2020 is identical to the listed points. This is a shared regional estimate, not independent evidence of identical local climate.",
+        "reportedPointCoordinates": [
+          -16.523,
+          28.391
+        ],
+        "coordinateNote": "The request URL preserves the exact verified locality point; NASA response geometry rounds longitude/latitude to three decimals."
+      }
+    }
+  ],
+  "originalAnchors": [
+    {
+      "name": "Bali",
+      "lat": -8.65,
+      "lon": 115.22,
+      "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX%2CT2M_MIN%2CPRECTOTCORR&community=AG&longitude=115.22&latitude=-8.65&start=19910101&end=20201231&format=JSON&time-standard=LST",
+      "gridElevation": 313.73,
+      "existingAnchor": true,
+      "dailySeriesSha256": "757f31ec24d8d6a7b658a5342db82b407195b000de2f442b8d354cf5f1ebdbe8",
+      "identicalDailySeriesWith": [
+        "Sanur",
+        "Ubud"
+      ]
+    },
+    {
+      "name": "Tenerife",
+      "lat": 28.041389,
+      "lon": -16.541944,
+      "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX%2CT2M_MIN%2CPRECTOTCORR&community=AG&longitude=-16.541944&latitude=28.041389&start=19910101&end=20201231&format=JSON&time-standard=LST",
+      "gridElevation": 135.6,
+      "existingAnchor": true,
+      "dailySeriesSha256": "ce7b158dbefe1b4bba8a28e0278fd96b9a63905aacbf901f086317b40e537dd0",
+      "identicalDailySeriesWith": []
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import baseline from './data/climate.json';
+import { regionMetadata } from './regions';
 import type { AgencyReviewStatus, CityClimate, ClimateMonth, TemperatureRange } from './types';
 
 export const CLIMATE_SOURCE = baseline;
@@ -52,4 +53,27 @@ export const AGENCY_STATUS_LABELS: Record<AgencyReviewStatus, string> = {
 export function gridElevationMismatch(climate: CityClimate): number | null {
   const difference = Math.round(climate.gridElevation - climate.elevation);
   return Object.values(climate.sources).some(source => source.kind === 'grid') && Math.abs(difference) >= 300 ? difference : null;
+}
+
+/** Equal complete daily series, not merely equal rounded averages or nearby coordinates. */
+export function sharedGridHistory(climate: CityClimate): { temperature: string[]; precipitation: string[] } {
+  const region = regionMetadata(climate.name).region;
+  const peers = region ? Object.values(locations).filter(peer => peer.name !== climate.name && regionMetadata(peer.name).region === region) : [];
+  const matches = (factor: 'temperature' | 'precipitation') => {
+    const source = climate.sources[factor];
+    if (source.kind !== 'grid' || !source.seriesSha256) return [];
+    return peers.filter(peer => {
+      const other = peer.sources[factor];
+      return other.kind === 'grid' && other.seriesSha256 === source.seriesSha256;
+    }).map(peer => peer.name);
+  };
+  return { temperature: matches('temperature'), precipitation: matches('precipitation') };
+}
+
+export function climateResolutionLabel(climate: CityClimate): string {
+  const shared = sharedGridHistory(climate);
+  if (shared.temperature.length && shared.precipitation.length) return 'Shared temperature & precipitation';
+  if (shared.temperature.length) return 'Shared temperature history';
+  if (shared.precipitation.length) return 'Shared precipitation history';
+  return climateSourceKind(climate) !== 'station' ? 'Local differences unresolved by grid' : '';
 }

@@ -11,6 +11,24 @@ spec.loader.exec_module(stations)
 
 
 class StationQualityTests(unittest.TestCase):
+    def test_grid_calendar_rejects_invalid_dates_and_mismatched_factor_keys(self):
+        values = {parameter: dict.fromkeys(stations.grid.BASELINE_DATES, 1) for parameter in stations.grid.PARAMETERS}
+        stations.grid.validate_calendar(values)
+        values['PRECTOTCORR']['19910132'] = values['PRECTOTCORR'].pop('19910102')
+        with self.assertRaises(AssertionError):
+            stations.grid.validate_calendar(values)
+
+    def test_grid_comparison_checks_complete_daily_factors_independently(self):
+        first = {'T2M_MAX': {'19910101': 25, '19910102': 30},
+                 'T2M_MIN': {'19910101': 18, '19910102': 20},
+                 'PRECTOTCORR': {'19910101': 0, '19910102': 2}}
+        reordered = {key: dict(reversed(list(values.items()))) for key, values in first.items()}
+        self.assertEqual(stations.grid.series_fingerprints(first), stations.grid.series_fingerprints(reordered))
+        swapped_rain = {**first, 'PRECTOTCORR': {'19910101': 2, '19910102': 0}}
+        before, after = stations.grid.series_fingerprints(first), stations.grid.series_fingerprints(swapped_rain)
+        self.assertEqual(before['temperature'], after['temperature'])
+        self.assertNotEqual(before['precipitation'], after['precipitation'])
+
     def cell(self, value, measurement=' ', quality=' ', source='0'):
         return f'{value:5d}{measurement}{quality}{source}'
 

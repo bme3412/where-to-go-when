@@ -218,6 +218,7 @@ def inventory():
 
 def build_place(place, stations, version):
     result = grid.fetch(place)
+    series_hashes = result.pop('seriesSha256')
     for month in result['months']:
         month['temperatureDays'] = month['precipitationDays'] = month.pop('days')
     result['elevation'] = place['elevation']
@@ -271,7 +272,7 @@ def build_place(place, stations, version):
             reason = ' '.join(dict.fromkeys(value for value in agency_reasons if value))
         found[variable] = dict(kind='grid', provider='NASA POWER / MERRA-2', sourceUrl=result['sourceUrl'],
                                retrieved=result['retrieved'], sha256=result['sha256'], version=result['apiVersion'],
-                               reason=reason, coverage=[dict(days=m[variable + 'Days'], expectedDays=m[variable + 'Days'], years=30, decadeYears=[10, 10, 10]) for m in result['months']])
+                               reason=reason, seriesSha256=series_hashes[variable], coverage=[dict(days=m[variable + 'Days'], expectedDays=m[variable + 'Days'], years=30, decadeYears=[10, 10, 10]) for m in result['months']])
     result['sources'] = found
     print(place['name'] + ': ' + ' / '.join(v + '=' + s['kind'] + (' ' + s['stationId'] if s['kind'] == 'station' else '') for v, s in found.items()), flush=True)
     return result, dict(name=place['name'], elevation=place['elevation'], candidates= audit)

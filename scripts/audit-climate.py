@@ -4,12 +4,16 @@ import calendar
 import collections
 import datetime as dt
 import hashlib
+import importlib.util
 import json
 import math
 import pathlib
 import urllib.parse
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+spec = importlib.util.spec_from_file_location('grid', ROOT / 'scripts/import-climate.py')
+grid = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(grid)
 
 
 def digest(path):
@@ -36,7 +40,8 @@ def main():
     places = json.loads((ROOT / 'data/climate-locations.json').read_text())
     source = (ROOT / 'src/data/cities.ts').read_text().split('export const CITY_ROWS = ', 1)[1].split(' as const', 1)[0]
     cities = json.loads(source)
-    fingerprints = {digest(path) for path in (ROOT / '.climate-cache').rglob('*') if path.is_file() and path.suffix in ('.json', '.csv', '.gz', '.dly', '.txt', '.html')}
+    fingerprints = {digest(path): path for path in (ROOT / '.climate-cache').rglob('*') if path.is_file() and path.suffix in ('.json', '.csv', '.gz', '.dly', '.txt', '.html')}
+    daily_hashes = {}
     expected = [sum(calendar.monthrange(year, month)[1] for year in range(1991, 2021)) for month in range(1, 13)]
     assert baseline['start'] == '1991-01-01' and baseline['end'] == '2020-12-31'
     assert set(baseline['locations']) == {place['name'] for place in places}
@@ -52,6 +57,12 @@ def main():
             assert month['meanLow'] <= month['meanHigh'] and month['monthlyPrecip'] >= 0
         factors = {}
         for variable, data in climate['sources'].items():
+            if data['kind'] == 'grid':
+                if data['sha256'] not in daily_hashes:
+                    raw = json.loads(fingerprints[data['sha256']].read_text())
+                    grid.validate_calendar(raw['properties']['parameter'])
+                    daily_hashes[data['sha256']] = grid.series_fingerprints(raw['properties']['parameter'])
+                assert data.get('seriesSha256') == daily_hashes[data['sha256']][variable], 'Daily series fingerprint does not match raw grid readings'
             for index, cover in enumerate(data['coverage']):
                 assert cover['days'] == climate['months'][index][variable + 'Days']
                 assert cover['expectedDays'] == expected[index]
@@ -113,7 +124,7 @@ def main():
     access_counts = dict(collections.Counter(review['status'] for review in reviewed))
     report = dict(auditedAt=dt.datetime.now(dt.timezone.utc).isoformat(), baseline='1991–2020',
         status='passed', scope=f'All {len(places)} reference points, all {len(cities)} destination coordinates, and every climate factor. Agency routes reviewed for the {len(reviewed)} previously grid-only destinations; source availability research is not exhaustive.',
-        checks=dict(sourceFingerprints=source_checks, monthDenominators=True, histogramCounts=True, coveragePolicy=True,
+        checks=dict(sourceFingerprints=source_checks, dailyGridFingerprints=True, monthDenominators=True, histogramCounts=True, coveragePolicy=True,
                     stationDistanceAndElevation=True, documentedStationSuccession=True, globeReferenceAlignment=True, agencyReviewCompleteness=True),
         destinationCounts=counts, additions=[dict(name=city[0], source=kind(baseline['locations'][city[0]])) for city in cities if city[0] not in before], comparisonCommit=comparison['sourceCommit'], upgrades=changes, agencyReviewCounts=access_counts, agencyReviews=reviewed,
         findings=[dict(id='reference-areas', status='fixed', detail='Tenerife now explicitly represents El Médano coast; regional names show their reference areas. Remaining grid elevation differences >=300m are flagged.'),

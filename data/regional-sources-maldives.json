@@ -1,0 +1,73 @@
+{
+  "checked": "2026-11-16",
+  "coordinateLicense": "CC BY 4.0",
+  "coordinateLicenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "coordinateLicenseEvidenceUrl": "https://www.geonames.org/about.html",
+  "coordinateAttribution": "Coordinates and populated-place records: GeoNames, https://www.geonames.org/.",
+  "referencePolicy": "Use GeoNames WGS84 populated-place coordinates for these inhabited coral islands. These are locality anchors, not weather-station coordinates. The existing Maldives reference point remains Malé at 4.18, 73.51. No inland-versus-coast distinction is invented for these small islands.",
+  "crowdSeasonPolicy": "Peak [12,1,2,3] and shoulder [4,11] months inherit the existing Maldives regional estimates verbatim; they are not locally measured crowd data.",
+  "climatePolicy": "Each new island gets its own 1991–2020 NASA POWER point request via the existing importer. Temperature and precipitation remain regional MERRA-2 grid estimates at native 0.5° latitude by 0.625° longitude resolution; they do not resolve island, beach, reef or lagoon microclimates. No neighboring station observations are copied.",
+  "climateAttribution": "Data provided by the NASA POWER Project at NASA Langley Research Center. Monthly summaries are this app's transformations.",
+  "climateMethodologyUrl": "https://power.larc.nasa.gov/docs/methodology/",
+  "stationAccessUrl": "https://v2.meteorology.gov.mv/climate-data-request",
+  "stationLimitation": "The official MMS request form was re-read live on 2026-11-16. It offers daily maximum/minimum temperature and rainfall as raw CSV, requires applicant details, and warns that nearest-island data may be substituted. This verifies the route only; availability, station identity, licence, quality flags and qualifying 1991–2020 coverage for Maafushi/Dhigurah remain unverified. Any future station must pass the unchanged location and coverage policy. No request was submitted.",
+  "tourismUse": "Official tourism pages corroborate place identity and atoll labels. Only factual locality descriptions and source links are included; no tourism text or media is reproduced and no open licence for that material is assumed.",
+  "records": [
+    {
+      "name": "Maafushi",
+      "coordinateProvider": "GeoNames geographic database",
+      "geonamesId": 11777962,
+      "featureCode": "P.PPL",
+      "lat": 3.94231,
+      "lon": 73.4907,
+      "coordinateSourceUrl": "https://www.geonames.org/11777962/maafushi.html",
+      "tourismSourceUrl": "https://visitmaldives.com/en/news/kaani-palm-beach-largest-guesthouse-in-the-maldives",
+      "tourismSourceDate": "2020-12-16",
+      "timeZone": "Indian/Maldives",
+      "limitations": "The Kaafu Atoll populated place is used; other Maldives islands also named Maafushi are excluded. Grid data do not establish locally distinct island weather. Its full 1991–2020 daily high, low and precipitation arrays are exactly identical to the existing Maldives/Malé request, despite independently fetching both coordinates.",
+      "climateSourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX%2CT2M_MIN%2CPRECTOTCORR&community=AG&longitude=73.4907&latitude=3.94231&start=19910101&end=20201231&format=JSON&time-standard=LST",
+      "climateRetrieved": "2026-11-17T01:23:42.176841+00:00",
+      "climateRawSha256": "f9252631b1b7bf22345b29a3e55b413f331399ec53b357135fb562aae98ae7f8",
+      "climateRawCache": ".climate-cache/f9cdd3207cc9f27b0e75.json",
+      "gridElevationM": 0.01
+    },
+    {
+      "name": "Dhigurah",
+      "coordinateProvider": "GeoNames geographic database",
+      "geonamesId": 11103189,
+      "featureCode": "P.PPL",
+      "lat": 3.53514,
+      "lon": 72.92896,
+      "coordinateSourceUrl": "https://www.geonames.org/11103189/dhigurah.html",
+      "tourismSourceUrl": "https://visitmaldives.com/en/experience/swim-with-whale-sharks-during-your-local-island-stay-in-the-maldives",
+      "tourismSourceDate": "2023-09-05",
+      "tourismCorroborationUrl": "https://atolls.visitmaldives.com/islands/ari-atoll/activity/",
+      "timeZone": "Indian/Maldives",
+      "limitations": "GeoNames supplies these exact populated-place coordinates but labels its administrative parent Northern Ari Atoll. Official Visit Maldives identifies this local island in South Ari Atoll, so the display label follows that authority while preserving the GeoNames coordinates. Other islands sharing the name are excluded; the locality point does not describe separate beach or lagoon microclimates.",
+      "climateSourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX%2CT2M_MIN%2CPRECTOTCORR&community=AG&longitude=72.92896&latitude=3.53514&start=19910101&end=20201231&format=JSON&time-standard=LST",
+      "climateRetrieved": "2026-11-17T01:23:42.009190+00:00",
+      "climateRawSha256": "fd59433638ecac74f08738a0180a04a85b212ad8e2482932761006edc1ab8ca7",
+      "climateRawCache": ".climate-cache/547f06f34c4935ab05d1.json",
+      "gridElevationM": 0.01
+    }
+  ],
+  "climateValidation": {
+    "baseline": "1991-01-01 to 2020-12-31",
+    "daysPerPlace": 10958,
+    "variables": [
+      "T2M_MAX",
+      "T2M_MIN",
+      "PRECTOTCORR"
+    ],
+    "result": "Both requested point exports passed the existing importer checks for full daily coverage, values, units and Local Solar Time.",
+    "identicalDailySeriesGroups": [
+      [
+        "Maafushi",
+        "Maldives (Malé)"
+      ]
+    ],
+    "distinctSeriesNote": "Dhigurah differs from Malé/Maafushi for all three daily variables, but remains a coarse regional grid estimate rather than island station observations.",
+    "reviewCache": ".climate-cache/agency-research/regional-maldives/baseline-review.json"
+  },
+  "stationRouteChecked": "2026-11-16"
+}

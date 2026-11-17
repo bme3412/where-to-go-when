@@ -291,13 +291,15 @@ export class Globe {
     for (const { score, rank, node, circle, number, label } of orderedNodes) {
       const point: [number, number] = [score.city.lon, score.city.lat];
       const projected = this.projection(point)!;
-      const overlapsRegion = score.city.region && regionalPoints.some(other => other.region === score.city.region && Math.hypot(other.x - projected[0], other.y - projected[1]) < 28);
+      const regionalZoom = Boolean(score.city.region) && this.scale / this.baseScale > 4;
+      const overlapsRegion = score.city.region && regionalPoints.some(other => other.region === score.city.region && Math.hypot(other.x - projected[0], other.y - projected[1]) < (regionalZoom ? 12 : 28));
       const visible = !overlapsRegion && geoDistance(point, center) < Math.PI / 2 - 0.02 && projected[0] >= -20 && projected[0] <= this.width + 20 && projected[1] >= -20 && projected[1] <= this.height + 20;
       node.style.display = visible ? '' : 'none';
       if (!visible) continue;
       if (score.city.region) regionalPoints.push({ region: score.city.region, x: projected[0], y: projected[1] });
       const selected = score.city.name === this.selectedName;
-      const size = rank ? 1.9 * radius : selected ? 1.5 * radius : 0.75 * radius;
+      const size = regionalZoom ? (selected ? 5 : 4) : rank ? 1.9 * radius : selected ? 1.5 * radius : 0.75 * radius;
+      number.style.display = regionalZoom ? 'none' : '';
       node.classList.toggle('selected', selected);
       circle.setAttribute('opacity', rank || selected ? '1' : '0.45');
       node.setAttribute('transform', `translate(${projected[0]},${projected[1]})`);

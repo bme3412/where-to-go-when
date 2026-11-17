@@ -1,6 +1,6 @@
 # Where to go, and when
 
-A lightweight vacation globe with 71 destinations, scored for your travel dates, home city, and trip length. The larger globe fills the center of the first screen, with collapsible trip settings on the left, independently scrolling recommendations on the right, and a compact priorities strip at the bottom center. Built with TypeScript, Vite, D3 v7, and `topojson-client`; no framework, API keys, or backend.
+A lightweight vacation globe with 83 destinations, scored for your travel dates, home city, and trip length. The larger globe fills the center of the first screen, with collapsible trip settings on the left, independently scrolling recommendations on the right, and a compact priorities strip at the bottom center. Built with TypeScript, Vite, D3 v7, and `topojson-client`; no framework, API keys, or backend.
 
 ## Run
 
@@ -49,7 +49,7 @@ Calendar calculations use UTC days to avoid daylight-saving errors. Destination 
 
 ## Climate data and provenance
 
-The bundled **1991–2020** baseline covers 83 reference points: all 71 destinations and 24 origins, with overlap. Temperature and precipitation each retain their own source, record counts and coverage. The app makes no runtime weather requests. Current destination coverage: **28 station / 6 mixed / 37 grid**.
+The bundled **1991–2020** baseline covers 95 reference points: all 83 destinations and 24 origins, with overlap. Temperature and precipitation each retain their own source, record counts and coverage. The app makes no runtime weather requests. Current destination coverage: **28 station / 6 mixed / 49 grid**.
 
 - **Nearby observations:** NOAA NCEI [GHCN-Daily Version 3](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily), [dataset DOI](https://doi.org/10.7289/V5D21VHZ), plus **Source: MeteoSwiss**, [SwissMetNet historical daily observations](https://opendatadocs.meteoswiss.ch/a-data-groundbased/a1-automatic-weather-stations) for Interlaken station INT.
 - **Regional fallback:** [NASA POWER / MERRA-2](https://power.larc.nasa.gov/docs/methodology/) at the destination coordinate. Native 0.5° latitude × 0.625° longitude grid; `T2M_MAX`, `T2M_MIN` (°C) and `PRECTOTCORR` (mm/day), Local Solar Time. Data provided by the NASA POWER Project at NASA Langley Research Center.
@@ -109,3 +109,10 @@ Fits are 0–1; integer weights always sum to 100. Defaults are a user-editable 
 - **Travel:** estimated usable days divided by trip days. Great-circle distance, assumed speeds/airport allowances, and fixed time shifts estimate time cost; roads, actual connections, and schedules are not checked.
 
 Monthly values are blended between mid-months for each sampled trip date, then averaged. Longer trips retain the original bounded sampling (at most 90 dates). Seasonal risk notes are separate and do not change the score. There are no geometric means, country scores, popularity factors, escape bonuses, or additional travel/storm multipliers. Contribution rounding preserves the displayed total. The score is a preference match, not a weather forecast or trip-success probability.
+
+
+## Specific regional places
+
+Explore regions compares Galápagos, Goa, Patagonia, Bali, Tenerife and Maldives reference points. Legacy keys remain stable for source provenance; the UI names the original anchors Puerto Ayora, Bandoli area, El Calafate, Denpasar, El Médano and Malé. Closely overlapping dots are hidden at world scale and separate with zoom; every place remains reachable through regional cards and the audit.
+
+Grid sources carry a `seriesSha256` for each factor, derived from complete dated daily readings (TMAX + TMIN for temperature; precipitation separately). The audit recomputes each fingerprint from its cached raw source. Shared-history warnings only compare grid-backed factors within the same region, never rounded monthly averages. Different fingerprints do not establish resolved microclimate differences. GeoNames locality coordinates are attributed under CC BY 4.0; compact research source manifests are in `data/regional-sources*.json`.
