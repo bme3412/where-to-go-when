@@ -82,7 +82,7 @@ export function weatherDetails(result: CityScore, unit: Unit): string {
 
 export function cityTooltip(result: CityScore, unit: Unit): string {
   const rating = band(result.score);
-  return `<div class="tooltip-heading"><strong>${escapeHtml(destinationName(result.city))}</strong><span class="badge ${rating.key}"><span class="swatch" style="--swatch:${rating.color}"></span>${rating.label} · ${Math.round(result.score)}</span></div>
+  return `<div class="tooltip-heading"><strong>${escapeHtml(destinationName(result.city))}</strong><span class="badge ${rating.key}"><span class="swatch" style="--swatch:${rating.color}"></span>${rating.label}</span></div>
     <div class="tooltip-country">${escapeHtml(displayCountry(result.city.country))}</div>
     <p>Average high ${temperature(result.high, unit)} · ${rainWord(result.wetFrequency)}</p>
     <p><strong>${comfortableDryTime(result.comfortableDryDays)}</strong></p>`;

@@ -1,10 +1,10 @@
 {
-  "auditedAt": "2026-11-17T20:04:45.471750+00:00",
+  "auditedAt": "2026-11-17T20:09:13.170325+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 182 reference points, all 182 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 198 reference points, all 198 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 1155,
+    "sourceFingerprints": 1187,
     "dailyGridFingerprints": true,
     "monthDenominators": true,
     "histogramCounts": true,
@@ -15,8 +15,8 @@
     "agencyReviewCompleteness": true
   },
   "destinationCounts": {
-    "station": 47,
-    "grid": 126,
+    "station": 53,
+    "grid": 136,
     "mixed": 9
   },
   "additions": [
@@ -463,6 +463,70 @@
     {
       "name": "Liberia, Costa Rica",
       "source": "grid"
+    },
+    {
+      "name": "Helsinki",
+      "source": "station"
+    },
+    {
+      "name": "Oslo",
+      "source": "station"
+    },
+    {
+      "name": "Luxembourg City",
+      "source": "station"
+    },
+    {
+      "name": "Valencia",
+      "source": "grid"
+    },
+    {
+      "name": "Perth",
+      "source": "station"
+    },
+    {
+      "name": "Adelaide",
+      "source": "station"
+    },
+    {
+      "name": "Wellington",
+      "source": "grid"
+    },
+    {
+      "name": "George Town, Penang",
+      "source": "grid"
+    },
+    {
+      "name": "Kuwait City",
+      "source": "grid"
+    },
+    {
+      "name": "Manama",
+      "source": "grid"
+    },
+    {
+      "name": "Rabat",
+      "source": "grid"
+    },
+    {
+      "name": "Mombasa",
+      "source": "grid"
+    },
+    {
+      "name": "Québec City",
+      "source": "grid"
+    },
+    {
+      "name": "Calgary",
+      "source": "grid"
+    },
+    {
+      "name": "Houston",
+      "source": "grid"
+    },
+    {
+      "name": "Portland, Oregon",
+      "source": "station"
     }
   ],
   "comparisonCommit": "74b9b2fe750a3e8350b2706d7dc25d5574438954",
@@ -886,7 +950,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 182 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 198 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -4730,6 +4794,342 @@
           "kind": "grid",
           "provider": "NASA POWER / MERRA-2",
           "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Helsinki",
+      "kind": "station",
+      "reference": "Helsinki",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "HELSINKI KAISANIEMI AWS",
+          "acceptedDays": 10953,
+          "minimumMonthlyCoverage": 0.9978
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "HELSINKI KAISANIEMI AWS",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Oslo",
+      "kind": "station",
+      "reference": "Oslo",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "OSLO BLINDERN",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "OSLO BLINDERN",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Luxembourg City",
+      "kind": "station",
+      "reference": "Luxembourg City",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "LUXEMBOURG AIRPORT",
+          "acceptedDays": 10926,
+          "minimumMonthlyCoverage": 0.9667
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "LUXEMBOURG AIRPORT",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Valencia",
+      "kind": "grid",
+      "reference": "Valencia",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Perth",
+      "kind": "station",
+      "reference": "Perth",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "PERTH METRO",
+          "acceptedDays": 9907,
+          "minimumMonthlyCoverage": 0.8968
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "PERTH METRO",
+          "acceptedDays": 10161,
+          "minimumMonthlyCoverage": 0.9
+        }
+      }
+    },
+    {
+      "name": "Adelaide",
+      "kind": "station",
+      "reference": "Adelaide",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "ADELAIDE (KENT TOWN)",
+          "acceptedDays": 10789,
+          "minimumMonthlyCoverage": 0.9602
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "ADELAIDE (KENT TOWN)",
+          "acceptedDays": 10248,
+          "minimumMonthlyCoverage": 0.8892
+        }
+      }
+    },
+    {
+      "name": "Wellington",
+      "kind": "grid",
+      "reference": "Wellington",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "George Town, Penang",
+      "kind": "grid",
+      "reference": "George Town, Penang",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Kuwait City",
+      "kind": "grid",
+      "reference": "Kuwait City",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Manama",
+      "kind": "grid",
+      "reference": "Manama",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Rabat",
+      "kind": "grid",
+      "reference": "Rabat",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Mombasa",
+      "kind": "grid",
+      "reference": "Mombasa",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Québec City",
+      "kind": "grid",
+      "reference": "Québec City",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Calgary",
+      "kind": "grid",
+      "reference": "Calgary",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Houston",
+      "kind": "grid",
+      "reference": "Houston",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Portland, Oregon",
+      "kind": "station",
+      "reference": "Portland, Oregon",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "PORTLAND KGW-TV",
+          "acceptedDays": 10465,
+          "minimumMonthlyCoverage": 0.8925
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "PORTLAND INTL AP",
           "acceptedDays": 10958,
           "minimumMonthlyCoverage": 1.0
         }

@@ -9,7 +9,7 @@ import { climateLabel } from './climate';
 import { clamp } from './scoring';
 import { flightMapCenter } from './flight-map';
 import { primaryWeatherFlag, WEATHER_SYMBOLS, weatherFlagLabel } from './weather';
-import { RAIN_COLORS, TEMPERATURE_COLORS, weatherMapColor, weatherNumberColor } from './weather-map';
+import { RAIN_COLORS, TEMPERATURE_COLORS, weatherMapColor } from './weather-map';
 import { globalTemperatureContours, globalTemperatureForTrip } from './global-temperature';
 import { globalRainContours, globalRainForTrip } from './global-rain';
 import type { FlightMap, NonstopFlightMap, RouteAirport } from './flight-map';
@@ -79,7 +79,7 @@ export class Globe {
   private routeLabelBoxes: LabelBox[] = [];
   private homeLayer = element('g', { class: 'home-marker', 'pointer-events': 'none' });
   private countryPaths: { map: MapCountry; node: SVGPathElement }[] = [];
-  private cityNodes: { score: CityScore; rank?: number; node: SVGGElement; circle: SVGCircleElement; number: SVGTextElement; label: SVGTextElement; weather: SVGGElement; weatherIcon: SVGPathElement; weatherStem: SVGPathElement }[] = [];
+  private cityNodes: { score: CityScore; rank?: number; node: SVGGElement; circle: SVGCircleElement; label: SVGTextElement; weather: SVGGElement; weatherIcon: SVGPathElement; weatherStem: SVGPathElement }[] = [];
   private home?: Origin;
   private pointers = new Map<number, { x: number; y: number }>();
   private gestureTravel = 0;
@@ -175,17 +175,15 @@ export class Globe {
     this.cityNodes = [...cities].sort((a, b) => Number(ranks.has(a.city.name)) - Number(ranks.has(b.city.name))).map(score => {
       const rank = ranks.get(score.city.name);
       const flags = score.weatherFlags.map(weatherFlagLabel).join(', ');
-      const node = element('g', { class: 'city-marker', 'data-city': score.city.name, role: 'button', tabindex: rank ? '0' : '-1', 'aria-label': `${destinationName(score.city)}, ${band(score.score).label}, score ${Math.round(score.score)}. ${climateLabel(score.climate)}.${flags ? ` Seasonal weather: ${flags}.` : ''} Center on globe.` });
+      const node = element('g', { class: 'city-marker', 'data-city': score.city.name, role: 'button', tabindex: rank ? '0' : '-1', 'aria-label': `${destinationName(score.city)}, ${band(score.score).label}. ${climateLabel(score.climate)}.${flags ? ` Seasonal weather: ${flags}.` : ''} Center on globe.` });
       const circle = element('circle', { fill: band(score.score).color, opacity: rank ? '1' : '0.45' });
-      const number = element('text', { class: 'rank-number', 'text-anchor': 'middle', 'dominant-baseline': 'central' });
-      number.textContent = rank ? String(rank) : '';
       const label = element('text', { class: `city-label${rank ? ' top-label' : ''}`, y: '4' });
       label.textContent = destinationName(score.city);
       const weather = element('g', { class: 'weather-marker', 'aria-hidden': 'true' });
       const weatherStem = element('path', { class: 'weather-stem' });
       const weatherIcon = element('path');
       weather.append(weatherStem, element('circle', { r: '8' }), weatherIcon);
-      node.append(circle, number, label, weather);
+      node.append(circle, label, weather);
       node.addEventListener('pointermove', event => {
         if (!this.pointers.size) {
           event.stopPropagation();
@@ -210,7 +208,7 @@ export class Globe {
         }
       });
       this.cityLayer.append(node);
-      return { score, rank, node, circle, number, label, weather, weatherIcon, weatherStem };
+      return { score, rank, node, circle, label, weather, weatherIcon, weatherStem };
     });
     this.homeLayer.querySelector('text')!.textContent = `Home: ${home.name}`;
     this.draw();
@@ -522,7 +520,7 @@ export class Globe {
     const orderedNodes = [...this.cityNodes].sort((a, b) =>
       (a.score.city.name === this.selectedName ? -1 : a.rank ?? 999) -
       (b.score.city.name === this.selectedName ? -1 : b.rank ?? 999));
-    for (const { score, rank, node, circle, number, label, weather, weatherIcon, weatherStem } of orderedNodes) {
+    for (const { score, rank, node, circle, label, weather, weatherIcon, weatherStem } of orderedNodes) {
       const point: [number, number] = [score.city.lon, score.city.lat];
       const projected = this.projection(point)!;
       const regionalZoom = Boolean(score.city.region) && this.scale / this.baseScale > 4;
@@ -532,7 +530,7 @@ export class Globe {
       if (!visible) continue;
       if (score.city.region) regionalPoints.push({ region: score.city.region, x: projected[0], y: projected[1] });
       const selected = score.city.name === this.selectedName;
-      const size = regionalZoom ? (selected ? 5 : 4) : rank ? 1.9 * radius : selected ? 1.5 * radius : 0.75 * radius;
+      const size = regionalZoom ? (selected ? 5 : 4) : rank ? 1.4 * radius : selected ? 1.5 * radius : 0.75 * radius;
       const flag = primaryWeatherFlag(score.weatherFlags, this.weatherLayer);
       weather.style.display = flag ? '' : 'none';
       if (flag) {
@@ -541,15 +539,12 @@ export class Globe {
         weatherIcon.setAttribute('d', WEATHER_SYMBOLS[flag.kind]);
       }
       visibleMarkers.push({ x: projected[0], y: projected[1], size, weather, stem: weatherStem, flagged: Boolean(flag) });
-      number.style.display = regionalZoom ? 'none' : '';
       node.classList.toggle('selected', selected);
       const weatherColor = weatherMapColor(score, this.weatherLayer);
       circle.setAttribute('fill', this.weatherLayer === 'off' ? band(score.score).color : weatherColor ?? 'var(--neutral-marker)');
       circle.setAttribute('opacity', rank || selected || weatherColor ? '1' : '0.55');
-      number.style.fill = this.weatherLayer === 'off' ? '#fff' : weatherColor ? weatherNumberColor(weatherColor) : 'var(--ink)';
       node.setAttribute('transform', `translate(${projected[0]},${projected[1]})`);
       circle.setAttribute('r', String(size));
-      number.setAttribute('font-size', String(Math.max(9, size * 1.15)));
       label.style.display = rank || selected || this.scale / this.baseScale > 1.58 ? '' : 'none';
       label.setAttribute('x', String(size + 5));
       label.setAttribute('y', '4');

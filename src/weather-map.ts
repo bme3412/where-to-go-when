@@ -55,10 +55,3 @@ export function weatherLegend(layer: WeatherLayer, unit: Unit): { title: string;
   const kinds: WeatherKind[] = layer === 'all' ? ['wet', 'heat', 'cold', 'storm'] : [layer];
   return { title: 'Seasonal weather for your dates', items: kinds.map(kind => SEASON_COLORS[kind]), note: 'Unshaded = no flag in this layer' };
 }
-
-export function weatherNumberColor(color: string): string {
-  const channels = [1, 3, 5].map(start => parseInt(color.slice(start, start + 2), 16) / 255)
-    .map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
-  const luminance = .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
-  return luminance > .22 ? '#172b2e' : '#ffffff';
-}

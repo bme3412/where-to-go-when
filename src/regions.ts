@@ -17,7 +17,7 @@ export type DestinationRegionFilter = DestinationRegionId | 'all';
 const COUNTRY_REGIONS: Readonly<Record<string, DestinationRegionId>> = {
   France: 'europe', 'United Kingdom': 'europe', Italy: 'europe', Spain: 'europe',
   Portugal: 'europe', Greece: 'europe', Croatia: 'europe', Netherlands: 'europe',
-  Romania: 'europe', Bulgaria: 'europe', Serbia: 'europe', Poland: 'europe', Hungary: 'europe', Austria: 'europe', Belgium: 'europe', Germany: 'europe', Ireland: 'europe', Sweden: 'europe',
+  Finland: 'europe', Norway: 'europe', Luxembourg: 'europe', Romania: 'europe', Bulgaria: 'europe', Serbia: 'europe', Poland: 'europe', Hungary: 'europe', Austria: 'europe', Belgium: 'europe', Germany: 'europe', Ireland: 'europe', Sweden: 'europe',
   Czechia: 'europe', Denmark: 'europe', Switzerland: 'europe', Iceland: 'europe',
   'United States of America': 'north-america', Canada: 'north-america', Mexico: 'north-america',
   'El Salvador': 'central-america', Honduras: 'central-america', Panama: 'central-america', 'Costa Rica': 'central-america', Cuba: 'central-america', 'Puerto Rico': 'central-america', Aruba: 'central-america',
@@ -28,7 +28,7 @@ const COUNTRY_REGIONS: Readonly<Record<string, DestinationRegionId>> = {
   Georgia: 'asia', Armenia: 'asia', Kazakhstan: 'asia', Uzbekistan: 'asia',
   Philippines: 'asia', Malaysia: 'asia', Taiwan: 'asia', Japan: 'asia', 'South Korea': 'asia', China: 'asia', Thailand: 'asia', Vietnam: 'asia', Cambodia: 'asia',
   Indonesia: 'asia', Singapore: 'asia', Maldives: 'asia', India: 'asia', Nepal: 'asia', 'Sri Lanka': 'asia',
-  Oman: 'middle-east', Qatar: 'middle-east', Turkey: 'middle-east', Jordan: 'middle-east', 'United Arab Emirates': 'middle-east',
+  Kuwait: 'middle-east', Bahrain: 'middle-east', Oman: 'middle-east', Qatar: 'middle-east', Turkey: 'middle-east', Jordan: 'middle-east', 'United Arab Emirates': 'middle-east',
   Australia: 'oceania', 'New Zealand': 'oceania', Fiji: 'oceania',
 };
 // Group overseas locations by their location, while domestic/global scope still uses country.

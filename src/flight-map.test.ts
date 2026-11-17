@@ -71,7 +71,7 @@ describe('flight paths on the globe', () => {
 
   it('shows every covered nonstop flight together with all endpoints on the visible hemisphere', () => {
     const maps = nonstopFlightMaps(CITIES.map(city => ({ city, travel: travel(boston, city, 7, true) })));
-    expect(maps).toHaveLength(52);
+    expect(maps).toHaveLength(54);
     const airports = [...new Map(maps.flatMap(map => map.airports.map(airport => [airport.code, airport] as const))).values()];
     const [lon, lat] = flightMapCenter({ airports });
     const projection = geoOrthographic().rotate([-lon, -lat]).clipAngle(90);
@@ -111,6 +111,6 @@ describe('flight paths on the globe', () => {
   it('limits the network to the supplied destination scope', () => {
     const domestic = CITIES.filter(city => matchesDestinationScope(city.country, boston.country, 'domestic'));
     const maps = nonstopFlightMaps(domestic.map(city => ({ city, travel: travel(boston, city, 7, true) })));
-    expect(maps.map(map => map.airports[1].code).sort()).toEqual(['ATL', 'DAL', 'DCA', 'DEN', 'HNL', 'LAS', 'LAX', 'MDW', 'MIA', 'MSY', 'SAN', 'SEA', 'SFO', 'SJU']);
+    expect(maps.map(map => map.airports[1].code).sort()).toEqual(['ATL', 'DAL', 'DCA', 'DEN', 'HNL', 'IAH', 'LAS', 'LAX', 'MDW', 'MIA', 'MSY', 'PDX', 'SAN', 'SEA', 'SFO', 'SJU']);
   });
 });
