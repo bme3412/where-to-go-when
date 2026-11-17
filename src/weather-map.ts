@@ -19,6 +19,7 @@ export const RAIN_COLORS = [
   { min: 8, max: 12, color: '#326da4' },
   { min: 12, max: Infinity, color: '#4c4489' },
 ] as const;
+export const WEATHER_KINDS = ['wet', 'heat', 'cold', 'storm'] as const;
 export const SEASON_COLORS: Record<WeatherKind, { color: string; label: string }> = {
   wet: { color: '#2997b7', label: 'Wet season / rain' },
   heat: { color: '#dc7140', label: 'Heat' },
@@ -26,17 +27,17 @@ export const SEASON_COLORS: Record<WeatherKind, { color: string; label: string }
   storm: { color: '#c18b24', label: 'Storm season' },
 };
 
-export function weatherMapColor(result: Pick<CityScore, 'high' | 'weatherFlags'>, layer: WeatherLayer): string | null {
+export function weatherMapColor(result: Pick<CityScore, 'high' | 'weatherFlags'>, layer: WeatherLayer, kinds?: ReadonlySet<WeatherKind>): string | null {
   if (layer === 'off') return null;
   if (layer === 'temperature') {
     if (!Number.isFinite(result.high)) return null;
     return TEMPERATURE_COLORS.find(band => result.high >= band.min && result.high < band.max)!.color;
   }
-  const flag = primaryWeatherFlag(result.weatherFlags, layer);
+  const flag = primaryWeatherFlag(result.weatherFlags, layer, kinds);
   return flag ? SEASON_COLORS[flag.kind].color : null;
 }
 
-export function weatherLegend(layer: WeatherLayer, unit: Unit): { title: string; items: { color: string; label: string }[]; note: string } {
+export function weatherLegend(layer: WeatherLayer, unit: Unit, enabledKinds?: ReadonlySet<WeatherKind>): { title: string; items: { color: string; label: string }[]; note: string } {
   if (layer === 'temperature') {
     const degrees = (value: number) => `${Math.round(unit === 'F' ? value * 9 / 5 + 32 : value)}°`;
     return { title: `Average daytime high · °${unit}`, items: TEMPERATURE_COLORS.map(band => ({
@@ -50,8 +51,8 @@ export function weatherLegend(layer: WeatherLayer, unit: Unit): { title: string;
     items: RAIN_COLORS.map(band => ({ color: band.color,
       label: band.min === 0 ? '< 1' : !Number.isFinite(band.max) ? `${band.min}+` : `${band.min}–${band.max}`,
     })),
-    note: 'Rain + snow equivalent · icons flag wet periods',
+    note: !enabledKinds || enabledKinds.has('wet') ? 'Rain + snow equivalent · icons flag wet periods' : 'Rain + snow equivalent',
   };
-  const kinds: WeatherKind[] = layer === 'all' ? ['wet', 'heat', 'cold', 'storm'] : [layer];
+  const kinds = layer === 'all' ? WEATHER_KINDS.filter(kind => !enabledKinds || enabledKinds.has(kind)) : [layer];
   return { title: 'Seasonal weather for your dates', items: kinds.map(kind => SEASON_COLORS[kind]), note: 'Unshaded = no flag in this layer' };
 }

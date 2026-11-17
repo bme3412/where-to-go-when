@@ -26,8 +26,9 @@ export function seasonOverlaps(season: Pick<WeatherSeason, 'from' | 'to'>, start
   return false;
 }
 
-export function primaryWeatherFlag(flags: readonly WeatherFlag[], layer: WeatherLayer): WeatherFlag | undefined {
+export function primaryWeatherFlag(flags: readonly WeatherFlag[], layer: WeatherLayer, kinds?: ReadonlySet<WeatherFlag['kind']>): WeatherFlag | undefined {
   if (layer === 'off') return undefined;
+  if (kinds) return flags.find(flag => kinds.has(flag.kind));
   return layer === 'all' || layer === 'temperature' ? flags[0] : flags.find(flag => flag.kind === layer);
 }
 

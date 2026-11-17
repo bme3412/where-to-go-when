@@ -20,8 +20,8 @@ import { methodContent } from './method';
 import { setupPanels } from './panels';
 import { clamp, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, defaultTrip, isRankableCity, matchesDestinationScope, minimumUsableStay, rankCities, sampleDays, scoreCities, validateTemperature } from './scoring';
 import { weatherFlagLabel } from './weather';
-import { weatherLegend } from './weather-map';
-import type { CityScore, DestinationScope, RankedCity, TemperatureRange, Unit, WeatherLayer } from './types';
+import { weatherLegend, WEATHER_KINDS } from './weather-map';
+import type { CityScore, DestinationScope, RankedCity, TemperatureRange, Unit, WeatherKind, WeatherLayer } from './types';
 
 const app = document.querySelector<HTMLElement>('#app')!;
 const initialTrip = defaultTrip(new Date());
@@ -29,6 +29,8 @@ let trip = initialTrip;
 const preferredTemperature: TemperatureRange = { ...DEFAULT_TEMPERATURE };
 const temperaturePresets = { cool: { min: 10, max: 20 }, mild: { min: 15, max: 25 }, warm: { min: 20, max: 30 } };
 let weatherLayer: WeatherLayer = 'temperature';
+let weatherKinds = new Set<WeatherKind>(WEATHER_KINDS);
+const weatherFlagLabels = { wet: 'Wet periods', heat: 'Heat', cold: 'Freezing nights', storm: 'Storm seasons' };
 let home = ORIGINS[0];
 let chosenHome = home;
 let unit: Unit = 'F';
@@ -97,7 +99,14 @@ app.innerHTML = `
     <section class="globe-stage" aria-label="Interactive destination globe">
       <div class="stage-heading"><div><div class="trip-summary"><span id="summary-origin">From Boston</span><span aria-hidden="true">·</span><span id="summary-dates">Dec 20 – Jan 3</span><span class="summary-duration" id="summary-duration">15 days</span><span class="summary-scope" id="summary-scope" hidden></span></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid settings</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
       <section id="region-explorer" class="region-explorer" aria-label="Places in this region" hidden></section>
-      <div class="map-toolbar"><div class="map-control"><label for="weather-layer">Weather on globe</label><select id="weather-layer"><option value="temperature">Daytime temperature</option><option value="all">All weather flags</option><option value="wet">Wet seasons &amp; rain</option><option value="heat">Hot daytime highs</option><option value="cold">Freezing nights</option><option value="storm">Storm seasons</option><option value="off">Weather colors off</option></select></div></div>
+      <fieldset class="map-toolbar">
+        <legend>Weather on globe</legend>
+        <div class="map-weather-options" id="map-weather-options">
+          <label><input type="checkbox" data-weather-surface="temperature" checked />Daytime temperature</label>
+          <label><input type="checkbox" data-weather-surface="wet" />Precipitation</label>
+          ${WEATHER_KINDS.map(kind => `<label><input type="checkbox" data-weather-kind="${kind}" checked />${weatherFlagLabels[kind]}</label>`).join('')}
+        </div>
+      </fieldset>
       <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Destination globe"></svg><div id="weather-legend" class="weather-legend" aria-label="Weather color legend"></div><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
       <section id="flight-map-controls" class="flight-map-controls" aria-label="Boston flight routes" hidden>
         <div id="selected-flight-route" class="selected-flight-route" hidden><div class="flight-map-caption"><strong id="flight-map-path"></strong><span id="flight-map-note">Highlighted flight legs · schedules unverified</span></div><div class="flight-map-actions"><div class="route-directions" role="group" aria-label="Flight direction"><button type="button" id="route-outbound" data-route-direction="outbound" aria-pressed="true">Outbound</button><button type="button" id="route-inbound" data-route-direction="inbound" aria-pressed="false">Return</button></div><button type="button" id="view-flight-route" class="text-button">View route</button></div><div id="flight-map-details" class="flight-map-details" role="status" aria-live="polite" aria-atomic="true"></div></div>
@@ -132,7 +141,9 @@ const homeInput = document.querySelector<HTMLInputElement>('#home')!;
 const nonstopInput = document.querySelector<HTMLInputElement>('#nonstop-only')!;
 const temperatureMin = document.querySelector<HTMLInputElement>('#temperature-min')!;
 const temperatureMax = document.querySelector<HTMLInputElement>('#temperature-max')!;
-const weatherLayerSelect = document.querySelector<HTMLSelectElement>('#weather-layer')!;
+const weatherOptions = document.querySelector<HTMLElement>('#map-weather-options')!;
+const weatherSurfaces = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-surface]')];
+const weatherFlags = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-kind]')];
 const regionSelect = document.querySelector<HTMLSelectElement>('#destination-region')!;
 const tooltip = document.querySelector<HTMLDivElement>('#tooltip')!;
 const container = document.querySelector<HTMLElement>('#globe-container')!;
@@ -206,7 +217,7 @@ function selectedDestination(): CityScore | undefined {
   return result && selectedNonstopRoute ? nonstopCityScores.find(item => item.city.name === selectedName) ?? result : result;
 }
 function renderWeatherControls(): void {
-  const legend = weatherLegend(weatherLayer, unit), target = document.querySelector<HTMLElement>('#weather-legend')!;
+  const legend = weatherLegend(weatherLayer, unit, weatherKinds), target = document.querySelector<HTMLElement>('#weather-legend')!;
   target.hidden = !legend.items.length;
   target.classList.toggle('scale-legend', weatherLayer === 'temperature' || weatherLayer === 'wet');
   target.innerHTML = `<strong>${escapeHtml(legend.title)}</strong><div class="weather-legend-items">${legend.items.map(item => `<span><i style="--weather-color:${item.color}"></i>${escapeHtml(item.label)}</span>`).join('')}</div><p>${escapeHtml(legend.note)}</p>`;
@@ -352,9 +363,17 @@ setupOriginSearch(homeInput, document.querySelector('#origin-suggestions')!, ORI
   recompute(true);
 });
 nonstopInput.addEventListener('change', () => recompute(true));
-weatherLayerSelect.addEventListener('change', () => {
-  weatherLayer = weatherLayerSelect.value as WeatherLayer;
-  hideTooltip(); globe.setWeatherLayer(weatherLayer); renderWeatherControls();
+weatherOptions.addEventListener('change', event => {
+  const changed = event.target as HTMLInputElement;
+  if (changed.checked && changed.dataset.weatherSurface) {
+    for (const surface of weatherSurfaces) if (surface !== changed) surface.checked = false;
+  }
+  weatherKinds = new Set(weatherFlags.filter(input => input.checked).map(input => input.dataset.weatherKind as WeatherKind));
+  const surface = weatherSurfaces.find(input => input.checked)?.dataset.weatherSurface as 'temperature' | 'wet' | undefined;
+  weatherLayer = surface ?? (weatherKinds.size ? 'all' : 'off');
+  hideTooltip();
+  globe.setWeatherLayer(weatherLayer, weatherKinds);
+  renderWeatherControls();
 });
 function syncTemperature(): void {
   for (const [key, input] of [['min', temperatureMin], ['max', temperatureMax]] as const) {

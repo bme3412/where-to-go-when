@@ -13,7 +13,7 @@ import { RAIN_COLORS, TEMPERATURE_COLORS, weatherMapColor } from './weather-map'
 import { globalTemperatureContours, globalTemperatureForTrip } from './global-temperature';
 import { globalRainContours, globalRainForTrip } from './global-rain';
 import type { FlightMap, NonstopFlightMap, RouteAirport } from './flight-map';
-import type { CityScore, Country, Origin, RankedCity, Trip, WeatherLayer } from './types';
+import type { CityScore, Country, Origin, RankedCity, Trip, WeatherKind, WeatherLayer } from './types';
 
 type CountryFeature = Feature<Geometry, { name: string }>;
 interface MapCountry { feature: CountryFeature; country: Country }
@@ -49,6 +49,7 @@ export class Globe {
   private height = 520;
   private selectedName: string | null = null;
   private weatherLayer: WeatherLayer = 'temperature';
+  private weatherKinds?: ReadonlySet<WeatherKind>;
   private resizeObserver: ResizeObserver;
   private spin = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   private reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -244,8 +245,9 @@ export class Globe {
     this.draw();
   }
 
-  setWeatherLayer(layer: WeatherLayer): void {
+  setWeatherLayer(layer: WeatherLayer, kinds: ReadonlySet<WeatherKind>): void {
     this.weatherLayer = layer;
+    this.weatherKinds = kinds;
     this.updateClimateSurface();
     this.paintWeatherAreas();
     this.draw();
@@ -281,7 +283,7 @@ export class Globe {
     this.countryOutlines.style.display = fullMap ? '' : 'none';
     this.weatherAreaLayer.style.display = this.weatherLayer === 'off' || fullMap ? 'none' : '';
     for (const { score, node } of this.weatherAreas) {
-      const color = weatherMapColor(score, this.weatherLayer);
+      const color = weatherMapColor(score, this.weatherLayer, this.weatherKinds);
       node.style.display = color ? '' : 'none';
       if (color) node.setAttribute('fill', color);
     }
@@ -531,7 +533,7 @@ export class Globe {
       if (score.city.region) regionalPoints.push({ region: score.city.region, x: projected[0], y: projected[1] });
       const selected = score.city.name === this.selectedName;
       const size = regionalZoom ? (selected ? 5 : 4) : rank ? 1.4 * radius : selected ? 1.5 * radius : 0.75 * radius;
-      const flag = primaryWeatherFlag(score.weatherFlags, this.weatherLayer);
+      const flag = primaryWeatherFlag(score.weatherFlags, this.weatherLayer, this.weatherKinds);
       weather.style.display = flag ? '' : 'none';
       if (flag) {
         weather.setAttribute('class', `weather-marker weather-${flag.kind}`);
@@ -540,7 +542,7 @@ export class Globe {
       }
       visibleMarkers.push({ x: projected[0], y: projected[1], size, weather, stem: weatherStem, flagged: Boolean(flag) });
       node.classList.toggle('selected', selected);
-      const weatherColor = weatherMapColor(score, this.weatherLayer);
+      const weatherColor = weatherMapColor(score, this.weatherLayer, this.weatherKinds);
       circle.setAttribute('fill', this.weatherLayer === 'off' ? band(score.score).color : weatherColor ?? 'var(--neutral-marker)');
       circle.setAttribute('opacity', rank || selected || weatherColor ? '1' : '0.55');
       node.setAttribute('transform', `translate(${projected[0]},${projected[1]})`);

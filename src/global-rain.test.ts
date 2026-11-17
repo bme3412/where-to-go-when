@@ -78,5 +78,8 @@ describe('global precipitation surface', () => {
     expect(legend.items.map(item => item.color)).toEqual(RAIN_COLORS.map(band => band.color));
     expect(legend.note).toContain('snow');
     expect(legend.note).toContain('icons');
+    const selected = new Set(['heat', 'storm'] as const);
+    expect(weatherLegend('wet', 'C', selected).note).toBe('Rain + snow equivalent');
+    expect(weatherLegend('all', 'C', selected).items.map(item => item.label)).toEqual(['Heat', 'Storm season']);
   });
 });
