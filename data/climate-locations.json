@@ -580,5 +580,65 @@
     "referenceLabel": "Dhigurah island · South Ari Atoll",
     "referenceUrl": "https://www.geonames.org/11103189/dhigurah.html",
     "referenceNote": "The reference point is Dhigurah's inhabited village in South Ari Atoll, as identified by Visit Maldives, not the whole atoll or the Maldives. Regional grid estimates cannot resolve individual beaches, reefs or lagoons. Peak and shoulder months inherit the old Maldives regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Berlin",
+    "lat": 52.52,
+    "lon": 13.41
+  },
+  {
+    "name": "Vienna",
+    "lat": 48.21,
+    "lon": 16.37
+  },
+  {
+    "name": "Brussels",
+    "lat": 50.85,
+    "lon": 4.35
+  },
+  {
+    "name": "Dublin",
+    "lat": 53.35,
+    "lon": -6.26
+  },
+  {
+    "name": "Milan",
+    "lat": 45.46,
+    "lon": 9.19
+  },
+  {
+    "name": "Stockholm",
+    "lat": 59.33,
+    "lon": 18.07
+  },
+  {
+    "name": "Shanghai",
+    "lat": 31.23,
+    "lon": 121.47
+  },
+  {
+    "name": "Taipei",
+    "lat": 25.04,
+    "lon": 121.56
+  },
+  {
+    "name": "Kuala Lumpur",
+    "lat": 3.14,
+    "lon": 101.69
+  },
+  {
+    "name": "Melbourne",
+    "lat": -37.81,
+    "lon": 144.96
+  },
+  {
+    "name": "Auckland",
+    "lat": -36.85,
+    "lon": 174.76
+  },
+  {
+    "name": "Santiago",
+    "lat": -33.45,
+    "lon": -70.67
   }
 ]

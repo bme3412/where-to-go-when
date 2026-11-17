@@ -1,4 +1,4 @@
-import { geoDistance, geoInterpolate } from 'd3';
+import { geoInterpolate } from 'd3';
 import type { LineString } from 'geojson';
 import { BOSTON_FLIGHTS, isNonstopBostonTrip } from './flights';
 import type { City, CityScore, Travel } from './types';
@@ -40,7 +40,7 @@ export function nonstopFlightMaps(destinations: readonly Pick<CityScore, 'city' 
   return [...routes.values()];
 }
 
-/** Smallest sampled spherical cap; exact for up to three airports, including antimeridian routes. */
+/** Center the smallest spherical cap around the airports, including antimeridian routes. */
 export function flightMapCenter(map: Pick<FlightMap, 'airports'>): [number, number] {
   const points = map.airports.map(airport => airport.coordinates);
   if (!points.length) return [0, 0];
@@ -48,22 +48,38 @@ export function flightMapCenter(map: Pick<FlightMap, 'airports'>): [number, numb
   for (let i = 0; i < points.length; i++) {
     for (let j = i + 1; j < points.length; j++) candidates.push(geoInterpolate(points[i], points[j])(0.5));
   }
-  if (points.length === 3) {
-    const vectors = points.map(([lon, lat]) => {
-      const phi = lat * Math.PI / 180, lambda = lon * Math.PI / 180;
-      return [Math.cos(phi) * Math.cos(lambda), Math.cos(phi) * Math.sin(lambda), Math.sin(phi)];
-    });
-    const a = vectors[0].map((value, i) => value - vectors[1][i]);
-    const b = vectors[0].map((value, i) => value - vectors[2][i]);
-    const cross = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-    const length = Math.hypot(...cross);
-    if (length > 1e-10) {
-      for (const sign of [1, -1]) candidates.push([
-        Math.atan2(sign * cross[1], sign * cross[0]) * 180 / Math.PI,
-        Math.asin(Math.max(-1, Math.min(1, sign * cross[2] / length))) * 180 / Math.PI,
-      ]);
+  const toVector = ([lon, lat]: [number, number]) => {
+    const phi = lat * Math.PI / 180, lambda = lon * Math.PI / 180;
+    return [Math.cos(phi) * Math.cos(lambda), Math.cos(phi) * Math.sin(lambda), Math.sin(phi)];
+  };
+  const vectors = points.map(toVector);
+  const alignment = (center: number[]) => Math.min(...vectors.map(point =>
+    center[0] * point[0] + center[1] * point[1] + center[2] * point[2]));
+  let best = vectors[0], bestAlignment = alignment(best);
+  function consider(center: number[]): void {
+    const score = alignment(center);
+    if (score > bestAlignment) {
+      best = center;
+      bestAlignment = score;
     }
   }
-  const radius = (center: [number, number]) => Math.max(...points.map(point => geoDistance(center, point)));
-  return candidates.reduce((best, point) => radius(point) < radius(best) ? point : best);
+  for (const point of candidates) consider(toVector(point));
+
+  // A spherical cap can also be supported by three endpoints, even when
+  // the route overview contains dozens of airports.
+  for (let i = 0; i < vectors.length - 2; i++) {
+    for (let j = i + 1; j < vectors.length - 1; j++) {
+      const a = vectors[i].map((value, axis) => value - vectors[j][axis]);
+      for (let k = j + 1; k < vectors.length; k++) {
+        const b = vectors[i].map((value, axis) => value - vectors[k][axis]);
+        const cross = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+        const length = Math.hypot(...cross);
+        if (length <= 1e-10) continue;
+        consider(cross.map(value => value / length));
+        consider(cross.map(value => -value / length));
+      }
+    }
+  }
+  return [Math.atan2(best[1], best[0]) * 180 / Math.PI,
+    Math.asin(Math.max(-1, Math.min(1, best[2]))) * 180 / Math.PI];
 }

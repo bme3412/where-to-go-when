@@ -5,6 +5,7 @@ Python standard library only. Run after import-climate.py (its cached raw respon
 are reused). The public source archives, selection audit and raw hashes make the
 build reproducible. Never fills a missing station observation with a modeled one.
 """
+import argparse
 import calendar
 import concurrent.futures
 import csv
@@ -279,6 +280,10 @@ def build_place(place, stations, version):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--only', action='append', metavar='PLACE',
+                        help='Import or refresh one named location without rebuilding other locations (repeatable)')
+    args = parser.parse_args()
     CACHE.mkdir(parents=True, exist_ok=True)
     places = json.loads((ROOT / 'data/climate-locations.json').read_text())
     by_name = {place['name']: place for place in places}
@@ -289,6 +294,17 @@ def main():
             assert name in by_name and name not in reviewed, 'Unknown or duplicate agency review'
             reviewed.add(name)
             by_name[name]['agencyReview'] = {key: value for key, value in review.items() if key != 'name'}
+    target = ROOT / 'src/data/climate.json'
+    audit_target = ROOT / 'data/station-audit.json'
+    if args.only:
+        names = set(args.only)
+        if unknown := names - by_name.keys():
+            parser.error('Unknown location(s): ' + ', '.join(sorted(unknown)))
+        baseline = json.loads(target.read_text())
+        audit_file = json.loads(audit_target.read_text())
+        assert baseline['start'] == '1991-01-01' and baseline['end'] == '2020-12-31', 'Unexpected existing climate baseline'
+        assert baseline['stationPolicy'] == audit_file['policy'] == POLICY, 'Rebuild all locations after changing station policy'
+        places = [place for place in places if place['name'] in names]
     query = urllib.parse.urlencode(dict(latitude=','.join(str(p['lat']) for p in places), longitude=','.join(str(p['lon']) for p in places)))
     elevation_url = 'https://api.open-meteo.com/v1/elevation?' + query
     raw, elevation_retrieved = cached(elevation_url, 'elevation-' + hashlib.sha256(query.encode()).hexdigest()[:16] + '.json')
@@ -303,17 +319,25 @@ def main():
     cached(BASE + 'readme.txt', 'readme.txt')
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(lambda p: build_place(p, stations, version), places))
-    baseline = dict(start='1991-01-01', end='2020-12-31', years=30, wetDayThresholdMm=1,
-                    histogramStepC=.1, gridDegrees=dict(latitude=.5, longitude=.625), stationPolicy=POLICY,
-                    elevationSource=dict(provider='Copernicus DEM GLO-90 (2021) via Open-Meteo', sourceUrl=elevation_url,
-                                         retrieved=elevation_retrieved, sha256=hashlib.sha256(raw).hexdigest()),
-                    locations={result['name']: result for result, _ in results})
-    target = ROOT / 'src/data/climate.json'
+    elevation_source = dict(provider='Copernicus DEM GLO-90 (2021) via Open-Meteo', sourceUrl=elevation_url,
+                            retrieved=elevation_retrieved, sha256=hashlib.sha256(raw).hexdigest())
+    if args.only:
+        for result, _ in results:
+            result['elevationSource'] = elevation_source
+        baseline['locations'].update({result['name']: result for result, _ in results})
+        audit_by_name = {audit['name']: audit for audit in audit_file['locations']}
+        audit_by_name.update({audit['name']: audit for _, audit in results})
+        audits = list(audit_by_name.values())
+    else:
+        baseline = dict(start='1991-01-01', end='2020-12-31', years=30, wetDayThresholdMm=1,
+                        histogramStepC=.1, gridDegrees=dict(latitude=.5, longitude=.625), stationPolicy=POLICY,
+                        elevationSource=elevation_source, locations={result['name']: result for result, _ in results})
+        audits = [audit for _, audit in results]
     temp = target.with_suffix('.json.tmp')
     temp.write_text(json.dumps(baseline, ensure_ascii=False, separators=(',', ':')) + '\n')
     temp.replace(target)
-    (ROOT / 'data/station-audit.json').write_text(json.dumps(dict(policy=POLICY, version=version,
-        locations=[audit for _, audit in results]), ensure_ascii=False, indent=2) + '\n')
+    audit_target.write_text(json.dumps(dict(policy=POLICY, version=version, locations=audits),
+                                      ensure_ascii=False, indent=2) + '\n')
     print(f'Wrote {len(results)} locations; {sum(s["kind"] == "station" for r, _ in results for s in r["sources"].values())} station-backed variables', flush=True)
 
 

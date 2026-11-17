@@ -85,7 +85,31 @@ export const CITY_ROWS = [
 ["Puerto de la Cruz","Spain",28.41686,-16.55085,[12,1,2,3,7,8],[10,11,4]],
 ["La Orotava","Spain",28.39076,-16.52309,[12,1,2,3,7,8],[10,11,4]],
 ["Maafushi","Maldives",3.94231,73.4907,[12,1,2,3],[4,11]],
-["Dhigurah","Maldives",3.53514,72.92896,[12,1,2,3],[4,11]]
+["Dhigurah","Maldives",3.53514,72.92896,[12,1,2,3],[4,11]],
+["Washington, DC","United States of America",38.91,-77.04,[],[]],
+["Chicago","United States of America",41.88,-87.63,[],[]],
+["Dallas","United States of America",32.78,-96.8,[],[]],
+["Denver","United States of America",39.74,-104.99,[],[]],
+["Los Angeles","United States of America",34.05,-118.24,[],[]],
+["Seattle","United States of America",47.61,-122.33,[],[]],
+["Toronto","Canada",43.65,-79.38,[],[]],
+["São Paulo","Brazil",-23.55,-46.63,[],[]],
+["Frankfurt","Germany",50.11,8.68,[],[]],
+["Madrid","Spain",40.42,-3.7,[],[]],
+["Johannesburg","South Africa",-26.2,28.05,[],[]],
+["Mumbai","India",19.08,72.88,[],[]],
+["Berlin","Germany",52.52,13.41,[],[]],
+["Vienna","Austria",48.21,16.37,[],[]],
+["Brussels","Belgium",50.85,4.35,[],[]],
+["Dublin","Ireland",53.35,-6.26,[],[]],
+["Milan","Italy",45.46,9.19,[],[]],
+["Stockholm","Sweden",59.33,18.07,[],[]],
+["Shanghai","China",31.23,121.47,[],[]],
+["Taipei","Taiwan",25.04,121.56,[],[]],
+["Kuala Lumpur","Malaysia",3.14,101.69,[],[]],
+["Melbourne","Australia",-37.81,144.96,[],[]],
+["Auckland","New Zealand",-36.85,174.76,[],[]],
+["Santiago","Chile",-33.45,-70.67,[],[]]
 ] as const satisfies readonly CityRow[];
 
 export const CITIES: readonly City[] = CITY_ROWS.map(([name, country, lat, lon, peak, shoulder]) => ({name, country, lat, lon, peak, shoulder, tz: TZ[name], ...regionMetadata(name)}));

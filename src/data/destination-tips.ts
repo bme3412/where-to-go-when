@@ -2,6 +2,7 @@ import type { CityScore } from '../types';
 import type { CITY_ROWS } from './cities';
 
 const flags: Readonly<Record<string, string>> = {
+  Austria: '🇦🇹', Belgium: '🇧🇪', Germany: '🇩🇪', Ireland: '🇮🇪', Sweden: '🇸🇪', Malaysia: '🇲🇾', Taiwan: '🇹🇼',
   Argentina: '🇦🇷', Aruba: '🇦🇼', Australia: '🇦🇺', Brazil: '🇧🇷', Cambodia: '🇰🇭', Canada: '🇨🇦',
   Chile: '🇨🇱', China: '🇨🇳', Colombia: '🇨🇴', 'Costa Rica': '🇨🇷', Croatia: '🇭🇷', Cuba: '🇨🇺',
   Czechia: '🇨🇿', Denmark: '🇩🇰', Ecuador: '🇪🇨', Egypt: '🇪🇬', Fiji: '🇫🇯', France: '🇫🇷',
@@ -100,6 +101,30 @@ const localActivities = {
   'La Orotava': ['Walk the historic center and the Victoria Gardens.', 'See the carved balconies and interiors at Casa de los Balcones.'],
   Maafushi: ['Take an early beach walk or snorkel when the sea is calm.', 'Ask a local café about Maldivian snacks such as mas roshi.'],
   Dhigurah: ['Walk Dhigurah’s long beach in the morning.', 'Try a Maldivian meal at your guesthouse during the wetter hours.'],
+  'Washington, DC': ['Walk the National Mall between the monuments.', 'Explore a Smithsonian museum on the National Mall.'],
+  Chicago: ['Walk the Riverwalk and continue to the lakefront.', 'Spend an afternoon at the Art Institute of Chicago.'],
+  Dallas: ['Walk through Klyde Warren Park and the Arts District.', 'Visit the Dallas Museum of Art.'],
+  Denver: ['Walk the paths of Denver Botanic Gardens at York Street.', 'Explore the Denver Art Museum.'],
+  'Los Angeles': ['Walk the Griffith Park trails on a clear morning.', 'Visit the indoor galleries at the Getty Center.'],
+  Seattle: ['Walk the waterfront from the ferry terminal to the Olympic Sculpture Park.', 'Browse the covered stalls at Pike Place Market.'],
+  Toronto: ['Walk the waterfront paths around Harbourfront.', 'Spend a cold or wet afternoon at the Royal Ontario Museum.'],
+  'São Paulo': ['Take a morning walk around Ibirapuera Park.', 'Browse the galleries at the São Paulo Museum of Art.'],
+  Frankfurt: ['Walk the Main riverbank between the bridges.', 'Explore the Städel Museum on the museum embankment.'],
+  Madrid: ['Walk through El Retiro Park in the morning.', 'Spend an afternoon in the Prado Museum.'],
+  Johannesburg: ['Walk the paths of the Johannesburg Botanical Garden.', 'Spend an afternoon at the Apartheid Museum.'],
+  Mumbai: ['Walk Marine Drive near sunset.', 'Visit the Chhatrapati Shivaji Maharaj Vastu Sangrahalaya museum.'],
+  Berlin: ['Walk through the Tiergarten toward the Brandenburg Gate.', 'Visit the Neues Museum on Museum Island.'],
+  Vienna: ['Walk the gardens around Schönbrunn Palace.', 'Explore the collections at the Kunsthistorisches Museum.'],
+  Brussels: ['Walk the Grand-Place and the lanes around it.', 'Visit the Magritte Museum.'],
+  Dublin: ['Walk along the River Liffey and through the city center.', 'Spend a rainy afternoon in the National Gallery of Ireland.'],
+  Milan: ['Walk through Parco Sempione to the Sforza Castle courtyards.', 'Visit the Pinacoteca di Brera.'],
+  Stockholm: ['Walk the waterfront around Djurgården.', 'See the restored ship at the Vasa Museum.'],
+  Shanghai: ['Walk the Bund early for views across the Huangpu River.', 'Visit the Shanghai Museum.'],
+  Taipei: ['Walk the paths of Daan Forest Park.', 'Explore the collections at the National Palace Museum.'],
+  'Kuala Lumpur': ['Walk KLCC Park early before the afternoon heat.', 'Visit the Islamic Arts Museum Malaysia.'],
+  Melbourne: ['Walk the Royal Botanic Gardens and the Yarra waterfront.', 'Browse the National Gallery of Victoria.'],
+  Auckland: ['Walk the waterfront from the Viaduct to Wynyard Quarter.', 'Visit Auckland War Memorial Museum.'],
+  Santiago: ['Walk through Parque Bicentenario on a clear morning.', 'Visit the Museo Chileno de Arte Precolombino.'],
 } satisfies Record<(typeof CITY_ROWS)[number][0], ActivityPair>;
 
 const activities: Readonly<Partial<Record<string, ActivityPair>>> = localActivities;

@@ -1,10 +1,10 @@
 {
-  "auditedAt": "2026-11-17T01:26:16.418019+00:00",
+  "auditedAt": "2026-11-17T19:29:19.037248+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 95 reference points, all 83 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 107 reference points, all 107 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 981,
+    "sourceFingerprints": 1005,
     "dailyGridFingerprints": true,
     "monthDenominators": true,
     "histogramCounts": true,
@@ -15,9 +15,9 @@
     "agencyReviewCompleteness": true
   },
   "destinationCounts": {
-    "station": 28,
-    "grid": 49,
-    "mixed": 6
+    "station": 37,
+    "grid": 62,
+    "mixed": 8
   },
   "additions": [
     {
@@ -66,6 +66,102 @@
     },
     {
       "name": "Dhigurah",
+      "source": "grid"
+    },
+    {
+      "name": "Washington, DC",
+      "source": "station"
+    },
+    {
+      "name": "Chicago",
+      "source": "grid"
+    },
+    {
+      "name": "Dallas",
+      "source": "station"
+    },
+    {
+      "name": "Denver",
+      "source": "station"
+    },
+    {
+      "name": "Los Angeles",
+      "source": "station"
+    },
+    {
+      "name": "Seattle",
+      "source": "mixed"
+    },
+    {
+      "name": "Toronto",
+      "source": "grid"
+    },
+    {
+      "name": "São Paulo",
+      "source": "grid"
+    },
+    {
+      "name": "Frankfurt",
+      "source": "station"
+    },
+    {
+      "name": "Madrid",
+      "source": "station"
+    },
+    {
+      "name": "Johannesburg",
+      "source": "grid"
+    },
+    {
+      "name": "Mumbai",
+      "source": "grid"
+    },
+    {
+      "name": "Berlin",
+      "source": "station"
+    },
+    {
+      "name": "Vienna",
+      "source": "station"
+    },
+    {
+      "name": "Brussels",
+      "source": "grid"
+    },
+    {
+      "name": "Dublin",
+      "source": "grid"
+    },
+    {
+      "name": "Milan",
+      "source": "grid"
+    },
+    {
+      "name": "Stockholm",
+      "source": "station"
+    },
+    {
+      "name": "Shanghai",
+      "source": "grid"
+    },
+    {
+      "name": "Taipei",
+      "source": "grid"
+    },
+    {
+      "name": "Kuala Lumpur",
+      "source": "grid"
+    },
+    {
+      "name": "Melbourne",
+      "source": "mixed"
+    },
+    {
+      "name": "Auckland",
+      "source": "grid"
+    },
+    {
+      "name": "Santiago",
       "source": "grid"
     }
   ],
@@ -490,7 +586,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 83 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 107 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -2495,6 +2591,258 @@
       "name": "Dhigurah",
       "kind": "grid",
       "reference": "Dhigurah island · South Ari Atoll",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Berlin",
+      "kind": "station",
+      "reference": "Berlin",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BERLIN-TEMPELHOF",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BERLIN-TEMPELHOF",
+          "acceptedDays": 10956,
+          "minimumMonthlyCoverage": 0.9989
+        }
+      }
+    },
+    {
+      "name": "Vienna",
+      "kind": "station",
+      "reference": "Vienna",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "WIEN",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "WIEN",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Brussels",
+      "kind": "grid",
+      "reference": "Brussels",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Dublin",
+      "kind": "grid",
+      "reference": "Dublin",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Milan",
+      "kind": "grid",
+      "reference": "Milan",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Stockholm",
+      "kind": "station",
+      "reference": "Stockholm",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "STOCKHOLM",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "STOCKHOLM",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Shanghai",
+      "kind": "grid",
+      "reference": "Shanghai",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Taipei",
+      "kind": "grid",
+      "reference": "Taipei",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Kuala Lumpur",
+      "kind": "grid",
+      "reference": "Kuala Lumpur",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Melbourne",
+      "kind": "mixed",
+      "reference": "Melbourne",
+      "factors": {
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "CAULFIELD (RACECOURSE)",
+          "acceptedDays": 10609,
+          "minimumMonthlyCoverage": 0.9311
+        },
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Auckland",
+      "kind": "grid",
+      "reference": "Auckland",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Santiago",
+      "kind": "grid",
+      "reference": "Santiago",
       "factors": {
         "temperature": {
           "kind": "grid",

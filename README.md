@@ -1,6 +1,6 @@
 # Where to go, and when
 
-A lightweight vacation globe with 83 destinations, scored for your travel dates, home city, and trip length. The larger globe fills the center of the first screen, with collapsible trip settings on the left, independently scrolling recommendations on the right, and a compact priorities strip at the bottom center. Built with TypeScript, Vite, D3 v7, and `topojson-client`; no framework, API keys, or backend.
+A lightweight vacation globe with 107 destinations, scored for your travel dates, home city, and trip length. The larger globe fills the center of the first screen, with collapsible trip settings on the left, independently scrolling recommendations on the right, and a compact priorities strip at the bottom center. Built with TypeScript, Vite, D3 v7, and `topojson-client`; no framework, API keys, or backend.
 
 ## Run
 
@@ -80,11 +80,13 @@ Rain uses the same date sampling, monthly blending, spatial interpolation and 90
 
 The trip panel groups origin, destination scope, the Boston nonstop switch and dates. The selected date range is shown on one button, and the shared calendar opens beneath it. Trip duration sits beside the Travel dates heading. Search by city name to choose from 24 origins; the nonstop switch appears only for Boston.
 
-The bundled **1991–2020** baseline covers 95 reference points: all 83 destinations and 24 origins, with overlap. Temperature and precipitation each retain their own source, record counts and coverage. The app makes no runtime weather requests. Current destination coverage: **28 station / 6 mixed / 49 grid**.
+The bundled **1991–2020** baseline covers 107 reference points, including all 107 destinations and all 24 origins. Temperature and precipitation each retain their own source, record counts and coverage. Current destination coverage: **37 station / 8 mixed / 62 grid**.
 
 - **Nearby observations:** NOAA NCEI [GHCN-Daily Version 3](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily), [dataset DOI](https://doi.org/10.7289/V5D21VHZ), plus **Source: MeteoSwiss**, [SwissMetNet historical daily observations](https://opendatadocs.meteoswiss.ch/a-data-groundbased/a1-automatic-weather-stations) for Interlaken station INT.
 - **Regional fallback:** [NASA POWER / MERRA-2](https://power.larc.nasa.gov/docs/methodology/) at the destination coordinate. Native 0.5° latitude × 0.625° longitude grid; `T2M_MAX`, `T2M_MIN` (°C) and `PRECTOTCORR` (mm/day), Local Solar Time. Data provided by the NASA POWER Project at NASA Langley Research Center.
 - **Reference elevations:** [Copernicus DEM GLO-90, 2021](https://doi.org/10.5270/ESA-c5d3d65) via [Open-Meteo](https://open-meteo.com/en/docs/elevation-api), 90 m resolution. Used for station screening, not temperature adjustment.
+
+To add locations without refreshing existing climate records, add their coordinates to `data/climate-locations.json` and run `python3 scripts/import-stations.py --only Berlin --only Vienna` with the new names. New destinations use a neutral crowd baseline until seasonal crowd estimates are configured.
 
 NOAA station selection is deterministic, nearest first. National-agency supplements are reviewed by station identity and location. Every accepted site is at most **15 km away and 150 m elevation difference**. NOAA inventory is prefiltered for a potential baseline spanning 1996–2015 or longer, then actual daily records are checked. MeteoSwiss supplements the known NOAA coverage gap at Interlaken, with the same distance, elevation and completeness rules. Selection is independent for temperature and precipitation, so two nearby stations may be used. Distance and elevation are screening choices, not proof of identical coastal exposure or terrain. No arbitrary blending or lapse-rate correction is applied. Documented agency station histories are retained, including Prague’s location change and Banff’s station succession: ECCC specifies 3050520 through 1995-03-31 and 3050519 from 1995-04-01. Both sites pass the same geography checks; no estimates or neighboring observations fill gaps.
 

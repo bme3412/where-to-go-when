@@ -159,7 +159,8 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const monthlyWet = climate.months.map(wetDayFrequency);
   const monthlyHome = homeClimate.months.map(month => month.meanHigh);
   const relevantEvents = events.filter(event => event.cities.has(city.name) || Boolean(city.region && event.cities.has(city.region)));
-  const crowds = Array.from({ length: 12 }, (_, month) => city.peak.includes(month + 1) ? 0.8 : city.shoulder.includes(month + 1) ? 0.5 : 0.2);
+  const hasCrowdSeasons = city.peak.length > 0 || city.shoulder.length > 0;
+  const crowds = Array.from({ length: 12 }, (_, month) => city.peak.includes(month + 1) ? 0.8 : city.shoulder.includes(month + 1) || !hasCrowdSeasons ? 0.5 : 0.2);
   const eventNames = new Set<string>();
   const dealbreakers = new Set<Dealbreaker>();
   const highs: number[] = [], lows: number[] = [], homeHighs: number[] = [], rains: number[] = [], crowdLevels: number[] = [], wetLevels: number[] = [], weatherFits: number[] = [];
