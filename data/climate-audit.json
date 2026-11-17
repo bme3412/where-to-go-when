@@ -1,10 +1,10 @@
 {
-  "auditedAt": "2026-11-17T19:48:01.328399+00:00",
+  "auditedAt": "2026-11-17T19:56:58.645163+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 150 reference points, all 150 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 166 reference points, all 166 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 1091,
+    "sourceFingerprints": 1123,
     "dailyGridFingerprints": true,
     "monthDenominators": true,
     "histogramCounts": true,
@@ -15,8 +15,8 @@
     "agencyReviewCompleteness": true
   },
   "destinationCounts": {
-    "station": 42,
-    "grid": 99,
+    "station": 45,
+    "grid": 112,
     "mixed": 9
   },
   "additions": [
@@ -334,6 +334,70 @@
     },
     {
       "name": "San Salvador",
+      "source": "grid"
+    },
+    {
+      "name": "Bucharest",
+      "source": "station"
+    },
+    {
+      "name": "Sofia",
+      "source": "grid"
+    },
+    {
+      "name": "Belgrade",
+      "source": "station"
+    },
+    {
+      "name": "Zagreb",
+      "source": "station"
+    },
+    {
+      "name": "Tbilisi",
+      "source": "grid"
+    },
+    {
+      "name": "Yerevan",
+      "source": "grid"
+    },
+    {
+      "name": "Almaty",
+      "source": "grid"
+    },
+    {
+      "name": "Tashkent",
+      "source": "grid"
+    },
+    {
+      "name": "Windhoek",
+      "source": "grid"
+    },
+    {
+      "name": "Gaborone",
+      "source": "grid"
+    },
+    {
+      "name": "Maputo",
+      "source": "grid"
+    },
+    {
+      "name": "Antananarivo",
+      "source": "grid"
+    },
+    {
+      "name": "Recife",
+      "source": "grid"
+    },
+    {
+      "name": "Salvador",
+      "source": "grid"
+    },
+    {
+      "name": "Córdoba",
+      "source": "grid"
+    },
+    {
+      "name": "San Pedro Sula",
       "source": "grid"
     }
   ],
@@ -758,7 +822,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 150 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 166 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -3918,6 +3982,342 @@
       "name": "San Salvador",
       "kind": "grid",
       "reference": "San Salvador",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Bucharest",
+      "kind": "station",
+      "reference": "Bucharest",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BUCURESTI-BANEASA",
+          "acceptedDays": 10956,
+          "minimumMonthlyCoverage": 0.9978
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BUCURESTI-BANEASA",
+          "acceptedDays": 10957,
+          "minimumMonthlyCoverage": 0.9988
+        }
+      }
+    },
+    {
+      "name": "Sofia",
+      "kind": "grid",
+      "reference": "Sofia",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Belgrade",
+      "kind": "station",
+      "reference": "Belgrade",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BELGRADE (OBSERVATORY)",
+          "acceptedDays": 10001,
+          "minimumMonthlyCoverage": 0.8998
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BELGRADE (OBSERVATORY)",
+          "acceptedDays": 9861,
+          "minimumMonthlyCoverage": 0.8989
+        }
+      }
+    },
+    {
+      "name": "Zagreb",
+      "kind": "station",
+      "reference": "Zagreb",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "ZAGREB-GRIC",
+          "acceptedDays": 10804,
+          "minimumMonthlyCoverage": 0.9656
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "ZAGREB-GRIC",
+          "acceptedDays": 10957,
+          "minimumMonthlyCoverage": 0.9989
+        }
+      }
+    },
+    {
+      "name": "Tbilisi",
+      "kind": "grid",
+      "reference": "Tbilisi",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Yerevan",
+      "kind": "grid",
+      "reference": "Yerevan",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Almaty",
+      "kind": "grid",
+      "reference": "Almaty",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Tashkent",
+      "kind": "grid",
+      "reference": "Tashkent",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Windhoek",
+      "kind": "grid",
+      "reference": "Windhoek",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Gaborone",
+      "kind": "grid",
+      "reference": "Gaborone",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Maputo",
+      "kind": "grid",
+      "reference": "Maputo",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Antananarivo",
+      "kind": "grid",
+      "reference": "Antananarivo",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Recife",
+      "kind": "grid",
+      "reference": "Recife",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Salvador",
+      "kind": "grid",
+      "reference": "Salvador",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Córdoba",
+      "kind": "grid",
+      "reference": "Córdoba",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "San Pedro Sula",
+      "kind": "grid",
+      "reference": "San Pedro Sula",
       "factors": {
         "temperature": {
           "kind": "grid",

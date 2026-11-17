@@ -855,5 +855,85 @@
     "name": "San Salvador",
     "lat": 13.69,
     "lon": -89.22
+  },
+  {
+    "name": "Bucharest",
+    "lat": 44.43,
+    "lon": 26.1
+  },
+  {
+    "name": "Sofia",
+    "lat": 42.7,
+    "lon": 23.32
+  },
+  {
+    "name": "Belgrade",
+    "lat": 44.82,
+    "lon": 20.46
+  },
+  {
+    "name": "Zagreb",
+    "lat": 45.81,
+    "lon": 15.98
+  },
+  {
+    "name": "Tbilisi",
+    "lat": 41.72,
+    "lon": 44.79
+  },
+  {
+    "name": "Yerevan",
+    "lat": 40.18,
+    "lon": 44.51
+  },
+  {
+    "name": "Almaty",
+    "lat": 43.24,
+    "lon": 76.89
+  },
+  {
+    "name": "Tashkent",
+    "lat": 41.31,
+    "lon": 69.28
+  },
+  {
+    "name": "Windhoek",
+    "lat": -22.56,
+    "lon": 17.08
+  },
+  {
+    "name": "Gaborone",
+    "lat": -24.65,
+    "lon": 25.91
+  },
+  {
+    "name": "Maputo",
+    "lat": -25.97,
+    "lon": 32.58
+  },
+  {
+    "name": "Antananarivo",
+    "lat": -18.91,
+    "lon": 47.53
+  },
+  {
+    "name": "Recife",
+    "lat": -8.05,
+    "lon": -34.88
+  },
+  {
+    "name": "Salvador",
+    "lat": -12.97,
+    "lon": -38.5
+  },
+  {
+    "name": "Córdoba",
+    "lat": -31.42,
+    "lon": -64.19
+  },
+  {
+    "name": "San Pedro Sula",
+    "lat": 15.5,
+    "lon": -88.03
   }
 ]
