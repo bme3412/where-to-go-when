@@ -23,7 +23,7 @@ describe('destination region filtering', () => {
   it('ranks only European destinations, including unserved destinations, for different dates', () => {
     const expected = ['Paris', 'London', 'Rome', 'Barcelona', 'Seville', 'Lisbon', 'Athens', 'Santorini',
       'Dubrovnik', 'Amsterdam', 'Prague', 'Copenhagen', 'Interlaken', 'Reykjavik', 'Istanbul',
-      'Berlin', 'Brussels', 'Dublin', 'Frankfurt', 'Madrid', 'Milan', 'Stockholm', 'Vienna', 'Warsaw', 'Budapest', 'Munich', 'Edinburgh', 'Belgrade', 'Bucharest', 'Sofia', 'Zagreb', 'Hamburg', 'Lyon', 'Nice', 'Porto', 'Helsinki', 'Oslo', 'Luxembourg City', 'Valencia', 'Glasgow', 'Manchester', 'Naples', 'Palermo'].sort();
+      'Berlin', 'Brussels', 'Dublin', 'Frankfurt', 'Madrid', 'Milan', 'Stockholm', 'Vienna', 'Warsaw', 'Budapest', 'Munich', 'Edinburgh', 'Belgrade', 'Bucharest', 'Sofia', 'Zagreb', 'Hamburg', 'Lyon', 'Nice', 'Porto', 'Helsinki', 'Oslo', 'Luxembourg City', 'Valencia', 'Glasgow', 'Manchester', 'Naples', 'Palermo', 'Riga', 'Tallinn', 'Vilnius', 'Bergen'].sort();
     for (const trip of [{ start: '2027-01-01', end: '2027-01-07' }, { start: '2027-07-01', end: '2027-07-07' }]) {
       const ranked = rankCities(scoreCities(trip, boston)
         .filter(result => matchesDestinationRegion(result.city, 'europe')));

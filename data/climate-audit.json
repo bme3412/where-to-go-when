@@ -1,10 +1,10 @@
 {
-  "auditedAt": "2026-11-17T20:28:06.332801+00:00",
+  "auditedAt": "2026-11-17T20:33:04.449739+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 214 reference points, all 214 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 230 reference points, all 230 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 1219,
+    "sourceFingerprints": 1251,
     "dailyGridFingerprints": true,
     "monthDenominators": true,
     "histogramCounts": true,
@@ -15,9 +15,9 @@
     "agencyReviewCompleteness": true
   },
   "destinationCounts": {
-    "station": 53,
-    "grid": 152,
-    "mixed": 9
+    "station": 56,
+    "grid": 164,
+    "mixed": 10
   },
   "additions": [
     {
@@ -591,6 +591,70 @@
     {
       "name": "Asunción",
       "source": "grid"
+    },
+    {
+      "name": "Riga",
+      "source": "grid"
+    },
+    {
+      "name": "Tallinn",
+      "source": "station"
+    },
+    {
+      "name": "Vilnius",
+      "source": "grid"
+    },
+    {
+      "name": "Bergen",
+      "source": "station"
+    },
+    {
+      "name": "Hiroshima",
+      "source": "grid"
+    },
+    {
+      "name": "Kaohsiung",
+      "source": "grid"
+    },
+    {
+      "name": "Davao",
+      "source": "grid"
+    },
+    {
+      "name": "Hobart",
+      "source": "station"
+    },
+    {
+      "name": "Alexandria",
+      "source": "grid"
+    },
+    {
+      "name": "Gqeberha",
+      "source": "grid"
+    },
+    {
+      "name": "Fes",
+      "source": "grid"
+    },
+    {
+      "name": "Aqaba",
+      "source": "mixed"
+    },
+    {
+      "name": "Santiago de los Caballeros",
+      "source": "grid"
+    },
+    {
+      "name": "Mérida",
+      "source": "grid"
+    },
+    {
+      "name": "Oaxaca",
+      "source": "grid"
+    },
+    {
+      "name": "La Paz",
+      "source": "grid"
     }
   ],
   "comparisonCommit": "74b9b2fe750a3e8350b2706d7dc25d5574438954",
@@ -1014,7 +1078,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 214 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 230 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -5518,6 +5582,342 @@
       "name": "Asunción",
       "kind": "grid",
       "reference": "Asunción",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Riga",
+      "kind": "grid",
+      "reference": "Riga",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Tallinn",
+      "kind": "station",
+      "reference": "Tallinn",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "TALLINN",
+          "acceptedDays": 10956,
+          "minimumMonthlyCoverage": 0.9978
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "TALLINN",
+          "acceptedDays": 10957,
+          "minimumMonthlyCoverage": 0.9989
+        }
+      }
+    },
+    {
+      "name": "Vilnius",
+      "kind": "grid",
+      "reference": "Vilnius",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Bergen",
+      "kind": "station",
+      "reference": "Bergen",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BERGEN FLORIDA",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BERGEN FLORIDA",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Hiroshima",
+      "kind": "grid",
+      "reference": "Hiroshima",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Kaohsiung",
+      "kind": "grid",
+      "reference": "Kaohsiung",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Davao",
+      "kind": "grid",
+      "reference": "Davao",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Hobart",
+      "kind": "station",
+      "reference": "Hobart",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "HOBART (ELLERSLIE ROAD)",
+          "acceptedDays": 10952,
+          "minimumMonthlyCoverage": 0.9967
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "HOBART (ELLERSLIE ROAD)",
+          "acceptedDays": 10939,
+          "minimumMonthlyCoverage": 0.9933
+        }
+      }
+    },
+    {
+      "name": "Alexandria",
+      "kind": "grid",
+      "reference": "Alexandria",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Gqeberha",
+      "kind": "grid",
+      "reference": "Gqeberha",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Fes",
+      "kind": "grid",
+      "reference": "Fes",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Aqaba",
+      "kind": "mixed",
+      "reference": "Aqaba",
+      "factors": {
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "ELAT",
+          "acceptedDays": 9251,
+          "minimumMonthlyCoverage": 0.8333
+        },
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Santiago de los Caballeros",
+      "kind": "grid",
+      "reference": "Santiago de los Caballeros",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Mérida",
+      "kind": "grid",
+      "reference": "Mérida",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Oaxaca",
+      "kind": "grid",
+      "reference": "Oaxaca",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "La Paz",
+      "kind": "grid",
+      "reference": "La Paz",
       "factors": {
         "temperature": {
           "kind": "grid",

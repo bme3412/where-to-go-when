@@ -1175,5 +1175,85 @@
     "name": "Asunción",
     "lat": -25.28,
     "lon": -57.63
+  },
+  {
+    "name": "Riga",
+    "lat": 56.95,
+    "lon": 24.11
+  },
+  {
+    "name": "Tallinn",
+    "lat": 59.44,
+    "lon": 24.75
+  },
+  {
+    "name": "Vilnius",
+    "lat": 54.69,
+    "lon": 25.28
+  },
+  {
+    "name": "Bergen",
+    "lat": 60.39,
+    "lon": 5.32
+  },
+  {
+    "name": "Hiroshima",
+    "lat": 34.39,
+    "lon": 132.46
+  },
+  {
+    "name": "Kaohsiung",
+    "lat": 22.63,
+    "lon": 120.3
+  },
+  {
+    "name": "Davao",
+    "lat": 7.07,
+    "lon": 125.61
+  },
+  {
+    "name": "Hobart",
+    "lat": -42.88,
+    "lon": 147.33
+  },
+  {
+    "name": "Alexandria",
+    "lat": 31.2,
+    "lon": 29.92
+  },
+  {
+    "name": "Gqeberha",
+    "lat": -33.96,
+    "lon": 25.6
+  },
+  {
+    "name": "Fes",
+    "lat": 34.03,
+    "lon": -5.0
+  },
+  {
+    "name": "Aqaba",
+    "lat": 29.53,
+    "lon": 35.01
+  },
+  {
+    "name": "Santiago de los Caballeros",
+    "lat": 19.45,
+    "lon": -70.7
+  },
+  {
+    "name": "Mérida",
+    "lat": 20.97,
+    "lon": -89.62
+  },
+  {
+    "name": "Oaxaca",
+    "lat": 17.06,
+    "lon": -96.73
+  },
+  {
+    "name": "La Paz",
+    "lat": -16.5,
+    "lon": -68.13
   }
 ]
