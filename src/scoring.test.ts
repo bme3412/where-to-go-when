@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
-import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, defaultTrip, easter, interp, matchesDestinationScope, matchesTemperaturePreferences, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
+import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
 import { band, comfortableDryTime, destinationTime, displayedContributions, climateProvenance, rankingRouteLabel, scoreBreakdown } from './format';
 import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency, gridElevationMismatch, sharedGridHistory, climateResolutionLabel } from './climate';
 import { auditDestinations, auditRows, sourceCounts } from './audit';
@@ -182,12 +182,16 @@ describe('travel and scoring', () => {
     expect(results('2027-07-10', '2027-07-20').find(result => result.city.name === 'Goa')!.dealbreakers).toContain('Frequent precipitation');
     expect(results('2027-09-12', '2027-09-18').find(result => result.city.name === 'Miami')!.risks).toContain('Hurricane season');
   });
-  it('excludes zero-time destinations on the Boston winter weekend and flags incomplete top-pick routes', () => {
+  it('requires a full modeled day at the destination for the Boston winter weekend', () => {
     const scores = results('2026-12-18', '2026-12-20');
     expect(scores.find(result => result.city.name === 'Palolem')?.travel.usable).toBe(0);
     const ranked = rankCities(scores);
     expect(ranked.some(result => result.city.name === 'Palolem')).toBe(false);
-    expect(ranked.every(result => result.travel.usable > 0)).toBe(true);
+    expect(ranked.every(result => result.travel.usable >= 1)).toBe(true);
+    const paris = scores.find(result => result.city.name === 'Paris')!;
+    expect(paris.travel.usable).toBeGreaterThan(0);
+    expect(paris.travel.usable).toBeLessThan(1);
+    expect(ranked.some(result => result.city.name === 'Paris')).toBe(false);
     expect(scores.find(result => result.city.name === 'Palolem')?.comfortableDryDays).toBe(0);
     expect(ranked[0].city.name).toBe('Miami');
     const [miami] = ranked;
@@ -211,34 +215,39 @@ describe('travel and scoring', () => {
     const ranked = rankCities(results('2026-12-20', '2027-01-03'));
     expect(ranked.every(result => result.travel.usable > 0)).toBe(true);
     expect(ranked.every(result => result.comfortableDryDays >= 0 && result.comfortableDryDays <= result.travel.usable)).toBe(true);
-    expect(ranked.slice(0, 3).map(result => result.city.name)).toEqual(['Lima', 'Guadalajara', 'Nouakchott']);
+    expect(ranked.slice(0, 3).map(result => result.city.name)).toEqual(['Lima', 'Tenerife', 'Palolem']);
     const puertoVillamil = ranked.find(result => result.city.name === 'Puerto Villamil')!;
     expect(puertoVillamil.comfortableDryDays).toBeGreaterThan(ranked.find(result => result.city.name === 'Mexico City')!.comfortableDryDays);
     expect(puertoVillamil.rank).toBeGreaterThan(17);
-    const incomplete = (result: typeof puertoVillamil) => result.travel.flights && result.travel.basis !== 'routes';
-    const firstIncomplete = ranked.findIndex(incomplete);
-    expect(ranked.slice(firstIncomplete).every(incomplete)).toBe(true);
-    for (const group of [ranked.slice(0, firstIncomplete), ranked.slice(firstIncomplete)]) {
-      const estimates = group.map(result => result.comfortableDryDays);
-      expect(estimates).toEqual([...estimates].sort((a, b) => b - a));
-    }
+    expect(puertoVillamil.breakdown.contributions.travel).toBe(0);
+    expect(puertoVillamil.rank).toBeLessThan(ranked.find(result => result.city.name === 'Sapporo')!.rank);
+    expect(scoreBreakdown(puertoVillamil, 'F')).toContain('The travel factor gives no points when both directions use distance estimates.');
+    expect(ranked.some(result => result.city.name === 'Paris')).toBe(true);
     const palolem = ranked.find(result => result.city.name === 'Palolem')!;
     expect(destinationTime(palolem.travel.usable)).toBe('~10.5 days at destination');
     expect(destinationTime(0.01)).toBe('Under 0.1 days at destination (est.)');
   });
 
   it.each([
-    ['2026-12-18', '2026-12-20', 'Miami', 35],
-    ['2026-12-20', '2027-01-03', 'Lima', 90],
-  ] as const)('applies both temperature preferences from Boston on %s through %s', (start, end, top, count) => {
-    const scores = results(start, end);
-    const filtered = rankCities(scores.filter(result => matchesTemperaturePreferences(result, true, true)));
-    expect(filtered).toHaveLength(count);
-    expect(filtered[0].city.name).toBe(top);
-    const prague = scores.find(result => result.city.name === 'Prague')!;
-    expect(matchesTemperaturePreferences(prague, false, false)).toBe(true);
-    expect(matchesTemperaturePreferences(prague, false, true)).toBe(false);
-    expect(matchesTemperaturePreferences(filtered[0], true, true)).toBe(true);
+    [{ start: '2026-12-18', end: '2026-12-20' }, 'Miami'],
+    [{ start: '2026-12-20', end: '2027-01-03' }, 'Lima'],
+  ] as const)('uses the same weighted score for order and match labels on %j', (trip, defaultTop) => {
+    const standard = rankCities(scoreCities(trip, boston));
+    const shortTravel = rankCities(scoreCities(trip, boston, setWeight(DEFAULT_WEIGHTS, 'travel', 100)));
+    expect(standard[0].city.name).toBe(defaultTop);
+    expect(shortTravel[0].city.name).toBe('Cape Cod');
+    expect(band(standard.find(result => result.city.name === 'Cape Cod')!.score).label).not.toBe('Strong match');
+    expect(band(shortTravel[0].score).label).toBe('Strong match');
+    for (const ranked of [standard, shortTravel]) {
+      const scores = ranked.map(result => result.score);
+      expect(scores).toEqual([...scores].sort((a, b) => b - a));
+    }
+  });
+
+  it('requires half a modeled day at the destination for a same-day trip', () => {
+    const ranked = rankCities(results('2026-12-20', '2026-12-20'));
+    expect(ranked.map(result => result.city.name)).toEqual(['Cape Cod']);
+    expect(ranked[0].travel.usable).toBeGreaterThanOrEqual(0.5);
   });
 
   it('provides flags and weather-appropriate local activities for destination cards', () => {
@@ -250,13 +259,10 @@ describe('travel and scoring', () => {
     expect(destinationActivity({ ...mexicoCity, wetFrequency: 0.8 })).toContain('inside the National Museum');
   });
 
-  it('filters on historical temperature fit even when the average high falls outside the range', () => {
+  it('estimates historical temperature fit even when the average high falls outside the range', () => {
     const hongKong = results('2026-12-20', '2027-01-03').find(result => result.city.name === 'Hong Kong')!;
     expect(hongKong.high).toBeLessThan(DEFAULT_TEMPERATURE.min);
     expect(hongKong.usableTemperatureFit).toBeCloseTo(0.518, 3);
-    expect(matchesTemperaturePreferences(hongKong, true, false)).toBe(true);
-    expect(matchesTemperaturePreferences({ ...hongKong, usableTemperatureFit: 0.5 }, true, false)).toBe(true);
-    expect(matchesTemperaturePreferences({ ...hongKong, usableTemperatureFit: 0.499 }, true, false)).toBe(false);
   });
 
   it('excludes home from ranking and keeps scores and usable days bounded', () => {

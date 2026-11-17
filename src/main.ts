@@ -18,22 +18,16 @@ import { flightMapFor, nonstopFlightMaps } from './flight-map';
 import type { FlightDirection, NonstopFlightMap } from './flight-map';
 import { methodContent } from './method';
 import { setupPanels } from './panels';
-import { clamp, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, defaultTrip, isRankableCity, matchesDestinationScope, matchesTemperaturePreferences, rankCities, sampleDays, scoreCities, setWeight, validateTemperature } from './scoring';
+import { clamp, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, defaultTrip, isRankableCity, matchesDestinationScope, minimumUsableStay, rankCities, sampleDays, scoreCities, validateTemperature } from './scoring';
 import { weatherFlagLabel } from './weather';
 import { weatherLegend } from './weather-map';
-import type { CityScore, DestinationScope, RankedCity, TemperatureRange, Unit, WeatherLayer, Weights } from './types';
+import type { CityScore, DestinationScope, RankedCity, TemperatureRange, Unit, WeatherLayer } from './types';
 
 const app = document.querySelector<HTMLElement>('#app')!;
 const initialTrip = defaultTrip(new Date());
 let trip = initialTrip;
-const weights: Weights = { ...DEFAULT_WEIGHTS };
-let weightBasis: Weights = { ...weights };
-let lastWeightKey: keyof Weights | null = null;
 const preferredTemperature: TemperatureRange = { ...DEFAULT_TEMPERATURE };
-const appliedTemperature: TemperatureRange = { ...DEFAULT_TEMPERATURE };
 const temperaturePresets = { cool: { min: 10, max: 20 }, mild: { min: 15, max: 25 }, warm: { min: 20, max: 30 } };
-let temperatureOnly = false;
-let warmerThanHome = false;
 let weatherLayer: WeatherLayer = 'temperature';
 let home = ORIGINS[0];
 let chosenHome = home;
@@ -60,12 +54,6 @@ let activeTip = '';
 const icon = (content: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${content}</svg>`;
 const closeIcon = icon('<path d="m6 6 12 12M18 6 6 18"/>');
 const globeIcon = icon('<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4.5" ry="9"/><path d="M3 12h18M5 6.5h14M5 17.5h14"/>');
-const preferences: { key: keyof Weights; label: string; hint: string; paths: string }[] = [
-  { key: 'weather', label: 'Temperature', hint: 'Historical highs in your range', paths: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>' },
-  { key: 'dry', label: 'Dry days', hint: 'Historical days below 1 mm precipitation', paths: '<path d="M12 3C10 6 6 10 6 14a6 6 0 0 0 12 0c0-4-4-8-6-11Z"/>' },
-  { key: 'crowds', label: 'Few crowds', hint: 'Seasonal estimate + events', paths: '<circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M17 4a3 3 0 0 1 0 6m1 4a5 5 0 0 1 4 5v2"/>' },
-  { key: 'travel', label: 'Short travel', hint: 'Estimated usable trip time', paths: '<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>' },
-];
 
 app.innerHTML = `
   <header class="app-header">
@@ -89,7 +77,20 @@ app.innerHTML = `
           ${datePickerMarkup}
         </section>
         <div class="section-divider"></div>
-        <fieldset class="temperature-preference"><legend>Preferred daytime highs</legend><div class="temperature-fields"><div><label for="temperature-min">Low <span class="temperature-unit">°F</span></label><input type="number" id="temperature-min" step="any" value="68" min="-40" max="122" aria-describedby="temperature-error" /></div><span aria-hidden="true">to</span><div><label for="temperature-max">High <span class="temperature-unit">°F</span></label><input type="number" id="temperature-max" step="any" value="86" min="-40" max="122" aria-describedby="temperature-error" /></div></div><p id="temperature-error" class="date-error" role="alert" hidden></p><div class="temperature-presets" role="group" aria-label="Temperature presets">${Object.keys(temperaturePresets).map(key => `<button type="button" data-temperature-preset="${key}" aria-pressed="${key === 'warm'}">${key[0].toUpperCase() + key.slice(1)}</button>`).join('')}</div><label class="temperature-filter"><input type="checkbox" id="temperature-only" aria-describedby="temperature-filter-help" />At least half of highs in range</label><p id="temperature-filter-help" class="filter-help">Based on forecast and historical highs during estimated time at the destination.</p><label class="temperature-filter"><input type="checkbox" id="warmer-than-home" aria-describedby="warmer-than-home-help" />Warmer than home</label><p id="warmer-than-home-help" class="filter-help">Show places with a higher estimated daytime high than your departure city for these dates.</p></fieldset>
+        <fieldset class="temperature-preference">
+          <legend>Preferred daytime highs</legend>
+          <div class="temperature-presets" role="group" aria-label="Temperature presets">
+            ${Object.keys(temperaturePresets).map(key => `<button type="button" data-temperature-preset="${key}" aria-pressed="${key === 'warm'}"><strong>${key[0].toUpperCase() + key.slice(1)}</strong><span></span></button>`).join('')}
+          </div>
+          <details id="custom-temperature" class="custom-temperature">
+            <summary>Custom range<span id="custom-temperature-range"></span></summary>
+            <div class="temperature-fields">
+              <div><label for="temperature-min">Minimum <span class="temperature-unit">°F</span></label><input type="number" id="temperature-min" step="any" aria-describedby="temperature-error" /></div>
+              <div><label for="temperature-max">Maximum <span class="temperature-unit">°F</span></label><input type="number" id="temperature-max" step="any" aria-describedby="temperature-error" /></div>
+            </div>
+            <p id="temperature-error" class="date-error" role="alert" hidden></p>
+          </details>
+        </fieldset>
 
       </div>
     </aside>
@@ -102,12 +103,6 @@ app.innerHTML = `
         <div id="selected-flight-route" class="selected-flight-route" hidden><div class="flight-map-caption"><strong id="flight-map-path"></strong><span id="flight-map-note">Highlighted flight legs · schedules unverified</span></div><div class="flight-map-actions"><div class="route-directions" role="group" aria-label="Flight direction"><button type="button" id="route-outbound" data-route-direction="outbound" aria-pressed="true">Outbound</button><button type="button" id="route-inbound" data-route-direction="inbound" aria-pressed="false">Return</button></div><button type="button" id="view-flight-route" class="text-button">View route</button></div><div id="flight-map-details" class="flight-map-details" role="status" aria-live="polite" aria-atomic="true"></div></div>
       </section>
       <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span><span id="selected-weather"></span></div><button id="selected-details" class="small-button" type="button" aria-haspopup="dialog">Why this score? ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
-      <section class="priorities-dock" aria-label="Your priorities">
-        <div class="priorities-top"><button id="toggle-priorities" class="priorities-toggle" type="button" aria-expanded="true" aria-controls="priorities-body"><span class="priorities-title">Your priorities</span><output id="weight-total" aria-label="Total weight">100%</output>${icon('<path d="m7 10 5 5 5-5"/>')}</button><p class="weights-help" id="weights-help">Weights set the match score. Adjust one to rebalance the others.</p><button class="text-button reset-preferences" id="reset-weights" type="button">Reset preferences</button></div>
-        <div id="priorities-body">
-        <div class="weights">${preferences.map(({ key, label, hint, paths }) => `<div class="weight"><div class="weight-heading"><label for="weight-${key}">${icon(paths)}${label}</label><output for="weight-${key}" id="value-${key}">${weights[key]}%</output></div><input id="weight-${key}" data-weight="${key}" type="range" min="0" max="100" step="1" value="${weights[key]}" aria-valuetext="${weights[key]} percent" aria-describedby="hint-${key} weights-help" /><p class="weight-hint" id="hint-${key}">${hint}</p></div>`).join('')}</div>
-        </div>
-      </section>
     </section>
     <aside id="results-panel" class="side-panel results-panel" aria-labelledby="destinations-title">
       <div class="panel-heading"><h2 id="destinations-title">Destinations</h2><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close destinations">${closeIcon}</button></div>
@@ -137,8 +132,6 @@ const homeInput = document.querySelector<HTMLInputElement>('#home')!;
 const nonstopInput = document.querySelector<HTMLInputElement>('#nonstop-only')!;
 const temperatureMin = document.querySelector<HTMLInputElement>('#temperature-min')!;
 const temperatureMax = document.querySelector<HTMLInputElement>('#temperature-max')!;
-const warmerThanHomeInput = document.querySelector<HTMLInputElement>('#warmer-than-home')!;
-const temperatureOnlyInput = document.querySelector<HTMLInputElement>('#temperature-only')!;
 const weatherLayerSelect = document.querySelector<HTMLSelectElement>('#weather-layer')!;
 const regionSelect = document.querySelector<HTMLSelectElement>('#destination-region')!;
 const tooltip = document.querySelector<HTMLDivElement>('#tooltip')!;
@@ -149,17 +142,6 @@ const destinationList = document.querySelector<HTMLDivElement>('#destination-lis
 const showMoreDestinations = document.querySelector<HTMLButtonElement>('#show-more-destinations')!;
 const detailsDialog = document.querySelector<HTMLDialogElement>('#details-dialog')!;
 const panels = setupPanels(container);
-const prioritiesToggle = document.querySelector<HTMLButtonElement>('#toggle-priorities')!;
-const prioritiesBody = document.querySelector<HTMLElement>('#priorities-body')!;
-function showPriorities(open: boolean): void {
-  if (!open && prioritiesBody.contains(document.activeElement)) prioritiesToggle.focus();
-  prioritiesBody.hidden = !open;
-  prioritiesToggle.setAttribute('aria-expanded', String(open));
-}
-prioritiesToggle.addEventListener('click', () => showPriorities(prioritiesBody.hidden));
-showPriorities(false);
-
-
 function hideTooltip(): void {
   tooltip.hidden = true; activeTip = '';
   document.querySelectorAll('[aria-describedby="tooltip"]').forEach(element => element.removeAttribute('aria-describedby'));
@@ -201,24 +183,23 @@ function renderPick(r: RankedCity): string {
 }
 
 function renderLists(): void {
-  document.querySelector<HTMLElement>('.results-note')!.hidden = ranked.length === 0;
-  document.querySelector('.results-note')!.textContent = home.name === 'Boston'
-    ? 'From Boston, picks with complete modeled journeys rank ahead of incomplete estimates. Flight schedules are unverified.'
-    : 'Select a destination to inspect its score.';
-  const scopeLabel = [selectedRegionName(), scope === 'all' ? '' : scopeNames[scope], nonstopOnly ? 'Nonstop flights' : '', temperatureOnly ? `${temperatureBound(appliedTemperature.min, unit)}–${temperatureBound(appliedTemperature.max, unit)} · 50%+ of highs in range` : '', warmerThanHome ? 'Warmer than home' : ''].filter(Boolean).join(' · ');
+  const minimumStay = ranked[0] ? minimumUsableStay(ranked[0].tripDays) : 0;
+  document.querySelector('.results-note')!.textContent = [
+    minimumStay === 0.5 ? 'Day trips require at least half a day at the destination.'
+      : minimumStay ? 'Short trips require at least one day at the destination.' : '',
+    home.name === 'Boston' ? 'Incomplete Boston routes reduce the travel fit. Flight schedules are unverified.' : '',
+  ].filter(Boolean).join(' ');
+  document.querySelector<HTMLElement>('.results-note')!.hidden = !ranked.length || (!minimumStay && home.name !== 'Boston');
+  const scopeLabel = [selectedRegionName(), scope === 'all' ? '' : scopeNames[scope], nonstopOnly ? 'Nonstop flights' : ''].filter(Boolean).join(' · ');
   document.querySelector<HTMLElement>('#summary-scope')!.hidden = !scopeLabel;
   document.querySelector('#summary-scope')!.textContent = scopeLabel;
   showMoreDestinations.hidden = ranked.length <= visibleResults;
   destinationList.innerHTML = ranked.slice(0, visibleResults).map(renderPick).join('');
-  if (!ranked.length) destinationList.innerHTML = temperatureOnly
-    ? `<div class="empty-results"><strong>No places meet your temperature filter</strong><p>Try a wider range or other dates. The filter requires at least half of estimated highs during your estimated stay to fall in range.</p><button type="button" class="small-button" data-clear-temperature>Show all temperatures</button></div>`
-    : warmerThanHome
-    ? `<div class="empty-results"><strong>No matching places warmer than home</strong><p>Try other dates or turn off the warmer-than-home filter.</p><button type="button" class="small-button" data-clear-warmer>Turn off warmer than home</button></div>`
-    : nonstopOnly
+  if (!ranked.length) destinationList.innerHTML = nonstopOnly
     ? `<div class="empty-results"><strong>No nonstop flights in this view</strong><p>For these dates, no destination fits your filters with time on the ground and a listed nonstop in each direction.</p><button type="button" class="small-button" data-clear-flights>Show all flight routes</button></div>`
     : selectedRegion !== 'all'
     ? `<div class="empty-results"><strong>No matching destinations in ${escapeHtml(selectedRegionName())}</strong><p>Try another region or adjust your destination filters.</p><button type="button" class="small-button" data-clear-region>Show all regions</button></div>`
-    : `<div class="empty-results"><strong>No ${scope === 'all' ? 'matching' : scopeNames[scope].toLowerCase()} destinations</strong><p>Try a longer trip or adjust your destination filters. Recommendations require some estimated time at the destination.</p><button type="button" class="small-button" data-clear-scope>Show all destinations</button></div>`;
+    : `<div class="empty-results"><strong>No ${scope === 'all' ? 'matching' : scopeNames[scope].toLowerCase()} destinations</strong><p>Try a longer trip or adjust your destination filters. Recommendations require enough estimated time at the destination for your trip length.</p><button type="button" class="small-button" data-clear-scope>Show all destinations</button></div>`;
 }
 function selectedDestination(): CityScore | undefined {
   const result = cityScores.find(item => item.city.name === selectedName);
@@ -335,16 +316,12 @@ function recompute(shouldFly: boolean): void {
   document.querySelector('#origin-detail')!.textContent = home.name === 'Boston' ? 'Boston Logan · BOS' : displayCountry(home.country);
   document.querySelector<HTMLElement>('#boston-flight-filter')!.hidden = home.name !== 'Boston';
   nonstopOnly = home.name === 'Boston' && nonstopInput.checked;
-  temperatureOnly = temperatureOnlyInput.checked;
-  warmerThanHome = warmerThanHomeInput.checked;
-  Object.assign(appliedTemperature, preferredTemperature);
   scope = nextScope;
-  allCityScores = scoreCities(trip, home, weights, preferredTemperature, false, tripForecasts);
-  const nonstopCandidates = home.name === 'Boston' ? scoreCities(trip, home, weights, preferredTemperature, true, tripForecasts) : [];
+  allCityScores = scoreCities(trip, home, DEFAULT_WEIGHTS, preferredTemperature, false, tripForecasts);
+  const nonstopCandidates = home.name === 'Boston' ? scoreCities(trip, home, DEFAULT_WEIGHTS, preferredTemperature, true, tripForecasts) : [];
   const candidates = nonstopOnly ? nonstopCandidates : allCityScores;
   const inScope = (result: CityScore) => isRankableCity(result) && matchesDestinationScope(result.city.country, home.country, scope)
-    && matchesDestinationRegion(result.city, selectedRegion)
-    && matchesTemperaturePreferences(result, temperatureOnly, warmerThanHome);
+    && matchesDestinationRegion(result.city, selectedRegion);
   const eligible = (result: CityScore) => inScope(result) && (!nonstopOnly || isNonstopBostonTrip(result.travel));
   cityScores = candidates.filter(eligible);
   nonstopCityScores = nonstopCandidates.filter(inScope);
@@ -375,20 +352,10 @@ setupOriginSearch(homeInput, document.querySelector('#origin-suggestions')!, ORI
   recompute(true);
 });
 nonstopInput.addEventListener('change', () => recompute(true));
-temperatureOnlyInput.addEventListener('change', () => recompute(false));
-warmerThanHomeInput.addEventListener('change', () => recompute(false));
 weatherLayerSelect.addEventListener('change', () => {
   weatherLayer = weatherLayerSelect.value as WeatherLayer;
   hideTooltip(); globe.setWeatherLayer(weatherLayer); renderWeatherControls();
 });
-function syncWeights(): void {
-  for (const slider of document.querySelectorAll<HTMLInputElement>('[data-weight]')) {
-    const value = weights[slider.dataset.weight as keyof Weights];
-    slider.value = String(value); slider.setAttribute('aria-valuetext', `${value} percent`);
-    document.querySelector(`#value-${slider.dataset.weight}`)!.textContent = `${value}%`;
-  }
-  document.querySelector('#weight-total')!.textContent = `${Object.values(weights).reduce((sum, value) => sum + value, 0)}%`;
-}
 function syncTemperature(): void {
   for (const [key, input] of [['min', temperatureMin], ['max', temperatureMax]] as const) {
     const celsius = preferredTemperature[key];
@@ -399,11 +366,17 @@ function syncTemperature(): void {
   syncTemperaturePresets();
 }
 function syncTemperaturePresets(): void {
+  let hasActivePreset = false;
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-temperature-preset]')) {
     const preset = temperaturePresets[button.dataset.temperaturePreset as keyof typeof temperaturePresets];
-    button.setAttribute('aria-pressed', String(Math.abs(preferredTemperature.min - preset.min) < 1e-8 && Math.abs(preferredTemperature.max - preset.max) < 1e-8));
-    button.title = `${temperatureBound(preset.min, unit)}–${temperatureBound(preset.max, unit)}`;
+    const active = Math.abs(preferredTemperature.min - preset.min) < 1e-8 && Math.abs(preferredTemperature.max - preset.max) < 1e-8;
+    hasActivePreset ||= active;
+    button.setAttribute('aria-pressed', String(active));
+    button.querySelector('span')!.textContent = `${temperatureBound(preset.min, unit)}–${temperatureBound(preset.max, unit)}`;
   }
+  document.querySelector('#custom-temperature-range')!.textContent = hasActivePreset || validateTemperature(preferredTemperature)
+    ? ''
+    : `${temperatureBound(preferredTemperature.min, unit)}–${temperatureBound(preferredTemperature.max, unit)}`;
 }
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-temperature-preset]')) button.addEventListener('click', () => {
   Object.assign(preferredTemperature, temperaturePresets[button.dataset.temperaturePreset as keyof typeof temperaturePresets]);
@@ -413,22 +386,6 @@ for (const [key, input] of [['min', temperatureMin], ['max', temperatureMax]] as
   preferredTemperature[key] = unit === 'F' ? (input.valueAsNumber - 32) * 5 / 9 : input.valueAsNumber;
   syncTemperaturePresets();
   recompute(false);
-});
-for (const slider of document.querySelectorAll<HTMLInputElement>('[data-weight]')) slider.addEventListener('input', () => {
-  const key = slider.dataset.weight as keyof Weights;
-  // Preserve the original proportions across repeated drag/keyboard input. Reusing
-  // already rounded outputs would slowly skew the other factors at each step.
-  if (lastWeightKey !== key) { weightBasis = { ...weights }; lastWeightKey = key; }
-  Object.assign(weights, setWeight(weightBasis, key, Number(slider.value)));
-  syncWeights(); recompute(false);
-});
-document.querySelector('#reset-weights')!.addEventListener('click', () => {
-  Object.assign(weights, DEFAULT_WEIGHTS);
-  lastWeightKey = null;
-  Object.assign(preferredTemperature, DEFAULT_TEMPERATURE);
-  temperatureOnlyInput.checked = false;
-  warmerThanHomeInput.checked = false;
-  syncWeights(); syncTemperature(); recompute(false);
 });
 spinButton.addEventListener('click', () => globe.toggleSpin());
 document.querySelector('#zoom-in')!.addEventListener('click', () => globe.zoom(1.2));
@@ -443,14 +400,6 @@ unitButton.addEventListener('click', () => {
 destinationList.addEventListener('click', event => {
   if ((event.target as Element).closest('[data-clear-region]')) {
     regionSelect.value = 'all'; recompute(true);
-    destinationList.querySelector<HTMLButtonElement>('.pick-row')?.focus();
-    return;
-  }
-  const clearTemperature = (event.target as Element).closest('[data-clear-temperature], [data-clear-warmer]');
-  if (clearTemperature) {
-    if (clearTemperature.hasAttribute('data-clear-warmer')) warmerThanHomeInput.checked = false;
-    else temperatureOnlyInput.checked = false;
-    recompute(false);
     destinationList.querySelector<HTMLButtonElement>('.pick-row')?.focus();
     return;
   }
@@ -557,6 +506,6 @@ window.addEventListener('resize', hideTooltip);
 document.querySelector('.panel-toggles')!.addEventListener('click', hideTooltip);
 document.querySelectorAll('.panel-scroll').forEach(panel => panel.addEventListener('scroll', hideTooltip, { passive: true }));
 window.addEventListener('pagehide', () => globe.destroy(), { once: true });
-syncTemperaturePresets();
+syncTemperature();
 recompute(false);
 window.setTimeout(() => focusGlobe(true), 600);

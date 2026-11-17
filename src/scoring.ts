@@ -141,6 +141,12 @@ export function travel(home: Place, destination: Place, tripDays: number, nonsto
   return { km, mode, hours, returnHours, timeShift, lost, usable, factor: usable / tripDays, basis, flights };
 }
 
+/** Discount the travel fit when the Boston snapshot leaves journey time unmodeled. */
+export function routeCoverageFactor(journey: Travel): number {
+  if (!journey.flights || journey.basis === 'routes') return 1;
+  return journey.basis === 'mixed' ? 0.5 : 0;
+}
+
 export function tripEvents(trip: Trip): TripEvent[] {
   const events: TripEvent[] = [];
   for (let year = Number(trip.start.slice(0, 4)) - 1; year <= Number(trip.end.slice(0, 4)); year++) events.push(...eventsForYear(year));
@@ -230,7 +236,7 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const usableTemperatureFit = journey.usable > 0 ? clamp(comfortableDays / journey.usable, 0, 1) : 0;
   const weatherMean = (values: number[]) => exactDates.length
     ? values.reduce((sum, value, index) => sum + value * widths[index], 0) / samples.tripDays : mean(values);
-  const fits: Weights = { weather: weatherMean(weatherFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: journey.factor };
+  const fits: Weights = { weather: weatherMean(weatherFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: journey.factor * routeCoverageFactor(journey) };
   const contributions = Object.fromEntries(WEIGHT_KEYS.map(key => [key, fits[key] * shares[key]])) as unknown as Weights;
   const score = WEIGHT_KEYS.reduce((sum, key) => sum + contributions[key], 0);
   const weatherFlags = weatherFlagsFor(city, climate, samples, { highs: historicalHighs, lows: historicalLows, wet: historicalWet });
@@ -253,25 +259,19 @@ export function scoreCities(trip: Trip, home: Origin, weights: Weights = DEFAULT
   return CITIES.map(city => scoreCity(city, home, samples, weights, events, temperatureRange, nonstopOnly, forecasts?.get(city.name), forecasts?.get(home.name)));
 }
 
-export function matchesTemperaturePreferences(result: CityScore, strict: boolean, warmerThanHome: boolean): boolean {
-  return (!strict || result.usableTemperatureFit >= 0.5)
-    && (!warmerThanHome || result.high > result.homeHigh);
+export function minimumUsableStay(tripDays: number): number {
+  if (tripDays === 1) return 0.5;
+  return tripDays <= 3 ? 1 : 0;
 }
 
 export function isRankableCity(result: CityScore): boolean {
-  return result.travel.km >= 40 && result.travel.usable > 0;
-}
-
-function hasIncompleteRoute(result: CityScore): boolean {
-  // Only apply this when a route snapshot covers the origin.
-  return Boolean(result.travel.flights) && result.travel.basis !== 'routes';
+  const { travel, tripDays } = result;
+  return travel.km >= 40 && travel.usable > 0 && travel.usable >= minimumUsableStay(tripDays);
 }
 
 export function rankCities(scores: readonly CityScore[]): RankedCity[] {
   return scores.filter(isRankableCity)
-    .sort((a, b) => Number(hasIncompleteRoute(a)) - Number(hasIncompleteRoute(b))
-      || b.comfortableDryDays - a.comfortableDryDays
-      || b.score - a.score || a.city.name.localeCompare(b.city.name))
+    .sort((a, b) => b.score - a.score || a.city.name.localeCompare(b.city.name))
     .map((result, index) => ({ ...result, rank: index + 1 }));
 }
 
