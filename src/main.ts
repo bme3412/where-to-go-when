@@ -18,6 +18,10 @@ import { flightMapFor, nonstopFlightMaps } from './flight-map';
 import type { FlightDirection, NonstopFlightMap } from './flight-map';
 import { methodContent } from './method';
 import { setupPanels } from './panels';
+import { AIRFARE_ENDPOINT, airfareAirports } from './airfare';
+import type { AirfareOption } from './airfare';
+import { LODGING_ENDPOINT, lodgingCountryCode } from './lodging';
+import type { LodgingQuote } from './lodging';
 import { clamp, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, defaultTrip, isRankableCity, matchesDestinationScope, minimumUsableStay, rankCities, sampleDays, scoreCities, validateTemperature } from './scoring';
 import { weatherFlagLabel } from './weather';
 import { weatherLegend, WEATHER_KINDS } from './weather-map';
@@ -27,6 +31,8 @@ const app = document.querySelector<HTMLElement>('#app')!;
 const initialTrip = defaultTrip(new Date());
 let trip = initialTrip;
 const tripPrices = new Map<string, Map<string, TripPriceEstimate>>();
+const airfareQuotes = new WeakMap<HTMLFormElement, AirfareOption[]>();
+const lodgingQuotes = new WeakMap<HTMLFormElement, LodgingQuote>();
 function tripPriceKey(nonstop: boolean): string {
   return JSON.stringify([home.name, trip.start, trip.end, nonstop]);
 }
@@ -241,15 +247,29 @@ function renderSelection(): void {
   document.querySelector('#selected-summary')!.textContent = `${displayCountry(result.city.country)} · ${temperature(result.high, unit)}`;
   document.querySelector('#selected-weather')!.textContent = result.weatherFlags.map(weatherFlagLabel).join(' · ');
   const estimate = tripPrices.get(tripPriceKey(selectedNonstopRoute || nonstopOnly))?.get(result.city.name);
+  const lookup = result.tripDays > 1 && lodgingCountryCode(result.city.name);
+  const airfareLookup = result.travel.mode === 'flight' && airfareAirports(home.name, result.city.name, selectedNonstopRoute || nonstopOnly);
   const priceForm = `<form id="trip-price-form" class="trip-price-form">
     <h3>Trip cost estimate</h3>
     <p>Enter USD estimates for one traveler on these dates. Use 0 if there’s no airfare or lodging charge. Leave unknown prices blank.</p>
     <div class="trip-price-fields">
       <label>Round-trip airfare <input name="airfare" type="number" min="0" step="0.01" value="${estimate?.airfare ?? ''}" /></label>
-      ${result.tripDays > 1 ? `<label>Lodging per night <input name="nightlyLodging" type="number" min="0" step="0.01" value="${estimate?.nightlyLodging ?? ''}" /></label>` : ''}
+      ${result.tripDays > 1 ? `<label>Lodging per night <input name="nightlyLodging" type="number" min="0" step="0.01" value="${estimate?.nightlyLodging?.toFixed(2) ?? ''}" /></label>` : ''}
     </div>
     <button type="submit" class="small-button">Apply estimate</button>
     <span id="trip-price-status" role="status"></span>
+    ${estimate?.airfareSource === 'nuitee' ? '<p>Airfare uses a Nuitée fare estimate.</p>' : ''}
+    ${airfareLookup ? `<div class="lodging-lookup">
+      <button type="button" class="small-button" data-check-airfare>Check round-trip airfare</button>
+      <p data-airfare-status role="status"></p>
+      <div class="trip-price-fields" data-airfare-options hidden></div>
+    </div>` : ''}
+    ${estimate?.lodgingSource === 'nuitee' ? '<p>Lodging uses a Nuitée city estimate.</p>' : ''}
+    ${lookup ? `<div class="lodging-lookup">
+      <button type="button" class="small-button" data-check-lodging>Check lodging estimate</button>
+      <p data-lodging-status role="status"></p>
+      <button type="submit" class="small-button" data-use-lodging hidden>Use Nuitée estimate</button>
+    </div>` : ''}
   </form>`;
   document.querySelector('#details-content')!.innerHTML = cityTooltip(result, unit) + weatherDetails(result, unit) + flightDetails(result.travel) + priceForm + scoreBreakdown(result, unit);
 }
@@ -506,6 +526,97 @@ document.querySelector('#clear-selection')!.addEventListener('click', () => {
   selectedName = null; globe.setSelected(null); renderLists(); renderSelection(); renderRegion(); document.querySelector<SVGSVGElement>('#globe')!.focus();
   if (activeRegion) fitRegion(); else focusGlobe();
 });
+detailsDialog.addEventListener('click', async event => {
+  const button = (event.target as Element).closest<HTMLButtonElement>('[data-check-lodging]');
+  const form = button?.form;
+  if (!button || !form || !selectedName) return;
+  const { start, end } = trip;
+  const city = selectedName;
+  const status = form.querySelector<HTMLElement>('[data-lodging-status]')!;
+  const use = form.querySelector<HTMLButtonElement>('[data-use-lodging]')!;
+  const params = new URLSearchParams({ city, checkin: start, checkout: end });
+  lodgingQuotes.delete(form);
+  button.disabled = true;
+  use.hidden = true;
+  status.textContent = 'Checking Nuitée…';
+  try {
+    const response = await fetch(`${LODGING_ENDPOINT}?${params}`, { signal: AbortSignal.timeout(10_000) });
+    if (!form.isConnected || !detailsDialog.open || selectedName !== city || trip.start !== start || trip.end !== end) return;
+    if (!response.ok) {
+      status.textContent = response.status === 404 ? 'No complete lodging estimate for these dates.'
+        : response.status === 429 ? 'Too many lodging lookups. Try again later.'
+        : response.status === 400 ? 'Lookup supports stays of 1–30 nights within the next year.'
+        : 'Lodging estimates are currently unavailable.';
+      return;
+    }
+    const quote = await response.json() as LodgingQuote;
+    if (!form.isConnected || !detailsDialog.open || selectedName !== city || trip.start !== start || trip.end !== end) return;
+    if (!Number.isFinite(quote.total) || quote.total <= 0 || !Number.isFinite(quote.nightlyAverage) || quote.nightlyAverage <= 0 || quote.nights !== selectedDestination()!.tripDays - 1
+      || !Number.isFinite(Date.parse(quote.retrievedAt))) throw new Error('Invalid lodging estimate');
+    lodgingQuotes.set(form, quote);
+    status.textContent = `Nuitée city estimate · ${tripPrice(quote.total)} for ${quote.nights} ${quote.nights === 1 ? 'night' : 'nights'} · ${tripPrice(quote.nightlyAverage)} per night on average. Checked ${new Date(quote.retrievedAt).toLocaleString()}.`;
+    use.hidden = false;
+  } catch {
+    status.textContent = 'Lodging estimates are currently unavailable.';
+  } finally {
+    button.disabled = false;
+  }
+});
+detailsDialog.addEventListener('click', async event => {
+  const button = (event.target as Element).closest<HTMLButtonElement>('[data-check-airfare]');
+  const form = button?.form;
+  if (!button || !form || !selectedName) return;
+  const city = selectedName;
+  const nonstop = selectedNonstopRoute || nonstopOnly;
+  const key = tripPriceKey(nonstop);
+  const airports = airfareAirports(home.name, city, nonstop);
+  if (!airports) return;
+  const params = new URLSearchParams({ origin: home.name, city, start: trip.start, end: trip.end, nonstop: String(nonstop) });
+  const status = form.querySelector<HTMLElement>('[data-airfare-status]')!;
+  const results = form.querySelector<HTMLElement>('[data-airfare-options]')!;
+  const current = () => form.isConnected && detailsDialog.open && selectedName === city && key === tripPriceKey(selectedNonstopRoute || nonstopOnly);
+  airfareQuotes.delete(form);
+  button.disabled = true;
+  results.hidden = true;
+  results.replaceChildren();
+  status.textContent = `Checking ${airports.from} ↔ ${airports.to}${nonstop ? ' · nonstop only' : ''}…`;
+  try {
+    const response = await fetch(`${AIRFARE_ENDPOINT}?${params}`, { signal: AbortSignal.timeout(18_000) });
+    if (!current()) return;
+    if (!response.ok) {
+      status.textContent = response.status === 404 ? `No matching ${nonstop ? 'nonstop ' : ''}round-trip fares found.`
+        : response.status === 429 ? 'Too many airfare lookups. Try again later.'
+        : response.status === 400 ? 'Airfare lookup supports dates within the next 11 months.'
+        : 'Airfare estimates are currently unavailable.';
+      return;
+    }
+    const { options } = await response.json() as { options: AirfareOption[] };
+    if (!current()) return;
+    airfareQuotes.set(form, options);
+    const stops = (count: number) => count === 0 ? 'nonstop' : `${count} ${count === 1 ? 'stop' : 'stops'}`;
+    for (const [index, option] of options.entries()) {
+      const card = document.createElement('div');
+      const heading = document.createElement('strong');
+      heading.textContent = option.kind === 'both' ? 'Lowest fare · shortest trip' : option.kind === 'lowest' ? 'Lowest fare' : 'Shortest trip';
+      const price = document.createElement('p');
+      price.textContent = `${tripPrice(option.total)} round trip · ${Math.floor(option.minutes / 60)}h ${option.minutes % 60}m total · ${stops(option.outboundStops)} out, ${stops(option.returnStops)} back`;
+      const apply = document.createElement('button');
+      apply.type = 'submit';
+      apply.className = 'small-button';
+      apply.dataset.useAirfare = String(index);
+      apply.textContent = 'Use fare';
+      apply.setAttribute('aria-label', `Use fare · ${heading.textContent}`);
+      card.append(heading, price, apply);
+      results.append(card);
+    }
+    results.hidden = false;
+    status.textContent = `${airports.from} ↔ ${airports.to} · 1 adult in economy. Fare estimates can change.`;
+  } catch {
+    if (current()) status.textContent = 'Airfare estimates are currently unavailable.';
+  } finally {
+    button.disabled = false;
+  }
+});
 detailsDialog.addEventListener('submit', event => {
   const form = event.target as HTMLFormElement;
   if (form.id !== 'trip-price-form' || !selectedName) return;
@@ -517,12 +628,33 @@ detailsDialog.addEventListener('submit', event => {
   };
   const key = tripPriceKey(selectedNonstopRoute || nonstopOnly);
   const prices = tripPrices.get(key) ?? new Map<string, TripPriceEstimate>();
-  prices.set(selectedName, { airfare: readPrice('airfare'), nightlyLodging: readPrice('nightlyLodging') });
+  const previous = prices.get(selectedName);
+  const submitter = (event as SubmitEvent).submitter;
+  const fareIndex = submitter?.getAttribute('data-use-airfare');
+  const fare = fareIndex != null ? airfareQuotes.get(form)?.[Number(fareIndex)] : undefined;
+  if (fareIndex != null && (!fare || (fare.expiresAt && Date.parse(fare.expiresAt) <= Date.now()))) {
+    form.querySelector('[data-airfare-status]')!.textContent = 'This fare expired. Check airfare again.';
+    return;
+  }
+  const useQuote = submitter?.hasAttribute('data-use-lodging');
+  const quote = useQuote ? lodgingQuotes.get(form) : undefined;
+  if (useQuote && !quote) return;
+  const enteredLodging = readPrice('nightlyLodging');
+  const keepNuitee = previous?.lodgingSource === 'nuitee'
+    && enteredLodging === Number(previous.nightlyLodging?.toFixed(2));
+  const enteredAirfare = readPrice('airfare');
+  prices.set(selectedName, {
+    airfare: fare?.total ?? enteredAirfare,
+    airfareSource: fare || (previous?.airfareSource === 'nuitee' && previous.airfare === enteredAirfare) ? 'nuitee' : undefined,
+    nightlyLodging: quote?.nightlyAverage ?? (keepNuitee ? previous?.nightlyLodging : enteredLodging),
+    lodgingSource: quote || keepNuitee ? 'nuitee' : undefined,
+  });
   tripPrices.set(key, prices);
   recompute(false);
   document.querySelector<HTMLButtonElement>('#trip-price-form button')?.focus({ preventScroll: true });
-  document.querySelector('#trip-price-status')!.textContent = selectedDestination()?.tripCost
-    ? 'Estimate applied.' : 'Score uses the available non-price factors.';
+  const priceStatus = document.querySelector('#trip-price-status');
+  if (priceStatus) priceStatus.textContent = selectedDestination()?.tripCost
+    ? 'Estimate applied.' : 'Score unchanged until you enter both costs.';
 });
 document.querySelector('#selected-details')!.addEventListener('click', () => { hideTooltip(); renderSelection(); detailsDialog.showModal(); detailsDialog.scrollTop = 0; });
 document.addEventListener('click', event => {

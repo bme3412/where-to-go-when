@@ -4,7 +4,7 @@ import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
 import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, comfortableDryChance, connectionFitPenalty, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
-import { band, comfortableDryTime, destinationTime, displayedContributions, climateProvenance, rankingRouteLabel, scoreBreakdown } from './format';
+import { band, destinationTime, displayedContributions, climateProvenance, rankingRouteLabel, scoreBreakdown } from './format';
 import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency, gridElevationMismatch, sharedGridHistory, climateResolutionLabel } from './climate';
 import { auditDestinations, auditRows, sourceCounts } from './audit';
 import type { ClimateMonth, Weights } from './types';
@@ -201,7 +201,6 @@ describe('travel and scoring', () => {
     expect(destinationTime(puertoVillamil.travel.usable)).toBe('~1.6 days at destination');
     expect(rankingRouteLabel(miami.travel)).toBe('Nonstop listed from BOS');
     expect(destinationTime(miami.travel.usable)).toBe('~1.9 days at destination');
-    expect(comfortableDryTime(miami.comfortableDryDays)).toBe('~1.5 comfortable, dry days');
     // Arrival and departure each leave a fraction of the day, while the middle day is fully usable.
     const { days } = sampleDays({ start: '2026-12-18', end: '2026-12-20' });
     const highs = miami.climate.months.map(month => temperatureFrequency(month, DEFAULT_TEMPERATURE));

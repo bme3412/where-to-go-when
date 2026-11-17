@@ -354,7 +354,7 @@ function applyTripCost(result: CityScore, estimate?: TripPriceEstimate): CitySco
   }
   return {
     ...result,
-    tripCost: { airfare, nightlyLodging, nights, total },
+    tripCost: { airfare, nightlyLodging, nights, total, lodgingSource: estimate?.lodgingSource, airfareSource: estimate?.airfareSource },
     score: SCORE_KEYS.reduce((sum, key) => sum + contributions[key], 0),
     breakdown: { ...breakdown, weights, contributions, fits: { ...breakdown.fits, cost } },
   };

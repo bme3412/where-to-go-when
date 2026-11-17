@@ -179,3 +179,15 @@ npm run build
 ```
 
 The importer tests reproduce the bundled artifact from its local inputs. Flight tests cover directional timing, connection allowances, reviewed gateways, nearby driving, other origins, incomplete and one-way coverage, unknown island transfers, and user-facing disclosures.
+
+### Nuitée lodging pilot
+
+Destination details can look up a citywide lodging estimate for catalog destinations with a mapped country code. Provider coverage varies by city name. The lookup covers every night from check-in up to checkout, for stays of 1–30 nights within the next year. Applying it fills the lodging portion of trip cost. A missing fare still leaves the original ranking score intact. City averages do not represent a room quote or availability.
+
+The Site build produces `dist/server/index.js`, which serves both the frontend and the same-origin `GET /api/lodging-estimate` endpoint. Configure `NUITEE_API_KEY` as a server-side Sites secret after confirming the account’s city index pricing and terms. A missing key disables lookups. Set `NUITEE_CACHE_ALLOWED=true` only if the account terms permit caching, which reuses successful responses for up to one hour. The pilot throttles provider calls within each Worker instance. Run the fixture tests with `npm test` and compile the Site Worker with `npm run build`.
+
+### Nuitée airfare
+
+For catalog destinations with an airport mapping, use **Check round-trip airfare** in destination details. The search uses one mapped airport in each city, selected dates, one economy traveler, and USD. Results show the cheapest and fastest eligible journeys returned by the search. The nonstop option excludes connections and technical stops in both directions. **Use fare** applies the selected airfare estimate to the existing cost score. It does not book travel or update the modeled journey time. Overnight arrivals can affect the actual lodging dates.
+
+Set `NUITEE_FLIGHTS_ENABLED=true` on the Sites Worker only after confirming flight access and terms for the server-side `NUITEE_API_KEY`. Fare searches are on demand and results are not cached across sessions.

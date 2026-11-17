@@ -51,7 +51,6 @@ export function weatherSourceSummary(result: CityScore): string {
 }
 
 function dailyWeatherTable(result: CityScore, unit: Unit): string {
-  const contribution = (days: number) => days > 0 && days < 0.005 ? '&lt;0.01' : days.toFixed(2);
   const grouped = result.weatherPeriods.some(period => period.days > 1);
   const rows = result.weatherPeriods.map(period => {
     const start = new Date(period.start), end = new Date(period.start + (period.days - 1) * DAY);
@@ -59,15 +58,14 @@ function dailyWeatherTable(result: CityScore, unit: Unit): string {
     const rain = period.rain;
     return `<tr><th scope="row">${date}</th><td>${temperature(period.high, unit)}${period.apparentHigh === undefined ? '' : `<br><small>Feels like ${temperature(period.apparentHigh, unit)}</small>`}</td>
       <td>${rain.source === 'forecast' ? `${rain.millimeters} mm` : `${Math.round(rain.wetFrequency * 100)}% wet-day chance`}</td>
-      <td>${rain.source === 'forecast' ? 'Forecast' : 'Historical climate'}</td><td>${contribution(period.comfortableDryDays)}</td></tr>`;
+      <td>${rain.source === 'forecast' ? 'Forecast' : 'Historical climate'}</td></tr>`;
   }).join('');
   return `<div class="daily-weather"><table aria-describedby="daily-weather-note">
     <caption>${grouped ? 'Weather by date' : 'Day-by-day weather'}</caption>
-    <thead><tr><th scope="col">Date</th><th scope="col">High</th><th scope="col">Rain</th><th scope="col">Source</th><th scope="col">Comfortable, dry days</th></tr></thead>
+    <thead><tr><th scope="col">Date</th><th scope="col">High</th><th scope="col">Rain</th><th scope="col">Source</th></tr></thead>
     <tbody>${rows}</tbody>
-    <tfoot><tr><th scope="row" colspan="4">Total after travel</th><td>${contribution(result.comfortableDryDays)}</td></tr></tfoot>
   </table></div>
-  <p id="daily-weather-note" class="weather-caveat">Forecast rows show predicted highs and precipitation. Feels-like highs are used for daytime comfort when available. Historical rows show typical highs and the chance of at least 1 mm of precipitation. Contributions account for estimated travel time and may differ slightly from the total due to rounding.${grouped ? ' Date ranges share one historical sample. Their contribution covers the full range shown.' : ''}</p>`;
+  <p id="daily-weather-note" class="weather-caveat">Forecast rows show predicted highs and precipitation. Feels-like highs are used for daytime comfort when available. Historical rows show typical highs and the chance of at least 1 mm of precipitation.${grouped ? ' Date ranges share one historical sample.' : ''}</p>`;
 }
 
 export function weatherDetails(result: CityScore, unit: Unit): string {
@@ -84,14 +82,7 @@ export function cityTooltip(result: CityScore, unit: Unit): string {
   const rating = band(result.score);
   return `<div class="tooltip-heading"><strong>${escapeHtml(destinationName(result.city))}</strong><span class="badge ${rating.key}"><span class="swatch" style="--swatch:${rating.color}"></span>${rating.label}</span></div>
     <div class="tooltip-country">${escapeHtml(displayCountry(result.city.country))}</div>
-    <p>Average high ${temperature(result.high, unit)} · ${rainWord(result.wetFrequency)}</p>
-    <p><strong>${comfortableDryTime(result.comfortableDryDays)}</strong></p>`;
-}
-
-export function comfortableDryTime(days: number): string {
-  const rounded = Number(days.toFixed(1));
-  if (days > 0 && rounded === 0) return 'Under 0.1 comfortable, dry days';
-  return `${rounded ? '~' : ''}${rounded} comfortable, dry ${rounded === 1 ? 'day' : 'days'}`;
+    <p>Average high ${temperature(result.high, unit)} · ${rainWord(result.wetFrequency)}</p>`;
 }
 
 export function destinationTime(usableDays: number): string {
@@ -189,7 +180,7 @@ export function scoreBreakdown(result: CityScore, unit: Unit): string {
     : coverage < 1 ? ' The travel factor gives half credit when one direction uses a distance estimate.' : '';
   const connectionPenalty = connectionFitPenalty(result.travel, result.tripDays);
   const connectionNote = connectionPenalty > 0 ? ' Recorded connections also reduce the travel fit more on short trips.' : '';
-  const { chance, targetDays } = result.weatherReliability;
+  const { chance } = result.weatherReliability;
   const roundedChance = Math.round(chance * 100);
   const chanceLabel = roundedChance === 100 && chance < 1 ? '>99%' : roundedChance === 0 && chance > 0 ? '<1%' : `~${roundedChance}%`;
   const weatherQuality = result.weatherDates.forecast.length ? 'Open-Meteo forecast for covered dates' : '';
@@ -202,18 +193,22 @@ export function scoreBreakdown(result: CityScore, unit: Unit): string {
   const components: { key: keyof ScoreFactors; label: string; quality: string; note: string }[] = [
     { key: 'weather', label: 'Temperature', quality: weatherQuality || sourceLabel(result.climate.sources.temperature), note: `${Math.round(daytimeFit * 100)}% estimated daytime highs in your ${temperatureBound(b.temperatureRange.min, unit)}–${temperatureBound(b.temperatureRange.max, unit)} range. ${daytimeBasis}${nightNote}` },
     { key: 'dry', label: 'Dry days', quality: weatherQuality || sourceLabel(result.climate.sources.precipitation), note: `${Math.round(b.fits.dry * 100)}% estimated dry days, with less than 1 mm of precipitation.` },
-    { key: 'reliability', label: 'Weather reliability', quality: 'Estimated probability', note: `${chanceLabel} chance that at least half your usable time is comfortable and dry (~${targetDays.toFixed(1)} days). Forecast-covered days use the predicted outcome. Historical days are modeled independently.` },
+    { key: 'reliability', label: 'Weather reliability', quality: 'Estimated probability', note: `${chanceLabel} chance that at least half your usable time is comfortable and dry. Forecast-covered days use the predicted outcome. Historical days are modeled independently.` },
     { key: 'crowds', label: 'Few crowds', quality: 'Estimated', note: `${crowdWord(result.crowd)}. Seasonal levels and listed event adjustments are assigned estimates, not measured visitor counts.${result.city.region ? ` Inherited from the ${result.city.region} regional estimate; local crowd differences are not measured.` : ''}` },
     { key: 'travel', label: 'Short travel', quality: result.travel.basis === 'routes' ? 'Saved routes + estimated transfers' : result.travel.basis === 'mixed' ? 'Partial route coverage' : 'Estimated', note: `${result.travel.usable.toFixed(1)} of ${result.tripDays} days usable after modeled travel and time-zone recovery. ${result.travel.basis === 'routes' ? 'Uses saved BOS routes in both directions with connection and transfer allowances; schedules are unverified.' : result.travel.basis === 'mixed' ? 'One direction uses saved BOS routes; the other uses a distance estimate.' : result.travel.flights ? 'Route coverage is incomplete; the distance estimate is used.' : result.travel.mode === 'drive' ? 'Driving uses distance; roads and traffic are not checked.' : 'Routes and schedules are not checked.'}${coverageNote}${connectionNote}${stayRule}` },
   ];
   if (result.tripCost) {
     const { total, airfare, nightlyLodging, nights } = result.tripCost;
     const lodging = nights ? ` plus ${tripPrice(nightlyLodging)} × ${nights} ${nights === 1 ? 'night' : 'nights'}` : '';
-    components.push({ key: 'cost', label: 'Trip cost', quality: 'Your estimate · USD',
+    const airfareSource = result.tripCost.airfareSource === 'nuitee' ? 'Nuitée airfare estimate' : 'Your airfare';
+    const lodgingSource = result.tripCost.lodgingSource === 'nuitee' ? 'Nuitée city lodging estimate' : 'your lodging estimate';
+    const quality = result.tripCost.airfareSource || result.tripCost.lodgingSource
+      ? `${airfareSource}${nights ? ` + ${lodgingSource}` : ''} · USD` : 'Your estimate · USD';
+    components.push({ key: 'cost', label: 'Trip cost', quality,
       note: `${tripPrice(total)} total from ${tripPrice(airfare)} round-trip airfare${lodging}.` });
   }
   return `<section class="score-breakdown" aria-labelledby="breakdown-title">
-    <div class="breakdown-heading"><h3 id="breakdown-title">Why this score?</h3><span>${result.score.toFixed(1)} / 100</span></div><p class="breakdown-intro"><strong>${comfortableDryTime(result.comfortableDryDays)}</strong> expected after travel. The same score determines the recommendation order and match label.</p>
+    <div class="breakdown-heading"><h3 id="breakdown-title">Why this score?</h3><span>${result.score.toFixed(1)} / 100</span></div><p class="breakdown-intro">The same score determines the recommendation order and match label.</p>
     <div class="score-components">${components.map(c => `<div class="score-component${b.weights[c.key] === 0 ? ' component-off' : ''}"><div class="component-heading"><strong>${c.label}</strong><span>${Number(b.weights[c.key].toFixed(2))}% weight</span><b>+${points[c.key].toFixed(1)}<small>points</small></b></div><meter min="0" max="100" value="${b.fits[c.key] * 100}" aria-label="${c.label}: ${Math.round(b.fits[c.key] * 100)} out of 100 fit">${Math.round(b.fits[c.key] * 100)}</meter><p>${c.note}</p><span class="quality-label">${c.quality}${b.weights[c.key] === 0 ? ' · excluded from score' : ''}</span></div>`).join('')}</div>
     <div class="score-sum" aria-label="Score calculation">${components.map(({ key }) => points[key].toFixed(1)).join(' + ')} <strong>= ${result.score.toFixed(1)}</strong></div>
     <p class="calculation-note">Each contribution = fit × weight. Contributions are rounded to 0.1 point. Seasonal risk notes do not reduce the score.</p>

@@ -57,8 +57,8 @@ export interface CityClimate {
   referenceLabel?: string; referenceUrl?: string; referenceNote?: string;
   agencyReview?: AgencyReview;
 }
-export interface TripPriceEstimate { airfare?: number; nightlyLodging?: number }
-export interface PricedTrip { airfare: number; nightlyLodging: number; nights: number; total: number }
+export interface TripPriceEstimate { airfare?: number; nightlyLodging?: number; lodgingSource?: 'nuitee'; airfareSource?: 'nuitee' }
+export interface PricedTrip { airfare: number; nightlyLodging: number; nights: number; total: number; lodgingSource?: 'nuitee'; airfareSource?: 'nuitee' }
 export type ScoreFactors = Weights & { reliability: number; cost: number };
 export interface ScoreBreakdown {
   fits: ScoreFactors;

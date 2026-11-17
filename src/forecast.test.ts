@@ -47,7 +47,8 @@ describe('near-term weather', () => {
     expect(details).toContain('<caption>Day-by-day weather</caption>');
     expect(details).toMatch(/Nov 21<.th><td>77°F<.td>\s*<td>0 mm<.td>\s*<td>Forecast/);
     expect(details).toMatch(/Nov 24<.th><td>\d+°F<.td>\s*<td>\d+% wet-day chance<.td>\s*<td>Historical climate/);
-    expect(details).toContain(`Total after travel</th><td>${forecastRank.comfortableDryDays.toFixed(2)}`);
+    expect(details).not.toContain('Total after travel');
+    expect(details).not.toContain('Comfortable, dry days');
     expect(weatherSourceSummary(historicalRank)).toBe('Historical climate for all selected dates');
     expect(forecastRank.weatherFlags).toEqual(historicalRank.weatherFlags);
   });
@@ -64,7 +65,7 @@ describe('near-term weather', () => {
     expect(result.comfortableDryDays).toBeLessThanOrEqual(result.travel.usable);
     expect(sampleDays(longTrip).step).toBeGreaterThan(1);
     expect(result.weatherPeriods.filter(period => period.rain.source === 'forecast').every(period => period.days === 1)).toBe(true);
-    expect(weatherDetails(result, 'C')).toContain('Their contribution covers the full range shown.');
+    expect(weatherDetails(result, 'C')).toContain('Date ranges share one historical sample.');
   });
 
   it('uses feels-like highs where supplied and scores warm nights separately', async () => {
