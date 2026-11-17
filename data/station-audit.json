@@ -43362,6 +43362,2929 @@
           }
         }
       ]
+    },
+    {
+      "name": "Hamburg",
+      "elevation": 13.0,
+      "candidates": [
+        {
+          "stationId": "GM000010147",
+          "distanceKm": 9.45,
+          "elevationDifferenceM": -2.0,
+          "variables": {
+            "temperature": {
+              "accepted": true,
+              "coverage": [
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 848,
+                  "expectedDays": 848,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": true,
+              "coverage": [
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 848,
+                  "expectedDays": 848,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lyon",
+      "elevation": 161.0,
+      "candidates": []
+    },
+    {
+      "name": "Nice",
+      "elevation": 15.0,
+      "candidates": [
+        {
+          "stationId": "FRM00007690",
+          "distanceKm": 6.38,
+          "elevationDifferenceM": -11.3,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 27,
+                  "expectedDays": 900,
+                  "years": 1,
+                  "decadeYears": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 27,
+                  "expectedDays": 900,
+                  "years": 1,
+                  "decadeYears": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                {
+                  "days": 29,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 30,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stationId": "FRE00104120",
+          "distanceKm": 7.51,
+          "elevationDifferenceM": -13.0,
+          "variables": {
+            "temperature": {
+              "accepted": true,
+              "coverage": [
+                {
+                  "days": 928,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 844,
+                  "expectedDays": 848,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 928,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 896,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": true,
+              "coverage": [
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 848,
+                  "expectedDays": 848,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 900,
+                  "expectedDays": 900,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                },
+                {
+                  "days": 930,
+                  "expectedDays": 930,
+                  "years": 30,
+                  "decadeYears": [
+                    10,
+                    10,
+                    10
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Porto",
+      "elevation": 89.0,
+      "candidates": [
+        {
+          "stationId": "PO000008546",
+          "distanceKm": 2.06,
+          "elevationDifferenceM": 4.0,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 611,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 564,
+                  "expectedDays": 848,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 620,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 600,
+                  "expectedDays": 900,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 617,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 566,
+                  "expectedDays": 900,
+                  "years": 19,
+                  "decadeYears": [
+                    9,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 617,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 614,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 598,
+                  "expectedDays": 900,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 618,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 592,
+                  "expectedDays": 900,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 613,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 620,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 565,
+                  "expectedDays": 848,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 620,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 600,
+                  "expectedDays": 900,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 620,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 600,
+                  "expectedDays": 900,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 620,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 620,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 600,
+                  "expectedDays": 900,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 620,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 600,
+                  "expectedDays": 900,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                },
+                {
+                  "days": 619,
+                  "expectedDays": 930,
+                  "years": 20,
+                  "decadeYears": [
+                    10,
+                    10,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Nanjing",
+      "elevation": 13.0,
+      "candidates": []
+    },
+    {
+      "name": "Xi’an",
+      "elevation": 378.0,
+      "candidates": []
+    },
+    {
+      "name": "Sapporo",
+      "elevation": 26.0,
+      "candidates": [
+        {
+          "stationId": "JA000047412",
+          "distanceKm": 1.59,
+          "elevationDifferenceM": 0.0,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Da Nang",
+      "elevation": 6.0,
+      "candidates": [
+        {
+          "stationId": "VMW00041003",
+          "distanceKm": 0.0,
+          "elevationDifferenceM": 1.0,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stationId": "VMM00048855",
+          "distanceKm": 0.68,
+          "elevationDifferenceM": 4.1,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stationId": "VMW00041024",
+          "distanceKm": 5.66,
+          "elevationDifferenceM": 3.1,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lusaka",
+      "elevation": 1281.0,
+      "candidates": []
+    },
+    {
+      "name": "Harare",
+      "elevation": 1484.0,
+      "candidates": [
+        {
+          "stationId": "ZI000067775",
+          "distanceKm": 13.07,
+          "elevationDifferenceM": -4.0,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 58,
+                  "expectedDays": 930,
+                  "years": 2,
+                  "decadeYears": [
+                    2,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 26,
+                  "expectedDays": 848,
+                  "years": 1,
+                  "decadeYears": [
+                    0,
+                    1,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 57,
+                  "expectedDays": 930,
+                  "years": 2,
+                  "decadeYears": [
+                    1,
+                    1,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Nouakchott",
+      "elevation": 7.0,
+      "candidates": [
+        {
+          "stationId": "MR000001442",
+          "distanceKm": 6.91,
+          "elevationDifferenceM": -2.0,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 29,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Banjul",
+      "elevation": 2.0,
+      "candidates": [
+        {
+          "stationId": "GAM00061701",
+          "distanceKm": 14.69,
+          "elevationDifferenceM": 27.0,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 848,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cali",
+      "elevation": 994.0,
+      "candidates": []
+    },
+    {
+      "name": "Belo Horizonte",
+      "elevation": 864.0,
+      "candidates": []
+    },
+    {
+      "name": "Guayaquil",
+      "elevation": 10.0,
+      "candidates": []
+    },
+    {
+      "name": "Liberia, Costa Rica",
+      "elevation": 143.0,
+      "candidates": [
+        {
+          "stationId": "CS000078774",
+          "distanceKm": 10.7,
+          "elevationDifferenceM": -63.0,
+          "variables": {
+            "temperature": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 57,
+                  "expectedDays": 930,
+                  "years": 2,
+                  "decadeYears": [
+                    0,
+                    2,
+                    0
+                  ]
+                },
+                {
+                  "days": 28,
+                  "expectedDays": 848,
+                  "years": 1,
+                  "decadeYears": [
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "days": 56,
+                  "expectedDays": 930,
+                  "years": 2,
+                  "decadeYears": [
+                    0,
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "days": 84,
+                  "expectedDays": 900,
+                  "years": 3,
+                  "decadeYears": [
+                    0,
+                    0,
+                    3
+                  ]
+                },
+                {
+                  "days": 28,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 29,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 900,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 0,
+                  "expectedDays": 930,
+                  "years": 0,
+                  "decadeYears": [
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "precipitation": {
+              "accepted": false,
+              "coverage": [
+                {
+                  "days": 31,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 28,
+                  "expectedDays": 848,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 31,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 30,
+                  "expectedDays": 900,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 31,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 30,
+                  "expectedDays": 900,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 31,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 31,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 30,
+                  "expectedDays": 900,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 31,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 30,
+                  "expectedDays": 900,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "days": 31,
+                  "expectedDays": 930,
+                  "years": 1,
+                  "decadeYears": [
+                    1,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

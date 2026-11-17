@@ -15,8 +15,8 @@ const destination = (name: string) => CITIES.find(city => city.name === name)!;
 const results = (start: string, end: string, home = boston) => scoreCities({ start, end }, home, DEFAULT_WEIGHTS);
 
 describe('reference data', () => {
-  it('contains all 166 destinations, 24 origins, and timezone offsets', () => {
-    expect(CITIES).toHaveLength(166);
+  it('contains all 182 destinations, 24 origins, and timezone offsets', () => {
+    expect(CITIES).toHaveLength(182);
     expect(ORIGINS).toHaveLength(24);
     expect(CITIES.every(city => Number.isFinite(TZ[city.name]))).toBe(true);
   });
@@ -127,6 +127,18 @@ describe('travel and scoring', () => {
       expect(climateSourceKind(result.climate), name).toBe(sourceKind);
     }
   });
+  it('ranks the 16 additions to the 182-destination catalog with historical weather', () => {
+    const ranked = rankCities(results('2027-06-01', '2027-06-15'));
+    const added = ['Hamburg', 'Lyon', 'Nice', 'Porto', 'Nanjing', 'Xi’an', 'Sapporo', 'Da Nang',
+      'Lusaka', 'Harare', 'Nouakchott', 'Banjul', 'Cali', 'Belo Horizonte', 'Guayaquil', 'Liberia, Costa Rica'];
+    for (const name of added) {
+      const result = ranked.find(pick => pick.city.name === name)!;
+      expect(result.rank, name).toBeGreaterThan(0);
+      expect(result.climate.months, name).toHaveLength(12);
+      expect(result.weatherPeriods.every(period => period.rain.source === 'historical'), name).toBe(true);
+      expect(climateSourceKind(result.climate), name).toBe(['Hamburg', 'Nice'].includes(name) ? 'station' : 'grid');
+    }
+  });
   it('flags July monsoon rain in Goa and September hurricanes in Miami', () => {
     expect(results('2027-07-10', '2027-07-20').find(result => result.city.name === 'Goa')!.dealbreakers).toContain('Frequent precipitation');
     expect(results('2027-09-12', '2027-09-18').find(result => result.city.name === 'Miami')!.risks).toContain('Hurricane season');
@@ -160,9 +172,9 @@ describe('travel and scoring', () => {
     const ranked = rankCities(results('2026-12-20', '2027-01-03'));
     expect(ranked.every(result => result.travel.usable > 0)).toBe(true);
     expect(ranked.every(result => result.comfortableDryDays >= 0 && result.comfortableDryDays <= result.travel.usable)).toBe(true);
-    expect(ranked.slice(0, 3).map(result => result.city.name)).toEqual(['Lima', 'Guadalajara', 'Mexico City']);
+    expect(ranked.slice(0, 3).map(result => result.city.name)).toEqual(['Lima', 'Guadalajara', 'Nouakchott']);
     const puertoVillamil = ranked.find(result => result.city.name === 'Puerto Villamil')!;
-    expect(puertoVillamil.comfortableDryDays).toBeGreaterThan(ranked[2].comfortableDryDays);
+    expect(puertoVillamil.comfortableDryDays).toBeGreaterThan(ranked.find(result => result.city.name === 'Mexico City')!.comfortableDryDays);
     expect(puertoVillamil.rank).toBeGreaterThan(17);
     const incomplete = (result: typeof puertoVillamil) => result.travel.flights && result.travel.basis !== 'routes';
     const firstIncomplete = ranked.findIndex(incomplete);
@@ -177,8 +189,8 @@ describe('travel and scoring', () => {
   });
 
   it.each([
-    ['2026-12-18', '2026-12-20', 'Miami', 27],
-    ['2026-12-20', '2027-01-03', 'Lima', 67],
+    ['2026-12-18', '2026-12-20', 'Miami', 29],
+    ['2026-12-20', '2027-01-03', 'Lima', 74],
   ] as const)('applies both temperature preferences from Boston on %s through %s', (start, end, top, count) => {
     const scores = results(start, end);
     const filtered = rankCities(scores.filter(result => matchesTemperaturePreferences(result, true, true)));
@@ -321,9 +333,9 @@ describe('sourced climate baseline', () => {
     expect(climateProvenance(climateFor('Queenstown'))).toContain('Grid terrain mismatch');
   });
   it('makes all destinations searchable independently of rankings and source type', () => {
-    expect(auditDestinations('', 'all')).toHaveLength(166);
-    expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(166);
-    expect(sourceCounts).toEqual({station:45,mixed:9,grid:112});
+    expect(auditDestinations('', 'all')).toHaveLength(182);
+    expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(182);
+    expect(sourceCounts).toEqual({station:47,mixed:9,grid:126});
     expect(auditDestinations('Queenstown', 'grid').map(c => c.name)).toEqual(['Queenstown']);
     expect(auditDestinations('El Médano', 'station').map(c => c.name)).toEqual(['Tenerife']);
     expect(auditDestinations('Banff', 'mixed').map(c => c.name)).toEqual(['Banff']);
@@ -490,7 +502,7 @@ describe('domestic and international destinations', () => {
   });
   it('uses the selected home country rather than always treating the US as domestic', () => {
     expect(scoped('Toronto', 'domestic').map(result => result.city.name).sort()).toEqual(['Banff', 'Montréal', 'Vancouver']);
-    expect(scoped('Tokyo', 'domestic').map(result => result.city.name)).toEqual(['Kyoto', 'Osaka', 'Fukuoka']);
+    expect(scoped('Tokyo', 'domestic').map(result => result.city.name)).toEqual(['Kyoto', 'Osaka', 'Fukuoka', 'Sapporo']);
     expect(scoped('Tokyo', 'international').map(result => result.city.name)).toContain('San Diego');
   });
   it('returns no picks when the dataset has no domestic destinations beyond home', () => {

@@ -1,10 +1,10 @@
 {
-  "auditedAt": "2026-11-17T19:56:58.645163+00:00",
+  "auditedAt": "2026-11-17T20:04:45.471750+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 166 reference points, all 166 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 182 reference points, all 182 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 1123,
+    "sourceFingerprints": 1155,
     "dailyGridFingerprints": true,
     "monthDenominators": true,
     "histogramCounts": true,
@@ -15,8 +15,8 @@
     "agencyReviewCompleteness": true
   },
   "destinationCounts": {
-    "station": 45,
-    "grid": 112,
+    "station": 47,
+    "grid": 126,
     "mixed": 9
   },
   "additions": [
@@ -398,6 +398,70 @@
     },
     {
       "name": "San Pedro Sula",
+      "source": "grid"
+    },
+    {
+      "name": "Hamburg",
+      "source": "station"
+    },
+    {
+      "name": "Lyon",
+      "source": "grid"
+    },
+    {
+      "name": "Nice",
+      "source": "station"
+    },
+    {
+      "name": "Porto",
+      "source": "grid"
+    },
+    {
+      "name": "Nanjing",
+      "source": "grid"
+    },
+    {
+      "name": "Xi’an",
+      "source": "grid"
+    },
+    {
+      "name": "Sapporo",
+      "source": "grid"
+    },
+    {
+      "name": "Da Nang",
+      "source": "grid"
+    },
+    {
+      "name": "Lusaka",
+      "source": "grid"
+    },
+    {
+      "name": "Harare",
+      "source": "grid"
+    },
+    {
+      "name": "Nouakchott",
+      "source": "grid"
+    },
+    {
+      "name": "Banjul",
+      "source": "grid"
+    },
+    {
+      "name": "Cali",
+      "source": "grid"
+    },
+    {
+      "name": "Belo Horizonte",
+      "source": "grid"
+    },
+    {
+      "name": "Guayaquil",
+      "source": "grid"
+    },
+    {
+      "name": "Liberia, Costa Rica",
       "source": "grid"
     }
   ],
@@ -822,7 +886,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 166 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 182 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -4318,6 +4382,342 @@
       "name": "San Pedro Sula",
       "kind": "grid",
       "reference": "San Pedro Sula",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Hamburg",
+      "kind": "station",
+      "reference": "Hamburg",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "HAMBURG FUHLSBUETTEL",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "HAMBURG FUHLSBUETTEL",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Lyon",
+      "kind": "grid",
+      "reference": "Lyon",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Nice",
+      "kind": "station",
+      "reference": "Nice",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "NICE",
+          "acceptedDays": 10946,
+          "minimumMonthlyCoverage": 0.9953
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "NICE",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Porto",
+      "kind": "grid",
+      "reference": "Porto",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Nanjing",
+      "kind": "grid",
+      "reference": "Nanjing",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Xi’an",
+      "kind": "grid",
+      "reference": "Xi’an",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Sapporo",
+      "kind": "grid",
+      "reference": "Sapporo",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Da Nang",
+      "kind": "grid",
+      "reference": "Da Nang",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Lusaka",
+      "kind": "grid",
+      "reference": "Lusaka",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Harare",
+      "kind": "grid",
+      "reference": "Harare",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Nouakchott",
+      "kind": "grid",
+      "reference": "Nouakchott",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Banjul",
+      "kind": "grid",
+      "reference": "Banjul",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Cali",
+      "kind": "grid",
+      "reference": "Cali",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Belo Horizonte",
+      "kind": "grid",
+      "reference": "Belo Horizonte",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Guayaquil",
+      "kind": "grid",
+      "reference": "Guayaquil",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Liberia, Costa Rica",
+      "kind": "grid",
+      "reference": "Liberia, Costa Rica",
       "factors": {
         "temperature": {
           "kind": "grid",

@@ -24,7 +24,7 @@ const COUNTRY_REGIONS: Readonly<Record<string, DestinationRegionId>> = {
   Colombia: 'south-america', Ecuador: 'south-america', Peru: 'south-america', Brazil: 'south-america',
   Argentina: 'south-america', Uruguay: 'south-america', Chile: 'south-america',
   Nigeria: 'africa', "Côte d'Ivoire": 'africa', Algeria: 'africa', Tunisia: 'africa',
-  Namibia: 'africa', Botswana: 'africa', Mozambique: 'africa', Madagascar: 'africa', Rwanda: 'africa', Uganda: 'africa', Angola: 'africa', Kenya: 'africa', Ethiopia: 'africa', Ghana: 'africa', Senegal: 'africa', Morocco: 'africa', Egypt: 'africa', 'South Africa': 'africa', Tanzania: 'africa', Zimbabwe: 'africa', Mauritius: 'africa',
+  Zambia: 'africa', Mauritania: 'africa', Gambia: 'africa', Namibia: 'africa', Botswana: 'africa', Mozambique: 'africa', Madagascar: 'africa', Rwanda: 'africa', Uganda: 'africa', Angola: 'africa', Kenya: 'africa', Ethiopia: 'africa', Ghana: 'africa', Senegal: 'africa', Morocco: 'africa', Egypt: 'africa', 'South Africa': 'africa', Tanzania: 'africa', Zimbabwe: 'africa', Mauritius: 'africa',
   Georgia: 'asia', Armenia: 'asia', Kazakhstan: 'asia', Uzbekistan: 'asia',
   Philippines: 'asia', Malaysia: 'asia', Taiwan: 'asia', Japan: 'asia', 'South Korea': 'asia', China: 'asia', Thailand: 'asia', Vietnam: 'asia', Cambodia: 'asia',
   Indonesia: 'asia', Singapore: 'asia', Maldives: 'asia', India: 'asia', Nepal: 'asia', 'Sri Lanka': 'asia',

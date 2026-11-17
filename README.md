@@ -1,6 +1,6 @@
 # Where to go, and when
 
-A lightweight vacation globe with 166 destinations, scored for your travel dates, home city, and trip length. The larger globe fills the center of the first screen, with collapsible trip settings on the left, independently scrolling recommendations on the right, and a compact priorities strip at the bottom center. Built with TypeScript, Vite, D3 v7, and `topojson-client`; no framework, API keys, or backend.
+A lightweight vacation globe with 182 destinations, scored for your travel dates, home city, and trip length. The larger globe fills the center of the first screen, with collapsible trip settings on the left, independently scrolling recommendations on the right, and a compact priorities strip at the bottom center. Built with TypeScript, Vite, D3 v7, and `topojson-client`; no framework, API keys, or backend.
 
 ## Run
 
@@ -80,7 +80,7 @@ Rain uses the same date sampling, monthly blending, spatial interpolation and 90
 
 The trip panel groups origin, destination scope, the Boston nonstop switch and dates. The selected date range is shown on one button, and the shared calendar opens beneath it. Trip duration sits beside the Travel dates heading. Search by city name to choose from 24 origins; the nonstop switch appears only for Boston.
 
-The bundled **1991–2020** baseline covers 166 reference points, including all 166 destinations and all 24 origins. Temperature and precipitation each retain their own source, record counts and coverage. Current destination coverage: **45 station / 9 mixed / 112 grid**.
+The bundled **1991–2020** baseline covers 182 reference points, including all 182 destinations and all 24 origins. Temperature and precipitation each retain their own source, record counts and coverage. Current destination coverage: **47 station / 9 mixed / 126 grid**.
 
 - **Nearby observations:** NOAA NCEI [GHCN-Daily Version 3](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily), [dataset DOI](https://doi.org/10.7289/V5D21VHZ), plus **Source: MeteoSwiss**, [SwissMetNet historical daily observations](https://opendatadocs.meteoswiss.ch/a-data-groundbased/a1-automatic-weather-stations) for Interlaken station INT.
 - **Regional fallback:** [NASA POWER / MERRA-2](https://power.larc.nasa.gov/docs/methodology/) at the destination coordinate. Native 0.5° latitude × 0.625° longitude grid; `T2M_MAX`, `T2M_MIN` (°C) and `PRECTOTCORR` (mm/day), Local Solar Time. Data provided by the NASA POWER Project at NASA Langley Research Center.

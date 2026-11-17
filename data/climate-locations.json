@@ -935,5 +935,85 @@
     "name": "San Pedro Sula",
     "lat": 15.5,
     "lon": -88.03
+  },
+  {
+    "name": "Hamburg",
+    "lat": 53.55,
+    "lon": 9.99
+  },
+  {
+    "name": "Lyon",
+    "lat": 45.76,
+    "lon": 4.84
+  },
+  {
+    "name": "Nice",
+    "lat": 43.7,
+    "lon": 7.27
+  },
+  {
+    "name": "Porto",
+    "lat": 41.15,
+    "lon": -8.61
+  },
+  {
+    "name": "Nanjing",
+    "lat": 32.06,
+    "lon": 118.8
+  },
+  {
+    "name": "Xi’an",
+    "lat": 34.34,
+    "lon": 108.94
+  },
+  {
+    "name": "Sapporo",
+    "lat": 43.06,
+    "lon": 141.35
+  },
+  {
+    "name": "Da Nang",
+    "lat": 16.05,
+    "lon": 108.2
+  },
+  {
+    "name": "Lusaka",
+    "lat": -15.42,
+    "lon": 28.28
+  },
+  {
+    "name": "Harare",
+    "lat": -17.83,
+    "lon": 31.05
+  },
+  {
+    "name": "Nouakchott",
+    "lat": 18.08,
+    "lon": -15.98
+  },
+  {
+    "name": "Banjul",
+    "lat": 13.45,
+    "lon": -16.58
+  },
+  {
+    "name": "Cali",
+    "lat": 3.45,
+    "lon": -76.53
+  },
+  {
+    "name": "Belo Horizonte",
+    "lat": -19.92,
+    "lon": -43.94
+  },
+  {
+    "name": "Guayaquil",
+    "lat": -2.19,
+    "lon": -79.89
+  },
+  {
+    "name": "Liberia, Costa Rica",
+    "lat": 10.63,
+    "lon": -85.44
   }
 ]
