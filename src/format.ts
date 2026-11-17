@@ -1,8 +1,8 @@
 import { FORECAST_SOURCE } from './forecast';
 import { destinationName, regionMetadata } from './regions';
-import type { CityClimate, CityScore, ClimateSource, Country, FlightJourney, FlightRoute, Origin, RankedCity, Travel, Trip, Unit, Weights, WeatherFlag } from './types';
+import type { CityClimate, CityScore, ClimateSource, Country, FlightJourney, FlightRoute, Travel, Unit, Weights, WeatherFlag } from './types';
 import { BOSTON_FLIGHTS } from './flights';
-import { DAY, shiftTripDays, TRAVEL_HOURS_PER_USABLE_DAY, WEIGHT_KEYS } from './scoring';
+import { DAY, WEIGHT_KEYS } from './scoring';
 import { WEATHER_SYMBOLS, weatherFlagLabel } from './weather';
 import { AGENCY_STATUS_LABELS, climateLabel, climateSourceKind, gridElevationMismatch, sharedGridHistory } from './climate';
 
@@ -21,11 +21,6 @@ export const crowdWord = (crowd: number) => crowd < 0.3 ? 'Quiet' : crowd < 0.5 
 export const hours = (value: number) => value < 3 ? `${Math.round(value * 10) / 10}` : `${Math.round(value)}`;
 export const escapeHtml = (value: string) => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
 export const displayCountry = (name: string) => name === 'United States of America' ? 'United States' : name;
-
-export function difference(value: number, unit: Unit): string {
-  const rounded = Math.round(value * (unit === 'F' ? 1.8 : 1));
-  return `${rounded >= 0 ? '+' : '−'}${Math.abs(rounded)}°${unit}`;
-}
 
 export function weatherBadges(flags: readonly WeatherFlag[]): string {
   if (!flags.length) return '';
@@ -79,63 +74,24 @@ export function weatherDetails(result: CityScore, unit: Unit): string {
   const forecast = result.weatherDates.forecast.length > 0;
   return `<section class="weather-details"><h3>Weather for your dates</h3>
     <p><strong>${escapeHtml(weatherSourceSummary(result))}</strong>${forecast ? ` · <a href="${FORECAST_SOURCE}" target="_blank" rel="noopener noreferrer">Weather data by Open-Meteo ↗</a>` : ''}</p>
-    <p>Average high ${temperature(result.high, unit)} · low ${temperature(result.low, unit)}. ${Math.round(result.breakdown.fits.weather * 100)}% temperature fit · ${rainWord(result.wetFrequency)} estimated.</p>
+    <p>Average high ${temperature(result.high, unit)} · low ${temperature(result.low, unit)}. ${rainWord(result.wetFrequency)} estimated.</p>
     ${dailyWeatherTable(result, unit)}
     ${result.weatherFlags.length ? `<ul>${result.weatherFlags.map(flag => `<li><strong class="weather-${flag.kind}">${escapeHtml(weatherFlagLabel(flag))}${flag.temperature === undefined ? '' : ` · ${temperature(flag.temperature, unit)}`}</strong><p>${escapeHtml(flag.detail)}</p><span class="weather-source">${flag.basis === 'climate' ? '1991–2020 climate baseline' : flag.basis === 'calendar' ? 'Seasonal calendar' : 'Unverified regional estimate'} · ${flag.sourceUrl ? `<a href="${escapeHtml(flag.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(flag.sourceLabel)} ↗</a>` : escapeHtml(flag.sourceLabel)}</span></li>`).join('')}</ul>` : '<p>No flags meet the app’s thresholds for these dates. This is not a guarantee of settled weather.</p>'}
     <p class="weather-caveat">Seasonal flags come from historical patterns and calendars. Wet-season patterns are inferred from local monthly precipitation; daily temperatures and rainfall can vary.</p></section>`;
 }
 
-export function cityTooltip(result: CityScore, home: Origin, unit: Unit): string {
+export function cityTooltip(result: CityScore, unit: Unit): string {
   const rating = band(result.score);
-  const journey = result.travel.mode === 'drive'
-    ? `~${hours(result.travel.hours)}h drive`
-    : result.travel.flights
-      ? `~${hours(result.travel.hours)}h outbound · ~${hours(result.travel.returnHours)}h return, door to door · ${result.travel.timeShift}h time shift`
-      : `~${hours(result.travel.hours)}h door to door · ${result.travel.timeShift}h time shift`;
-  const tags = [
-    ...result.events.map(text => ({ text, kind: 'event' })),
-    ...result.dealbreakers.map(text => ({ text, kind: 'dealbreaker' })),
-  ];
   return `<div class="tooltip-heading"><strong>${escapeHtml(destinationName(result.city))}</strong><span class="badge ${rating.key}"><span class="swatch" style="--swatch:${rating.color}"></span>${rating.label} · ${Math.round(result.score)}</span></div>
-    <div class="tooltip-country">${escapeHtml(displayCountry(result.city.country))}${result.climate.referenceLabel ? ` · ${escapeHtml(result.climate.referenceLabel)}` : ''}<span class="climate-caption source-${climateSourceKind(result.climate)}">${climateLabel(result.climate)} · 1991–2020</span></div>
-    <p>Avg daytime high ${temperature(result.high, unit)} <span class="muted">(${difference(result.high - result.homeHigh, unit)} vs ${escapeHtml(home.name)})</span></p>
-    <p>${Math.round(result.breakdown.fits.weather * 100)}% temperature fit</p><p>${rainWord(result.wetFrequency)} estimated · ~${Math.round(result.rain)} mm/month historically</p>${weatherBadges(result.weatherFlags)}<p>${crowdWord(result.crowd)} <span class="muted">(crowd estimate)</span></p>
-    <div class="tooltip-divider"></div>
-    <p>${journey} <span class="muted">(estimated)</span></p>
-    ${result.travel.flights ? `<p class="flight-caption">${escapeHtml(flightLabel(result.travel))}<br><span class="muted">Saved network; dates and connections unverified.</span></p>` : ''}
-    ${tags.length ? `<div class="tags">${tags.map(tag => `<span class="tag ${tag.kind}">${escapeHtml(tag.text)}</span>`).join('')}</div>` : ''}`;
-}
-
-export function travelSummary(travel: Travel): string {
-  return `~${hours(travel.hours)}h ${travel.mode === 'drive' ? 'drive' : travel.flights ? 'outbound' : 'away'}`;
+    <div class="tooltip-country">${escapeHtml(displayCountry(result.city.country))}</div>
+    <p>Average high ${temperature(result.high, unit)} · ${rainWord(result.wetFrequency)}</p>
+    <p><strong>${comfortableDryTime(result.comfortableDryDays)}</strong></p>`;
 }
 
 export function comfortableDryTime(days: number): string {
   const rounded = Number(days.toFixed(1));
   if (days > 0 && rounded === 0) return 'Under 0.1 comfortable, dry days';
   return `${rounded ? '~' : ''}${rounded} comfortable, dry ${rounded === 1 ? 'day' : 'days'}`;
-}
-
-const comparisonDates = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-
-export function dateComparison(trip: Trip, current: readonly RankedCity[], rankForTrip: (trip: Trip) => readonly RankedCity[]): string {
-  const currentByCity = new Map(current.map(result => [result.city.name, result]));
-  return ([-7, 7] as const).map(offset => {
-    const heading = offset < 0 ? 'One week earlier' : 'One week later';
-    const shifted = shiftTripDays(trip, offset);
-    if (!shifted) return `<section><h3>${heading}</h3><p>These dates are outside the supported range.</p></section>`;
-    const dates = comparisonDates.formatRange(new Date(shifted.start), new Date(shifted.end));
-    const picks = rankForTrip(shifted).slice(0, 5);
-    const rows = picks.map(pick => {
-      const previous = currentByCity.get(pick.city.name);
-      const delta = previous ? pick.comfortableDryDays - previous.comfortableDryDays : 0;
-      const rounded = Math.abs(delta).toFixed(1);
-      const weatherChange = rounded === '0.0' ? 'About the same' : `${delta > 0 ? '+' : '−'}${rounded} ${rounded === '1.0' ? 'day' : 'days'}`;
-      const change = previous ? `${weatherChange} · current rank #${previous.rank}` : 'Outside current results';
-      return `<li><strong>${escapeHtml(destinationName(pick.city))}</strong><span>${comfortableDryTime(pick.comfortableDryDays)}</span><small>${change}</small>${pick.weatherDates.forecast.length ? `<small>${escapeHtml(weatherSourceSummary(pick))}</small>` : ''}</li>`;
-    });
-    return `<section><h3>${heading}</h3><p class="comparison-dates">${dates}</p>${rows.length ? `<ol>${rows.join('')}</ol>` : '<p>No destinations match your filters for these dates.</p>'}</section>`;
-  }).join('');
 }
 
 export function destinationTime(usableDays: number): string {
@@ -149,29 +105,6 @@ export function rankingRouteLabel(travel: Travel): string {
   if (!travel.flights) return 'Distance estimate · routes unchecked';
   const label = flightLabel(travel);
   return travel.basis === 'routes' ? label : `${label} · distance estimate used`;
-}
-
-export function topPickTradeOff(result: CityScore, nextWeatherPick?: CityScore): string {
-  const { travel, usableTemperatureFit, comfortableDryDays } = result;
-  if (travel.mode === 'flight' && travel.basis !== 'routes') {
-    if (nextWeatherPick && nextWeatherPick.comfortableDryDays > 0 && comfortableDryDays >= nextWeatherPick.comfortableDryDays) {
-      const lead = comfortableDryDays - nextWeatherPick.comfortableDryDays;
-      const goodDayShare = comfortableDryDays / travel.usable;
-      const extraHours = lead / goodDayShare * TRAVEL_HOURS_PER_USABLE_DAY;
-      const competitor = destinationName(nextWeatherPick.city);
-      if (extraHours < 0.1) return `A small increase in estimated travel time could move this below ${competitor}.`;
-      const roundedHours = Number(extraHours.toFixed(1));
-      return `About ${roundedHours} extra round-trip travel ${roundedHours === 1 ? 'hour' : 'hours'} could move this below ${competitor}.`;
-    }
-    return 'The travel estimate uses distance. Confirm the journey and transfers before relying on the time at destination.';
-  }
-
-  const comfortableDays = travel.usable * usableTemperatureFit;
-  const temperatureLoss = travel.usable - comfortableDays;
-  const wetLoss = comfortableDays - comfortableDryDays;
-  if (travel.lost >= Math.max(temperatureLoss, wetLoss)) return 'Travel and time-zone recovery account for the largest loss of usable time.';
-  if (temperatureLoss >= wetLoss) return 'Daytime highs outside your preferred range are the main weather trade-off.';
-  return 'Wet days are the main weather trade-off, even when daytime highs are comfortable.';
 }
 
 export function flightLabel(travel: Travel): string {
@@ -253,7 +186,7 @@ export function scoreBreakdown(result: CityScore, unit: Unit): string {
     { key: 'travel', label: 'Short travel', quality: result.travel.basis === 'routes' ? 'Saved routes + estimated transfers' : result.travel.basis === 'mixed' ? 'Partial route coverage' : 'Estimated', note: `${result.travel.usable.toFixed(1)} of ${result.tripDays} days usable after modeled travel and time-zone recovery. ${result.travel.basis === 'routes' ? 'Uses saved BOS routes in both directions with connection and transfer allowances; schedules are unverified.' : result.travel.basis === 'mixed' ? 'One direction uses saved BOS routes; the other uses a distance estimate.' : result.travel.flights ? 'Route coverage is incomplete; the distance estimate is used.' : result.travel.mode === 'drive' ? 'Driving uses distance; roads and traffic are not checked.' : 'Routes and schedules are not checked.'}` },
   ];
   return `<section class="score-breakdown" aria-labelledby="breakdown-title">
-    <div class="breakdown-heading"><h3 id="breakdown-title">Why this score?</h3><span>${result.score.toFixed(1)} / 100</span></div><p class="breakdown-intro"><strong>${comfortableDryTime(result.comfortableDryDays)}</strong> expected after travel. About ${Math.round(result.usableTemperatureFit * 100)}% of daytime highs fit your range during the estimated stay. The weighted match score below uses your four priorities.</p>
+    <div class="breakdown-heading"><h3 id="breakdown-title">Why this score?</h3><span>${result.score.toFixed(1)} / 100</span></div><p class="breakdown-intro"><strong>${comfortableDryTime(result.comfortableDryDays)}</strong> expected after travel. The weighted match score below uses your four priorities.</p>
     <div class="score-components">${components.map(c => `<div class="score-component${b.weights[c.key] === 0 ? ' component-off' : ''}"><div class="component-heading"><strong>${c.label}</strong><span>${b.weights[c.key]}% weight</span><b>+${points[c.key].toFixed(1)}<small>points</small></b></div><meter min="0" max="100" value="${b.fits[c.key] * 100}" aria-label="${c.label}: ${Math.round(b.fits[c.key] * 100)} out of 100 fit">${Math.round(b.fits[c.key] * 100)}</meter><p>${c.note}</p><span class="quality-label">${c.quality}${b.weights[c.key] === 0 ? ' · excluded from score' : ''}</span></div>`).join('')}</div>
     <div class="score-sum" aria-label="Score calculation">${WEIGHT_KEYS.map(key => points[key].toFixed(1)).join(' + ')} <strong>= ${result.score.toFixed(1)}</strong></div>
     <p class="calculation-note">Each contribution = fit × weight. Contributions are rounded to 0.1 point. Seasonal risk notes do not reduce the score.</p>

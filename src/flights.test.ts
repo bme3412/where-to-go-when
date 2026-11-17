@@ -118,8 +118,8 @@ describe('offline Boston flights', () => {
 
   it('explains the data limits and actual scoring basis in destination details', () => {
     const result = scoreCities({ start: '2027-06-01', end: '2027-06-08' }, boston).find(city => city.city.name === 'Lisbon')!;
-    const html = cityTooltip(result, boston, 'F') + flightDetails(result.travel) + scoreBreakdown(result, 'F');
-    expect(html).toContain('Nonstop listed from BOS');
+    const html = cityTooltip(result, 'F') + flightDetails(result.travel) + scoreBreakdown(result, 'F');
+    expect(html).toContain('Nonstop listed');
     expect(html).toContain('Source snapshot date unknown');
     expect(html).toContain('seasonal service');
     expect(html).toContain('through-ticket availability are unverified');

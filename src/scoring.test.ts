@@ -1,9 +1,10 @@
+import { countryFlag, destinationActivity } from './data/destination-tips';
 import { describe, expect, it } from 'vitest';
 import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
-import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, defaultTrip, easter, interp, matchesDestinationScope, matchesTemperaturePreferences, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, shiftTripDays, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
-import { band, comfortableDryTime, dateComparison, destinationTime, displayedContributions, climateProvenance, rankingRouteLabel, scoreBreakdown, topPickTradeOff } from './format';
+import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, defaultTrip, easter, interp, matchesDestinationScope, matchesTemperaturePreferences, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
+import { band, comfortableDryTime, destinationTime, displayedContributions, climateProvenance, rankingRouteLabel, scoreBreakdown } from './format';
 import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency, gridElevationMismatch, sharedGridHistory, climateResolutionLabel } from './climate';
 import { auditDestinations, auditRows, sourceCounts } from './audit';
 import type { ClimateMonth, Weights } from './types';
@@ -89,20 +90,14 @@ describe('travel and scoring', () => {
     expect(ranked.every(result => result.travel.usable > 0)).toBe(true);
     expect(scores.find(result => result.city.name === 'Palolem')?.comfortableDryDays).toBe(0);
     expect(ranked[0].city.name).toBe('Miami');
-    expect(rankCities(scores, 'weighted')[0].city.name).toBe('Puerto Villamil');
-    const picks = ranked.slice(0, 5);
-    const puertoVillamil = picks.find(result => result.city.name === 'Puerto Villamil')!;
-    const miami = picks.find(result => result.city.name === 'Miami')!;
+    const [miami] = ranked;
+    const puertoVillamil = ranked.find(result => result.city.name === 'Puerto Villamil')!;
+    expect(puertoVillamil.rank).toBeGreaterThan(5);
     expect(rankingRouteLabel(puertoVillamil.travel)).toBe('Route coverage incomplete · distance estimate used');
     expect(destinationTime(puertoVillamil.travel.usable)).toBe('~1.6 days at destination');
     expect(rankingRouteLabel(miami.travel)).toBe('Nonstop listed from BOS');
     expect(destinationTime(miami.travel.usable)).toBe('~1.9 days at destination');
     expect(comfortableDryTime(miami.comfortableDryDays)).toBe('~1.5 comfortable, dry days');
-    expect(topPickTradeOff(miami, ranked[1])).toContain('Travel and time-zone recovery');
-    expect(topPickTradeOff(puertoVillamil, ranked[2])).toBe(
-      'About 1.5 extra round-trip travel hours could move this below Puerto Baquerizo Moreno.');
-    expect(picks.map((pick, index) => topPickTradeOff(pick, ranked[index + 1])).every(Boolean)).toBe(true);
-
     // Arrival and departure each leave a fraction of the day, while the middle day is fully usable.
     const { days } = sampleDays({ start: '2026-12-18', end: '2026-12-20' });
     const highs = miami.climate.months.map(month => temperatureFrequency(month, DEFAULT_TEMPERATURE));
@@ -115,16 +110,18 @@ describe('travel and scoring', () => {
   it('keeps long-haul destinations eligible on the Boston holiday trip', () => {
     const ranked = rankCities(results('2026-12-20', '2027-01-03'));
     expect(ranked.every(result => result.travel.usable > 0)).toBe(true);
-    expect(ranked.map(result => result.comfortableDryDays)).toEqual(
-      ranked.map(result => result.comfortableDryDays).sort((a, b) => b - a));
     expect(ranked.every(result => result.comfortableDryDays >= 0 && result.comfortableDryDays <= result.travel.usable)).toBe(true);
-    expect(ranked.slice(0, 2).map(result => result.city.name)).toEqual(['Puerto Villamil', 'Mexico City']);
-    expect(comfortableDryTime(ranked[0].comfortableDryDays)).toBe('~11.5 comfortable, dry days');
-    expect(comfortableDryTime(ranked[1].comfortableDryDays)).toBe('~11.1 comfortable, dry days');
-    expect(topPickTradeOff(ranked[0], ranked[1])).toBe(
-      'About 6.5 extra round-trip travel hours could move this below Mexico City.');
-    expect(topPickTradeOff(ranked[0])).toContain('Confirm the journey and transfers');
-    expect(ranked.slice(0, 5).map((pick, index) => topPickTradeOff(pick, ranked[index + 1])).every(Boolean)).toBe(true);
+    expect(ranked[0].city.name).toBe('Mexico City');
+    const puertoVillamil = ranked.find(result => result.city.name === 'Puerto Villamil')!;
+    expect(puertoVillamil.comfortableDryDays).toBeGreaterThan(ranked[0].comfortableDryDays);
+    expect(puertoVillamil.rank).toBeGreaterThan(17);
+    const incomplete = (result: typeof puertoVillamil) => result.travel.flights && result.travel.basis !== 'routes';
+    const firstIncomplete = ranked.findIndex(incomplete);
+    expect(ranked.slice(firstIncomplete).every(incomplete)).toBe(true);
+    for (const group of [ranked.slice(0, firstIncomplete), ranked.slice(firstIncomplete)]) {
+      const estimates = group.map(result => result.comfortableDryDays);
+      expect(estimates).toEqual([...estimates].sort((a, b) => b - a));
+    }
     const palolem = ranked.find(result => result.city.name === 'Palolem')!;
     expect(destinationTime(palolem.travel.usable)).toBe('~10.5 days at destination');
     expect(destinationTime(0.01)).toBe('Under 0.1 days at destination (est.)');
@@ -132,7 +129,7 @@ describe('travel and scoring', () => {
 
   it.each([
     ['2026-12-18', '2026-12-20', 'Miami', 15],
-    ['2026-12-20', '2027-01-03', 'Puerto Villamil', 36],
+    ['2026-12-20', '2027-01-03', 'Mexico City', 36],
   ] as const)('applies both temperature preferences from Boston on %s through %s', (start, end, top, count) => {
     const scores = results(start, end);
     const filtered = rankCities(scores.filter(result => matchesTemperaturePreferences(result, true, true)));
@@ -142,6 +139,15 @@ describe('travel and scoring', () => {
     expect(matchesTemperaturePreferences(prague, false, false)).toBe(true);
     expect(matchesTemperaturePreferences(prague, false, true)).toBe(false);
     expect(matchesTemperaturePreferences(filtered[0], true, true)).toBe(true);
+  });
+
+  it('provides flags and weather-appropriate local activities for destination cards', () => {
+    const scores = results('2026-12-20', '2027-01-03');
+    expect(scores.every(result => countryFlag(result.city.country) && destinationActivity(result))).toBe(true);
+    const mexicoCity = scores.find(result => result.city.name === 'Mexico City')!;
+    expect(countryFlag(mexicoCity.city.country)).toBe('🇲🇽');
+    expect(destinationActivity(mexicoCity)).toContain('Chapultepec Park');
+    expect(destinationActivity({ ...mexicoCity, wetFrequency: 0.8 })).toContain('inside the National Museum');
   });
 
   it('filters on historical temperature fit even when the average high falls outside the range', () => {
@@ -157,38 +163,6 @@ describe('travel and scoring', () => {
     const scores = results('2027-01-01', '2027-12-31');
     expect(rankCities(scores).some(result => result.city.name === 'Boston')).toBe(false);
     expect(scores.every(result => result.score >= 0 && result.score <= 100 && result.travel.usable >= 0)).toBe(true);
-  });
-});
-
-describe('comparing trip dates from Boston', () => {
-  const rankForTrip = (trip: { start: string; end: string }) => rankCities(scoreCities(trip, boston));
-
-  it('compares the same three-day weekend and shows the change in rank', () => {
-    const trip = { start: '2026-12-18', end: '2026-12-20' };
-    const earlier = shiftTripDays(trip, -7)!;
-    const later = shiftTripDays(trip, 7)!;
-    expect(earlier).toEqual({ start: '2026-12-11', end: '2026-12-13' });
-    expect(later).toEqual({ start: '2026-12-25', end: '2026-12-27' });
-    expect([earlier, later].map(window => sampleDays(window).tripDays)).toEqual([3, 3]);
-    expect([earlier, later].map(window => rankForTrip(window)[0].city.name)).toEqual(['Miami', 'Miami']);
-    expect(rankForTrip(later)[3].city.name).toBe('Mexico City');
-    const comparison = dateComparison(trip, rankForTrip(trip), rankForTrip);
-    expect(comparison).toContain('One week earlier');
-    expect(comparison).toContain('One week later');
-    expect(comparison.match(/<strong>Miami<\/strong>/g)).toHaveLength(2);
-    expect(comparison).toContain('<strong>Mexico City</strong><span>~1.2 comfortable, dry days</span><small>About the same · current rank #5');
-  });
-
-  it('preserves the 15-day holiday window across New Year and shows both weather deltas', () => {
-    const trip = { start: '2026-12-20', end: '2027-01-03' };
-    const earlier = shiftTripDays(trip, -7)!;
-    const later = shiftTripDays(trip, 7)!;
-    expect(earlier).toEqual({ start: '2026-12-13', end: '2026-12-27' });
-    expect(later).toEqual({ start: '2026-12-27', end: '2027-01-10' });
-    expect([earlier, later].map(window => sampleDays(window).tripDays)).toEqual([15, 15]);
-    const comparison = dateComparison(trip, rankForTrip(trip), rankForTrip);
-    expect(comparison).toContain('<strong>Puerto Villamil</strong><span>~11.9 comfortable, dry days</span><small>+0.4 days · current rank #1');
-    expect(comparison).toContain('<strong>Puerto Villamil</strong><span>~11.1 comfortable, dry days</span><small>−0.4 days · current rank #1');
   });
 });
 

@@ -45,16 +45,6 @@ export function shiftTripMonth(trip: Trip, offset: number): Trip | null {
   return validateTrip(result) ? null : result;
 }
 
-/** Shift both dates in UTC, preserving the inclusive length across calendar boundaries. */
-export function shiftTripDays(trip: Trip, days: number): Trip | null {
-  if (validateTrip(trip) || !Number.isInteger(days)) return null;
-  const shift = (value: string) => new Date(parseDate(value)! + days * DAY);
-  const start = shift(trip.start), end = shift(trip.end);
-  if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime())) return null;
-  const shifted = { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
-  return validateTrip(shifted) ? null : shifted;
-}
-
 /** The next December 20 that has not passed, evaluated in the visitor's local calendar. */
 export function defaultTrip(today: Date): Trip {
   const year = today.getFullYear() + (today.getMonth() === 11 && today.getDate() > 20 ? 1 : 0);
@@ -271,9 +261,15 @@ export function isRankableCity(result: CityScore): boolean {
   return result.travel.km >= 40 && result.travel.usable > 0;
 }
 
-export function rankCities(scores: readonly CityScore[], order: 'weather-days' | 'weighted' = 'weather-days'): RankedCity[] {
+function hasIncompleteRoute(result: CityScore): boolean {
+  // Only apply this when a route snapshot covers the origin.
+  return Boolean(result.travel.flights) && result.travel.basis !== 'routes';
+}
+
+export function rankCities(scores: readonly CityScore[]): RankedCity[] {
   return scores.filter(isRankableCity)
-    .sort((a, b) => (order === 'weather-days' ? b.comfortableDryDays - a.comfortableDryDays : 0)
+    .sort((a, b) => Number(hasIncompleteRoute(a)) - Number(hasIncompleteRoute(b))
+      || b.comfortableDryDays - a.comfortableDryDays
       || b.score - a.score || a.city.name.localeCompare(b.city.name))
     .map((result, index) => ({ ...result, rank: index + 1 }));
 }

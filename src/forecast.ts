@@ -1,4 +1,4 @@
-import { DAY, parseDate, shiftTripDays } from './scoring';
+import { DAY, parseDate } from './scoring';
 import type { Place, Trip } from './types';
 
 export const FORECAST_DAYS = 7;
@@ -9,12 +9,10 @@ export type Forecasts = ReadonlyMap<string, DailyForecast>;
 
 export function needsForecast(trip: Trip, now: Date): boolean {
   const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  return [-7, 0, 7].some(offset => {
-    const shifted = shiftTripDays(trip, offset);
-    // Destination-local dates can be a day ahead of or behind the browser.
-    return shifted && parseDate(shifted.start)! <= today + FORECAST_DAYS * DAY
-      && parseDate(shifted.end)! >= today - DAY;
-  });
+  const start = parseDate(trip.start), end = parseDate(trip.end);
+  // Destination-local dates can be a day ahead of or behind the browser.
+  return start !== null && end !== null && start <= end
+    && start <= today + FORECAST_DAYS * DAY && end >= today - DAY;
 }
 
 function readDaily(payload: unknown): DailyForecast {
