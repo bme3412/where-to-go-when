@@ -472,5 +472,59 @@
     "name": "Mumbai",
     "lat": 19.08,
     "lon": 72.88
+  },
+  {
+    "name": "Puerto Baquerizo Moreno",
+    "lat": -0.90172,
+    "lon": -89.61021,
+    "tz": -6,
+    "referenceLabel": "Puerto Baquerizo Moreno · San Cristóbal Island",
+    "referenceUrl": "https://www.geonames.org/3652758/puerto-baquerizo-moreno.html",
+    "referenceNote": "Coastal town on San Cristóbal; this point does not represent the island's highlands or other Galápagos islands. Climate is fetched for this point. Peak and shoulder months inherit the old Galápagos regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Puerto Villamil",
+    "lat": -0.95542,
+    "lon": -90.96654,
+    "tz": -6,
+    "referenceLabel": "Puerto Villamil · Isabela Island",
+    "referenceUrl": "https://www.geonames.org/3652694/puerto-villamil.html",
+    "referenceNote": "Coastal town on Isabela; this point does not represent the island's volcanic highlands or other Galápagos islands. Climate is fetched for this point. Peak and shoulder months inherit the old Galápagos regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Panaji",
+    "lat": 15.49574,
+    "lon": 73.82624,
+    "tz": 5.5,
+    "referenceLabel": "Panaji city · North Goa",
+    "referenceUrl": "https://www.geonames.org/1260607/panjim.html",
+    "referenceNote": "Panaji (also called Panjim) is the city reference point near the Mandovi estuary; it does not represent every Goa beach or the inland hills. Peak and shoulder months inherit the old Goa regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Palolem",
+    "lat": 15.01667,
+    "lon": 74.01667,
+    "tz": 5.5,
+    "referenceLabel": "Palolem locality · South Goa coast",
+    "referenceUrl": "https://www.geonames.org/1259437/pololem.html",
+    "referenceNote": "Palolem's populated coastal locality is the reference point, not the whole state of Goa. A regional climate grid may still smooth beach and inland differences. Peak and shoulder months inherit the old Goa regional estimates, not measured local crowds."
+  },
+  {
+    "name": "El Chaltén",
+    "lat": -49.3299,
+    "lon": -72.88605,
+    "tz": -3,
+    "referenceLabel": "El Chaltén town · Santa Cruz",
+    "referenceUrl": "https://www.geonames.org/6690180/el-chalten.html",
+    "referenceNote": "The reference point is El Chaltén town in Santa Cruz, not Fitz Roy's summit, mountain trails or all Patagonia. Climate grids can smooth steep local elevation changes. Peak and shoulder months inherit the old Patagonia regional estimates, not measured local crowds."
+  },
+  {
+    "name": "Puerto Natales",
+    "lat": -51.72987,
+    "lon": -72.50603,
+    "tz": -3,
+    "referenceLabel": "Puerto Natales town · Chilean Patagonia",
+    "referenceUrl": "https://www.geonames.org/3874958/puerto-natales.html",
+    "referenceNote": "The reference point is Puerto Natales town by the Última Esperanza fjord, not Torres del Paine, mountain trails or all Patagonia. Peak and shoulder months inherit the old Patagonia regional estimates, not measured local crowds."
   }
 ]

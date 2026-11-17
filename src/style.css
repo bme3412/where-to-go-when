@@ -376,3 +376,18 @@ dialog::backdrop { background: #14231a78; }
 .export-request { margin: 8px 0 12px; padding: 9px; border: 1px solid var(--border); border-radius: 6px; }
 .export-request summary { font-size: 10px; }
 .export-request p { font-size: 10px; line-height: 1.6; }
+
+.region-explorer { flex-shrink: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin: 8px 0; }
+.region-heading { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+.region-heading > strong { flex: 1; }
+.region-heading .icon-button { width: 26px; height: 26px; }
+.region-places { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; margin-top: 8px; }
+.region-places button, .region-choice { text-align: left; border: 1px solid var(--border); border-radius: 8px; background: transparent; padding: 9px; color: var(--text); cursor: pointer; }
+.region-places button:hover, .region-places button[aria-pressed="true"], .region-choice:hover { border-color: var(--accent); background: var(--bg); }
+.region-places strong { display: block; font-size: 11px; line-height: 1.4; }
+.region-places span, .region-places small { display: block; color: var(--muted); font-size: 10px; margin-top: 5px; }
+.region-explorer > p { font-size: 10px; color: var(--muted); line-height: 1.5; margin: 8px 0 0; }
+.region-choices { display: grid; gap: 10px; margin-top: 20px; }
+.region-choice strong, .region-choice span { display: block; }
+.region-choice span { font-size: 12px; color: var(--muted); margin-top: 6px; }
+@media (max-width: 600px) { .region-places { overflow-x: auto; grid-template-columns: repeat(3, minmax(135px, 1fr)); } .region-explorer { padding: 8px; } .region-places small { font-size: 9px; } }

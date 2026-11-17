@@ -1,6 +1,7 @@
+import { destinationName } from './regions';
 import { easeCubicInOut, geoCentroid, geoDistance, geoGraticule10, geoOrthographic, geoPath } from 'd3';
 import { feature } from 'topojson-client';
-import world from 'world-atlas/countries-110m.json';
+import world from 'world-atlas/countries-50m.json';
 import type { Feature, Geometry } from 'geojson';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import { band } from './format';
@@ -67,7 +68,7 @@ export class Globe {
       const zoom = this.scale / this.baseScale;
       this.width = width; this.height = height;
       this.baseScale = Math.min(width, height) * 0.49;
-      this.scale = clamp(this.baseScale * zoom, this.baseScale * 0.79, 1000);
+      this.scale = clamp(this.baseScale * zoom, this.baseScale * 0.79, 60000);
       this.svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       this.projection.translate([width / 2, height / 2]);
       this.callbacks.hideTooltip();
@@ -104,12 +105,13 @@ export class Globe {
       if (!keys.includes(event.key)) return;
       event.preventDefault();
       this.interact();
-      if (event.key === 'ArrowLeft') this.rotation[0] -= 8;
-      if (event.key === 'ArrowRight') this.rotation[0] += 8;
-      if (event.key === 'ArrowUp') this.rotation[1] = clamp(this.rotation[1] - 8, -90, 90);
-      if (event.key === 'ArrowDown') this.rotation[1] = clamp(this.rotation[1] + 8, -90, 90);
-      if (event.key === '+' || event.key === '=') this.scale = clamp(this.scale * 1.1, this.baseScale * 0.79, 1000);
-      if (event.key === '-') this.scale = clamp(this.scale / 1.1, this.baseScale * 0.79, 1000);
+      const rotationStep = 8 * this.baseScale / this.scale;
+      if (event.key === 'ArrowLeft') this.rotation[0] -= rotationStep;
+      if (event.key === 'ArrowRight') this.rotation[0] += rotationStep;
+      if (event.key === 'ArrowUp') this.rotation[1] = clamp(this.rotation[1] - rotationStep, -90, 90);
+      if (event.key === 'ArrowDown') this.rotation[1] = clamp(this.rotation[1] + rotationStep, -90, 90);
+      if (event.key === '+' || event.key === '=') this.scale = clamp(this.scale * 1.1, this.baseScale * 0.79, 60000);
+      if (event.key === '-') this.scale = clamp(this.scale / 1.1, this.baseScale * 0.79, 60000);
       this.draw();
     });
     this.callbacks.spinChanged(this.spin);
@@ -124,12 +126,12 @@ export class Globe {
     // Ranked markers are drawn last so small background dots cannot obscure them.
     this.cityNodes = [...cities].sort((a, b) => Number(ranks.has(a.city.name)) - Number(ranks.has(b.city.name))).map(score => {
       const rank = ranks.get(score.city.name);
-      const node = element('g', { class: 'city-marker', 'data-city': score.city.name, role: 'button', tabindex: rank ? '0' : '-1', 'aria-label': `${score.city.name}, ${band(score.score).label}, score ${Math.round(score.score)}. ${climateLabel(score.climate)}. Center on globe.` });
+      const node = element('g', { class: 'city-marker', 'data-city': score.city.name, role: 'button', tabindex: rank ? '0' : '-1', 'aria-label': `${destinationName(score.city)}, ${band(score.score).label}, score ${Math.round(score.score)}. ${climateLabel(score.climate)}. Center on globe.` });
       const circle = element('circle', { fill: band(score.score).color, opacity: rank ? '1' : '0.45' });
       const number = element('text', { class: 'rank-number', 'text-anchor': 'middle', 'dominant-baseline': 'central' });
       number.textContent = rank ? String(rank) : '';
       const label = element('text', { class: `city-label${rank ? ' top-label' : ''}`, y: '4' });
-      label.textContent = score.city.name;
+      label.textContent = destinationName(score.city);
       node.append(circle, number, label);
       node.addEventListener('pointermove', event => {
         if (!this.pointers.size) {
@@ -190,7 +192,7 @@ export class Globe {
 
   zoom(factor: number): void {
     this.interact();
-    this.scale = clamp(this.scale * factor, this.baseScale * 0.79, 1000);
+    this.scale = clamp(this.scale * factor, this.baseScale * 0.79, 60000);
     this.draw();
   }
 
@@ -199,6 +201,15 @@ export class Globe {
     this.scale = this.baseScale;
     this.rotation = [75, -25, 0];
     this.draw();
+  }
+
+  fitPlaces(places: readonly CityScore[]): void {
+    if (!places.length) return;
+    const lon = places.reduce((sum, item) => sum + item.city.lon, 0) / places.length;
+    const lat = places.reduce((sum, item) => sum + item.city.lat, 0) / places.length;
+    const spread = Math.max(...places.map(item => geoDistance([lon, lat], [item.city.lon, item.city.lat])));
+    this.scale = clamp(Math.min(this.width, this.height) * 0.28 / Math.max(spread, 0.002), this.baseScale, 60000);
+    this.flyTo(lon, lat);
   }
 
   private interact(): void {
@@ -229,7 +240,7 @@ export class Globe {
       const other = [...this.pointers.entries()].find(([id]) => id !== event.pointerId)![1];
       const before = Math.hypot(previous.x - other.x, previous.y - other.y);
       const after = Math.hypot(event.clientX - other.x, event.clientY - other.y);
-      if (before > 0) this.scale = clamp(this.scale * after / before, this.baseScale * 0.79, 1000);
+      if (before > 0) this.scale = clamp(this.scale * after / before, this.baseScale * 0.79, 60000);
     } else {
       this.rotation[0] += dx * ratio * 70 / this.scale;
       this.rotation[1] = clamp(this.rotation[1] - dy * ratio * 70 / this.scale, -90, 90);
@@ -273,12 +284,18 @@ export class Globe {
     const center: [number, number] = [-this.rotation[0], -this.rotation[1]];
     const radius = Math.min(9, 4.5 * Math.sqrt(this.scale / 240));
     const visibleLabels: { label: SVGTextElement; x: number; y: number; radius: number; rank: number; name: string }[] = [];
-    for (const { score, rank, node, circle, number, label } of this.cityNodes) {
+    const regionalPoints: { region: string; x: number; y: number }[] = [];
+    const orderedNodes = [...this.cityNodes].sort((a, b) =>
+      (a.score.city.name === this.selectedName ? -1 : a.rank ?? 999) -
+      (b.score.city.name === this.selectedName ? -1 : b.rank ?? 999));
+    for (const { score, rank, node, circle, number, label } of orderedNodes) {
       const point: [number, number] = [score.city.lon, score.city.lat];
-      const visible = geoDistance(point, center) < Math.PI / 2 - 0.02;
+      const projected = this.projection(point)!;
+      const overlapsRegion = score.city.region && regionalPoints.some(other => other.region === score.city.region && Math.hypot(other.x - projected[0], other.y - projected[1]) < 28);
+      const visible = !overlapsRegion && geoDistance(point, center) < Math.PI / 2 - 0.02 && projected[0] >= -20 && projected[0] <= this.width + 20 && projected[1] >= -20 && projected[1] <= this.height + 20;
       node.style.display = visible ? '' : 'none';
       if (!visible) continue;
-      const projected = this.projection(point)!;
+      if (score.city.region) regionalPoints.push({ region: score.city.region, x: projected[0], y: projected[1] });
       const selected = score.city.name === this.selectedName;
       const size = rank ? 1.9 * radius : selected ? 1.5 * radius : 0.75 * radius;
       node.classList.toggle('selected', selected);
@@ -290,7 +307,8 @@ export class Globe {
       label.setAttribute('x', String(size + 5));
       label.setAttribute('y', '4');
       label.setAttribute('text-anchor', 'start');
-      if (rank || selected) visibleLabels.push({ label, x: projected[0], y: projected[1], radius: size, rank: selected ? 0 : rank!, name: score.city.name });
+      node.setAttribute('tabindex', rank || selected || this.scale / this.baseScale > 1.58 ? '0' : '-1');
+      if (rank || selected || this.scale / this.baseScale > 1.58) visibleLabels.push({ label, x: projected[0], y: projected[1], radius: size, rank: selected ? 0 : rank ?? 999, name: destinationName(score.city) });
     }
     this.placeLabels(visibleLabels);
     if (this.home) {

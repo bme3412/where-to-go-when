@@ -1,3 +1,4 @@
+import { destinationName } from './regions';
 import type { CityClimate, CityScore, ClimateSource, Country, Origin, Unit, Weights } from './types';
 import { WEIGHT_KEYS } from './scoring';
 import { AGENCY_STATUS_LABELS, climateLabel, climateSourceKind, gridElevationMismatch } from './climate';
@@ -33,7 +34,7 @@ export function cityTooltip(result: CityScore, home: Origin, unit: Unit): string
     ...result.risks.map(text => ({ text, kind: 'risk' })),
     ...result.dealbreakers.map(text => ({ text, kind: 'dealbreaker' })),
   ];
-  return `<div class="tooltip-heading"><strong>${escapeHtml(result.city.name)}</strong><span class="badge ${rating.key}"><span class="swatch" style="--swatch:${rating.color}"></span>${rating.label} · ${Math.round(result.score)}</span></div>
+  return `<div class="tooltip-heading"><strong>${escapeHtml(destinationName(result.city))}</strong><span class="badge ${rating.key}"><span class="swatch" style="--swatch:${rating.color}"></span>${rating.label} · ${Math.round(result.score)}</span></div>
     <div class="tooltip-country">${escapeHtml(displayCountry(result.city.country))}${result.climate.referenceLabel ? ` · ${escapeHtml(result.climate.referenceLabel)}` : ''}<span class="climate-caption source-${climateSourceKind(result.climate)}">${climateLabel(result.climate)} · 1991–2020</span></div>
     <p>Avg daytime high ${temperature(result.high, unit)} <span class="muted">(${difference(result.high - result.homeHigh, unit)} vs ${escapeHtml(home.name)})</span></p>
     <p>${rainWord(result.wetFrequency)} historically · ~${Math.round(result.rain)} mm/month</p><p>${crowdWord(result.crowd)} <span class="muted">(crowd estimate)</span></p>
@@ -46,7 +47,7 @@ export function countryTooltip(country: Country, destinations: readonly CityScor
   const places = destinations.filter(result => result.city.country === country.name);
   return `<div class="tooltip-heading"><strong>${escapeHtml(displayCountry(country.name))}</strong></div>
     <p class="muted">Countries aren’t scored. Conditions vary by destination.</p>
-    ${places.length ? `<p>${places.length} included ${places.length === 1 ? 'destination' : 'destinations'} in this view</p><ul class="country-places">${places.slice(0, 3).map(result => `<li><span><i class="swatch" style="--swatch:${band(result.score).color}"></i>${escapeHtml(result.city.name)}</span><span>${Math.round(result.score)} match</span></li>`).join('')}</ul>${places.length > 3 ? `<p class="muted">+ ${places.length - 3} more on the globe</p>` : ''}` : '<p>No included destinations here. This says nothing about the quality of a trip here.</p>'}`;
+    ${places.length ? `<p>${places.length} included ${places.length === 1 ? 'destination' : 'destinations'} in this view</p><ul class="country-places">${places.slice(0, 3).map(result => `<li><span><i class="swatch" style="--swatch:${band(result.score).color}"></i>${escapeHtml(destinationName(result.city))}</span><span>${Math.round(result.score)} match</span></li>`).join('')}</ul>${places.length > 3 ? `<p class="muted">+ ${places.length - 3} more on the globe</p>` : ''}` : '<p>No included destinations here. This says nothing about the quality of a trip here.</p>'}`;
 }
 
 /** Round contributions together so the displayed tenths sum to the displayed total. */
@@ -62,7 +63,7 @@ export function scoreBreakdown(result: CityScore, unit: Unit): string {
   const components: { key: keyof Weights; label: string; quality: string; note: string }[] = [
     { key: 'weather', label: 'Temperature', quality: sourceLabel(result.climate.sources.temperature), note: `${Math.round(b.fits.weather * 100)}% of historical daily highs in your ${temperatureBound(b.temperatureRange.min, unit)}–${temperatureBound(b.temperatureRange.max, unit)} range.` },
     { key: 'dry', label: 'Dry days', quality: sourceLabel(result.climate.sources.precipitation), note: `${Math.round(b.fits.dry * 100)}% of historical days had less than 1 mm of precipitation. This is a historical frequency, not a forecast.` },
-    { key: 'crowds', label: 'Few crowds', quality: 'Estimated', note: `${crowdWord(result.crowd)}. Seasonal levels and listed event adjustments are assigned estimates, not measured visitor counts.` },
+    { key: 'crowds', label: 'Few crowds', quality: 'Estimated', note: `${crowdWord(result.crowd)}. Seasonal levels and listed event adjustments are assigned estimates, not measured visitor counts.${result.city.region ? ` Inherited from the ${result.city.region} regional estimate; local crowd differences are not measured.` : ''}` },
     { key: 'travel', label: 'Short travel', quality: 'Estimated', note: `${result.travel.usable.toFixed(1)} of ${result.tripDays} days usable after modeled travel and time-zone recovery. Routes and schedules are not checked.` },
   ];
   return `<section class="score-breakdown" aria-labelledby="breakdown-title">
@@ -86,7 +87,7 @@ export function climateProvenance(climate: CityClimate): string {
   const mismatch = gridElevationMismatch(climate);
   const displayedInputs = new Set<string>();
   const locality = climate.referenceLabel ?? climate.name;
-  return `<section class="climate-provenance" aria-label="Climate data sources"><h3>Climate data · 1991–2020</h3><p class="source-intro"><strong>${escapeHtml(locality)}</strong><br>${climate.lat.toFixed(4)}°, ${climate.lon.toFixed(4)}° · about ${Math.round(climate.elevation)} m elevation.${climate.referenceUrl ? ` <a href="${escapeHtml(climate.referenceUrl)}" target="_blank" rel="noopener noreferrer">Reference location ↗</a>` : ''}${climate.referenceNote ? `<br>${escapeHtml(climate.referenceNote)}` : ''}</p>
+  return `<section class="climate-provenance" aria-label="Climate data sources"><h3>Climate data · 1991–2020</h3><p class="source-intro"><strong>${escapeHtml(locality)}</strong><br>${climate.lat.toFixed(4)}°, ${climate.lon.toFixed(4)}° · about ${Math.round(climate.elevation)} m elevation.${climate.referenceUrl ? ` <a href="${escapeHtml(climate.referenceUrl)}" target="_blank" rel="noopener noreferrer">${climate.referenceUrl.includes('geonames.org') ? 'Reference location · GeoNames (CC BY 4.0)' : 'Reference location'} ↗</a>` : ''}${climate.referenceNote ? `<br>${escapeHtml(climate.referenceNote)}` : ''}</p>
     ${mismatch !== null ? `<p class="terrain-warning"><strong>Grid terrain mismatch:</strong> the regional model elevation is ${Math.abs(mismatch).toLocaleString('en-US')} m ${mismatch > 0 ? 'higher' : 'lower'} than this reference point. Grid-based factors may miss local conditions. No elevation correction or extra score penalty is applied.</p>` : ''}
     ${(['temperature', 'precipitation'] as const).map(variable => {
       const source = climate.sources[variable];

@@ -1,0 +1,53 @@
+{
+  "checked": "2026-11-16",
+  "coordinateLicense": "CC BY 4.0",
+  "coordinateLicenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "coordinateAttribution": "Coordinates and locality records: GeoNames, https://www.geonames.org/.",
+  "referencePolicy": "Use populated-place reference points, not island/province centroids or airports; existing app points are unchanged. Geographic coordinates are locality anchors, not weather-station coordinates.",
+  "crowdSeasonPolicy": "Peak and shoulder months inherit the old regional estimates verbatim; they are not locally measured crowd data.",
+  "climatePolicy": "Each new location has its own 1991–2020 NASA POWER request. Source resolution remains regional MERRA-2; nearby points can share coarse grid behavior. No station series are copied across places.",
+  "records": [
+    {
+      "name": "Puerto Baquerizo Moreno",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/3652758/puerto-baquerizo-moreno.html",
+      "tourismSourceUrl": "https://ecuador.travel/galapagos/",
+      "timeZone": "Pacific/Galapagos"
+    },
+    {
+      "name": "Puerto Villamil",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/3652694/puerto-villamil.html",
+      "tourismSourceUrl": "https://galapagos.gob.ec/la-calidad-del-agua-de-puerto-villamil-es-monitoreada/",
+      "timeZone": "Pacific/Galapagos"
+    },
+    {
+      "name": "Panaji",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/1260607/panjim.html",
+      "tourismSourceUrl": "https://goa-tourism.com/guide/panaji-city/",
+      "timeZone": "Asia/Kolkata"
+    },
+    {
+      "name": "Palolem",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/1259437/palolem.html",
+      "tourismSourceUrl": "https://goa-tourism.com/beach/palolem/",
+      "timeZone": "Asia/Kolkata"
+    },
+    {
+      "name": "El Chaltén",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/6690180/el-chalten.html",
+      "tourismSourceUrl": "https://www.argentina.travel/en/planea-tu-viaje/parque-nacional-los-glaciares-el-chalten-y-el-calafate-santa-cruz",
+      "timeZone": "America/Argentina/Rio_Gallegos"
+    },
+    {
+      "name": "Puerto Natales",
+      "coordinateProvider": "GeoNames geographic database",
+      "coordinateSourceUrl": "https://www.geonames.org/3874958/puerto-natales.html",
+      "tourismSourceUrl": "https://chile.travel/en/destinations/puerto-natales/",
+      "timeZone": "America/Punta_Arenas"
+    }
+  ]
+}

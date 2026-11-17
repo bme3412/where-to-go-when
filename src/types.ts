@@ -4,7 +4,7 @@ export type OriginRow = readonly [string, number, number, number];
 export interface Place { name: string; lat: number; lon: number; tz: number }
 export interface Origin extends Place { country: string }
 export type DestinationScope = 'all' | 'domestic' | 'international';
-export interface City extends Place { country: string; peak: readonly number[]; shoulder: readonly number[] }
+export interface City extends Place { region?: string; displayName?: string; country: string; peak: readonly number[]; shoulder: readonly number[] }
 export interface Weights { weather: number; dry: number; crowds: number; travel: number }
 export interface TemperatureRange { min: number; max: number }
 export interface Trip { start: string; end: string }

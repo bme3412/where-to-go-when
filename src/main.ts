@@ -1,3 +1,4 @@
+import { destinationName, REGIONS } from './regions';
 import './style.css';
 import { ORIGINS } from './data/origins';
 import { climateLabel, climateSourceKind } from './climate';
@@ -23,6 +24,7 @@ let cityScores: CityScore[] = [];
 let allCityScores: CityScore[] = [];
 let ranked: RankedCity[] = [];
 let selectedName: string | null = null;
+let activeRegion = '';
 let activeTip = '';
 const icon = (content: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${content}</svg>`;
 const closeIcon = icon('<path d="m6 6 12 12M18 6 6 18"/>');
@@ -58,6 +60,7 @@ app.innerHTML = `
     </aside>
     <section class="globe-stage" aria-label="Interactive destination globe">
       <div class="stage-heading"><div><div class="trip-summary"><span id="summary-origin">From Boston</span><span aria-hidden="true">·</span><span id="summary-dates">Dec 20 – Jan 3</span><span class="summary-duration" id="summary-duration">15 days</span><span class="summary-scope" id="summary-scope" hidden></span></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid settings</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
+      <section id="region-explorer" class="region-explorer" aria-label="Places in this region" hidden></section>
       <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Interactive vacation globe. Use arrow keys to rotate, plus or minus to zoom. Choose a destination to center it."></svg><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
       <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span></div><button id="selected-details" class="small-button" type="button" aria-haspopup="dialog">Why this score? ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
       <section class="priorities-dock" aria-label="Your priorities">
@@ -74,8 +77,9 @@ app.innerHTML = `
     <button type="button" id="panel-backdrop" class="panel-backdrop" aria-label="Close open panel" tabindex="-1" hidden></button>
     <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
   </section>
-  <footer class="app-footer"><button type="button" class="text-button" data-show-method aria-haspopup="dialog" aria-controls="method-dialog">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>')}Scoring & data</button><button type="button" class="text-button" id="show-audit" aria-haspopup="dialog" aria-controls="audit-dialog">Data audit · all destinations</button><span>Climate averages, not a forecast.</span></footer>
+  <footer class="app-footer"><button type="button" class="text-button" id="explore-regions" aria-haspopup="dialog">Explore regions</button><button type="button" class="text-button" data-show-method aria-haspopup="dialog" aria-controls="method-dialog">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>')}Scoring & data</button><button type="button" class="text-button" id="show-audit" aria-haspopup="dialog" aria-controls="audit-dialog">Data audit · all destinations</button><span>Climate averages, not a forecast.</span></footer>
   <p id="rank-announcement" class="sr-only" role="status" aria-live="polite"></p>
+  <dialog id="regions-dialog" class="method-dialog regions-dialog" aria-labelledby="regions-title"><button type="button" class="icon-button dialog-close" aria-label="Close region explorer">${closeIcon}</button><h2 id="regions-title">Explore a region</h2><p>Compare specific towns, islands and coastlines.</p><div class="region-choices">${REGIONS.map(region => `<button type="button" class="region-choice" data-region="${region}"><strong>${region}</strong><span>${region === 'Galápagos' ? 'Santa Cruz · San Cristóbal · Isabela' : region === 'Goa' ? 'Panaji · Palolem · inland Bandoli' : 'El Calafate · El Chaltén · Puerto Natales'}</span></button>`).join('')}</div></dialog>
   <dialog id="details-dialog" class="detail-dialog" aria-label="Destination details"><button type="button" class="icon-button dialog-close" aria-label="Close destination details">${closeIcon}</button><div id="details-content"></div></dialog>
   <dialog id="audit-dialog" class="method-dialog audit-dialog" aria-labelledby="audit-title"><button type="button" class="icon-button dialog-close" aria-label="Close data audit">${closeIcon}</button>${auditContent}</dialog>
   <dialog id="method-dialog" class="method-dialog" aria-labelledby="method-title"><button type="button" class="icon-button dialog-close" aria-label="Close scoring explanation">${closeIcon}</button>${methodContent}</dialog>
@@ -149,12 +153,12 @@ function renderLists(): void {
     const delta = r.high - r.homeHigh;
     const note = [...r.events.filter(e => !e.startsWith('Ramadan')), ...r.risks, ...r.dealbreakers][0];
     const escape = delta * 1.8 >= 15 ? `${difference(delta, unit)} vs ${home.name}` : crowdWord(r.crowd);
-    return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(r.city.name)}, rank ${r.rank}, ${rating.label}, ${Math.round(r.score)}. ${climateLabel(r.climate)}. Center on globe."><span class="pick-heading"><span class="rank-circle" style="--swatch:${rating.color}">${r.rank}</span><span class="pick-place"><strong class="city-name">${escapeHtml(r.city.name)}</strong><span class="country-name">${escapeHtml(displayCountry(r.city.country))}${r.climate.referenceLabel ? ` · ${escapeHtml(r.climate.referenceLabel)}` : ''}</span></span><span class="rating ${rating.key}"><strong>${Math.round(r.score)}</strong><span>${rating.label}</span></span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span><span>${rainWord(r.wetFrequency)}</span><span>${travel}</span></span><span class="pick-note">${escapeHtml(note ?? escape)}</span><span class="pick-source source-${climateSourceKind(r.climate)}">${climateLabel(r.climate)}</span></button>`;
+    return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(destinationName(r.city))}, rank ${r.rank}, ${rating.label}, ${Math.round(r.score)}. ${climateLabel(r.climate)}. Center on globe."><span class="pick-heading"><span class="rank-circle" style="--swatch:${rating.color}">${r.rank}</span><span class="pick-place"><strong class="city-name">${escapeHtml(destinationName(r.city))}</strong><span class="country-name">${escapeHtml(displayCountry(r.city.country))}${r.climate.referenceLabel ? ` · ${escapeHtml(r.climate.referenceLabel)}` : ''}</span></span><span class="rating ${rating.key}"><strong>${Math.round(r.score)}</strong><span>${rating.label}</span></span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span><span>${rainWord(r.wetFrequency)}</span><span>${travel}</span></span><span class="pick-note">${escapeHtml(note ?? escape)}</span><span class="pick-source source-${climateSourceKind(r.climate)}">${climateLabel(r.climate)}</span></button>`;
   }).join('');
   if (!ranked.length) topList.innerHTML = `<div class="empty-results"><strong>No ${scope === 'all' ? 'matching' : scope} destinations</strong><p>There aren’t any destinations in this list beyond your home city for this filter.</p><button type="button" class="small-button" data-clear-scope>Show all destinations</button></div>`;
   moreGrid.innerHTML = ranked.slice(5, 17).map(r => {
     const rating = band(r.score);
-    return `<button type="button" class="option-card${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(r.city.name)}, rank ${r.rank}, ${rating.label}, score ${Math.round(r.score)}. ${climateLabel(r.climate)}. Center on globe."><span class="option-top"><span class="option-name"><span class="swatch" style="--swatch:${rating.color}"></span>${escapeHtml(r.city.name)}</span><span class="option-score">${Math.round(r.score)}</span></span><span class="option-detail">${temperature(r.high, unit)} <span>·</span> ~${hours(r.travel.hours)}h ${r.travel.mode === 'drive' ? 'drive' : 'away'}</span><span class="option-source source-${climateSourceKind(r.climate)}">${climateLabel(r.climate)}</span></button>`;
+    return `<button type="button" class="option-card${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(destinationName(r.city))}, rank ${r.rank}, ${rating.label}, score ${Math.round(r.score)}. ${climateLabel(r.climate)}. Center on globe."><span class="option-top"><span class="option-name"><span class="swatch" style="--swatch:${rating.color}"></span>${escapeHtml(destinationName(r.city))}</span><span class="option-score">${Math.round(r.score)}</span></span><span class="option-detail">${temperature(r.high, unit)} <span>·</span> ~${hours(r.travel.hours)}h ${r.travel.mode === 'drive' ? 'drive' : 'away'}</span><span class="option-source source-${climateSourceKind(r.climate)}">${climateLabel(r.climate)}</span></button>`;
   }).join('');
 }
 function renderSelection(): void {
@@ -163,12 +167,14 @@ function renderSelection(): void {
   selection.hidden = !result;
   if (!result) return;
   selection.style.setProperty('--swatch', band(result.score).color);
-  document.querySelector('#selected-name')!.textContent = result.city.name;
+  document.querySelector('#selected-name')!.textContent = destinationName(result.city);
   document.querySelector('#selected-summary')!.textContent = `${displayCountry(result.city.country)} · ${temperature(result.high, unit)} · ~${hours(result.travel.hours)}h ${result.travel.mode === 'drive' ? 'drive' : 'away'}`;
   document.querySelector('#details-content')!.innerHTML = cityTooltip(result, home, unit) + scoreBreakdown(result, unit);
 }
 function selectDestination(result: CityScore, fly = true): void {
   selectedName = result.city.name; hideTooltip();
+  activeRegion = result.city.region ?? '';
+  renderRegion();
   if (fly) globe.flyTo(result.city.lon, result.city.lat);
   globe.setSelected(selectedName);
   for (const button of document.querySelectorAll<HTMLButtonElement>('.pick-row, .option-card')) {
@@ -202,11 +208,15 @@ function recompute(shouldFly: boolean): void {
   document.querySelector('#summary-dates')!.textContent = `${dateLabel(trip.start)} – ${dateLabel(trip.end)}`;
   document.querySelector('#summary-duration')!.textContent = duration;
   if (shouldFly) selectedName = null;
-  renderLists(); renderSelection(); globe.update(cityScores, ranked, home); globe.setSelected(selectedName);
+  if (activeRegion && !cityScores.some(result => result.city.region === activeRegion)) activeRegion = '';
+  renderLists(); renderSelection(); renderRegion(); globe.update(cityScores, ranked, home); globe.setSelected(selectedName);
   document.querySelector('#ranking-context')!.textContent = `For ${duration}, from ${home.name}${scope === 'all' ? '' : ` · ${scope}`}`;
   const best = ranked[0];
-  document.querySelector('#rank-announcement')!.textContent = best ? `Top pick: ${best.city.name}, score ${Math.round(best.score)}. ${duration} from ${home.name}.` : `No ${scope === 'all' ? 'matching' : scope} destinations in this list from ${home.name}.`;
-  if (shouldFly) globe.flyTo(best?.city.lon ?? home.lon, best?.city.lat ?? home.lat);
+  document.querySelector('#rank-announcement')!.textContent = best ? `Top pick: ${destinationName(best.city)}, score ${Math.round(best.score)}. ${duration} from ${home.name}.` : `No ${scope === 'all' ? 'matching' : scope} destinations in this list from ${home.name}.`;
+  if (shouldFly) {
+    if (activeRegion) fitRegion();
+    else { globe.resetView(); globe.flyTo(best?.city.lon ?? home.lon, best?.city.lat ?? home.lat); }
+  }
 }
 for (const control of document.querySelectorAll<HTMLInputElement>('[name="destination-scope"]')) control.addEventListener('change', () => {
   recompute(true);
@@ -254,7 +264,7 @@ unitButton.addEventListener('click', () => {
   unit = unit === 'F' ? 'C' : 'F';
   unitButton.innerHTML = `<span class="${unit === 'F' ? 'unit-active' : ''}">°F</span><span class="unit-divider">/</span><span class="${unit === 'C' ? 'unit-active' : ''}">°C</span>`;
   unitButton.setAttribute('aria-label', `Temperature unit: ${unit === 'F' ? 'Fahrenheit. Switch to Celsius.' : 'Celsius. Switch to Fahrenheit.'}`);
-  syncTemperature(); hideTooltip(); renderLists(); renderSelection();
+  syncTemperature(); hideTooltip(); renderLists(); renderSelection(); renderRegion();
 });
 topList.addEventListener('click', event => {
   if (!(event.target as Element).closest('[data-clear-scope]')) return;
@@ -271,8 +281,37 @@ for (const list of [topList, moreGrid]) {
   list.addEventListener('pointermove', event => { if (event.pointerType === 'touch') return; const r = resultForTarget(event.target); if (r) showTooltip(cityTooltip(r, home, unit), `city-${r.city.name}-${unit}`, event.clientX, event.clientY); });
   list.addEventListener('pointerleave', hideTooltip); list.addEventListener('focusout', hideTooltip);
 }
+const regionExplorer = document.querySelector<HTMLElement>('#region-explorer')!;
+const regionsDialog = document.querySelector<HTMLDialogElement>('#regions-dialog')!;
+function renderRegion(): void {
+  const panel = document.querySelector<HTMLElement>('#region-explorer')!;
+  const focusedCity = panel.contains(document.activeElement) ? (document.activeElement as HTMLElement).dataset.city : undefined;
+  panel.hidden = !activeRegion;
+  if (!activeRegion) return;
+  const places = rankCities(cityScores.filter(result => result.city.region === activeRegion));
+  panel.innerHTML = `<div class="region-heading"><strong>${escapeHtml(activeRegion)}</strong><button type="button" class="text-button" data-region-fit>View region</button><button type="button" class="icon-button" data-region-close aria-label="Close regional places">${closeIcon}</button></div><div class="region-places">${places.map(result => `<button type="button" data-city="${escapeHtml(result.city.name)}" aria-pressed="${result.city.name === selectedName}"><strong><i class="swatch" style="--swatch:${band(result.score).color}"></i>${escapeHtml(destinationName(result.city))}</strong><span>${Math.round(result.score)} match · ${temperature(result.high, unit)}</span><small>${climateLabel(result.climate)}</small></button>`).join('')}</div><p>${places.length ? 'Separate reference points. Regional grids may smooth local differences; crowd estimates are shared across the region.' : 'No places in this region match your destination filter.'}</p>`;
+  if (focusedCity) [...panel.querySelectorAll<HTMLButtonElement>('[data-city]')].find(button => button.dataset.city === focusedCity)?.focus();
+}
+function fitRegion(): void {
+  const places = cityScores.filter(result => result.city.region === activeRegion);
+  if (places.length) globe.fitPlaces(places);
+}
+document.querySelector('#explore-regions')!.addEventListener('click', () => { hideTooltip(); panels.closeDrawer(); regionsDialog.showModal(); });
+regionsDialog.addEventListener('click', event => {
+  const region = (event.target as Element).closest<HTMLElement>('[data-region]')?.dataset.region;
+  if (!region) return;
+  activeRegion = region; regionsDialog.close(); renderRegion(); fitRegion();
+  regionExplorer.querySelector<HTMLButtonElement>('[data-city]')?.focus();
+});
+regionExplorer.addEventListener('click', event => {
+  const target = event.target as Element;
+  if (target.closest('[data-region-close]')) { activeRegion = ''; renderRegion(); globe.resetView(); document.querySelector<HTMLButtonElement>('#explore-regions')!.focus(); return; }
+  if (target.closest('[data-region-fit]')) { fitRegion(); return; }
+  const result = resultForTarget(target);
+  if (result) selectDestination(result);
+});
 document.querySelector('#clear-selection')!.addEventListener('click', () => {
-  selectedName = null; globe.setSelected(null); renderLists(); renderSelection(); document.querySelector<SVGSVGElement>('#globe')!.focus();
+  selectedName = null; globe.setSelected(null); renderLists(); renderSelection(); renderRegion(); document.querySelector<SVGSVGElement>('#globe')!.focus();
 });
 document.querySelector('#selected-details')!.addEventListener('click', () => { hideTooltip(); renderSelection(); detailsDialog.showModal(); detailsDialog.scrollTop = 0; });
 document.addEventListener('click', event => {

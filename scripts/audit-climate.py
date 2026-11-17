@@ -96,7 +96,7 @@ def main():
     comparison = json.loads((ROOT / 'data/climate-audit-before.json').read_text())
     before = comparison['destinationSources']
     changes = [dict(name=city[0], before=before[city[0]], after=kind(baseline['locations'][city[0]]))
-               for city in cities if before[city[0]] != kind(baseline['locations'][city[0]])]
+               for city in cities if city[0] in before and before[city[0]] != kind(baseline['locations'][city[0]])]
     reviewed = []
     for name, previous_kind in before.items():
         if previous_kind != 'grid':
@@ -112,12 +112,12 @@ def main():
         reviewed.append(dict(name=name, **review))
     access_counts = dict(collections.Counter(review['status'] for review in reviewed))
     report = dict(auditedAt=dt.datetime.now(dt.timezone.utc).isoformat(), baseline='1991–2020',
-        status='passed', scope=f'All 83 reference points, all 71 destination coordinates, and every climate factor. Agency routes reviewed for the {len(reviewed)} previously grid-only destinations; source availability research is not exhaustive.',
+        status='passed', scope=f'All {len(places)} reference points, all {len(cities)} destination coordinates, and every climate factor. Agency routes reviewed for the {len(reviewed)} previously grid-only destinations; source availability research is not exhaustive.',
         checks=dict(sourceFingerprints=source_checks, monthDenominators=True, histogramCounts=True, coveragePolicy=True,
                     stationDistanceAndElevation=True, documentedStationSuccession=True, globeReferenceAlignment=True, agencyReviewCompleteness=True),
-        destinationCounts=counts, comparisonCommit=comparison['sourceCommit'], upgrades=changes, agencyReviewCounts=access_counts, agencyReviews=reviewed,
+        destinationCounts=counts, additions=[dict(name=city[0], source=kind(baseline['locations'][city[0]])) for city in cities if city[0] not in before], comparisonCommit=comparison['sourceCommit'], upgrades=changes, agencyReviewCounts=access_counts, agencyReviews=reviewed,
         findings=[dict(id='reference-areas', status='fixed', detail='Tenerife now explicitly represents El Médano coast; regional names show their reference areas. Remaining grid elevation differences >=300m are flagged.'),
-                  dict(id='keyboard-access', status='fixed', detail='Searchable Data audit dialog exposes all 71 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance.'),
+                  dict(id='keyboard-access', status='fixed', detail=f'Searchable Data audit dialog exposes all {len(cities)} destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance.'),
                   dict(id='archive-version', status='fixed', detail='NOAA provenance uses file retrieval dates and hashes; no cached global revision is attributed to independently refreshed files.'),
                   dict(id='precipitation-phase', status='fixed', detail='Frequent precipitation replaces Very rainy; total precipitation includes snow-water equivalent.'),
                   dict(id='compound-provenance', status='fixed', detail='Every source file and the Banff station succession are inspectable, with explicit manifest hash scope.')],

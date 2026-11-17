@@ -1,4 +1,5 @@
 import type { City, CityRow } from '../types';
+import { regionMetadata } from '../regions';
 import { TZ } from './timezones';
 
 export const CITY_ROWS = [
@@ -72,7 +73,13 @@ export const CITY_ROWS = [
 ["Serengeti","Tanzania",-2.33,34.83,[7,8,9,1,2],[6,10,12]],
 ["Zanzibar","Tanzania",-6.16,39.2,[7,8,12],[1,2,6,9]],
 ["Victoria Falls","Zimbabwe",-17.92,25.86,[7,8,9],[5,6,10]],
-["Mauritius","Mauritius",-20.16,57.5,[10,11,12],[4,5,9]]
+["Mauritius","Mauritius",-20.16,57.5,[10,11,12],[4,5,9]],
+["Puerto Baquerizo Moreno","Ecuador",-0.90172,-89.61021,[6,7,8,12],[1,3]],
+["Puerto Villamil","Ecuador",-0.95542,-90.96654,[6,7,8,12],[1,3]],
+["Panaji","India",15.49574,73.82624,[12,1],[11,2]],
+["Palolem","India",15.01667,74.01667,[12,1],[11,2]],
+["El Chaltén","Argentina",-49.3299,-72.88605,[12,1,2],[11,3]],
+["Puerto Natales","Chile",-51.72987,-72.50603,[12,1,2],[11,3]]
 ] as const satisfies readonly CityRow[];
 
-export const CITIES: readonly City[] = CITY_ROWS.map(([name, country, lat, lon, peak, shoulder]) => ({name, country, lat, lon, peak, shoulder, tz: TZ[name]}));
+export const CITIES: readonly City[] = CITY_ROWS.map(([name, country, lat, lon, peak, shoulder]) => ({name, country, lat, lon, peak, shoulder, tz: TZ[name], ...regionMetadata(name)}));

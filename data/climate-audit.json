@@ -1,10 +1,10 @@
 {
-  "auditedAt": "2026-11-16T23:36:41.665709+00:00",
+  "auditedAt": "2026-11-17T01:13:10.139152+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 83 reference points, all 71 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 89 reference points, all 77 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 957,
+    "sourceFingerprints": 969,
     "monthDenominators": true,
     "histogramCounts": true,
     "coveragePolicy": true,
@@ -15,9 +15,35 @@
   },
   "destinationCounts": {
     "station": 28,
-    "grid": 37,
+    "grid": 43,
     "mixed": 6
   },
+  "additions": [
+    {
+      "name": "Puerto Baquerizo Moreno",
+      "source": "grid"
+    },
+    {
+      "name": "Puerto Villamil",
+      "source": "grid"
+    },
+    {
+      "name": "Panaji",
+      "source": "grid"
+    },
+    {
+      "name": "Palolem",
+      "source": "grid"
+    },
+    {
+      "name": "El Chaltén",
+      "source": "grid"
+    },
+    {
+      "name": "Puerto Natales",
+      "source": "grid"
+    }
+  ],
   "comparisonCommit": "74b9b2fe750a3e8350b2706d7dc25d5574438954",
   "upgrades": [
     {
@@ -439,7 +465,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 71 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 77 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -2192,6 +2218,132 @@
       "name": "Mumbai",
       "kind": "grid",
       "reference": "Mumbai",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Puerto Baquerizo Moreno",
+      "kind": "grid",
+      "reference": "Puerto Baquerizo Moreno · San Cristóbal Island",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Puerto Villamil",
+      "kind": "grid",
+      "reference": "Puerto Villamil · Isabela Island",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Panaji",
+      "kind": "grid",
+      "reference": "Panaji city · North Goa",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Palolem",
+      "kind": "grid",
+      "reference": "Palolem locality · South Goa coast",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "El Chaltén",
+      "kind": "grid",
+      "reference": "El Chaltén town · Santa Cruz",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Puerto Natales",
+      "kind": "grid",
+      "reference": "Puerto Natales town · Chilean Patagonia",
       "factors": {
         "temperature": {
           "kind": "grid",

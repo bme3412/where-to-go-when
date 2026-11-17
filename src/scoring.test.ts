@@ -14,8 +14,8 @@ const destination = (name: string) => CITIES.find(city => city.name === name)!;
 const results = (start: string, end: string, home = boston) => scoreCities({ start, end }, home, DEFAULT_WEIGHTS);
 
 describe('reference data', () => {
-  it('contains all 71 destinations, 24 origins, and timezone offsets', () => {
-    expect(CITIES).toHaveLength(71);
+  it('contains all 77 destinations, 24 origins, and timezone offsets', () => {
+    expect(CITIES).toHaveLength(77);
     expect(ORIGINS).toHaveLength(24);
     expect(CITIES.every(city => Number.isFinite(TZ[city.name]))).toBe(true);
   });
@@ -194,9 +194,9 @@ describe('sourced climate baseline', () => {
     expect(climateProvenance(climateFor('Queenstown'))).toContain('Grid terrain mismatch');
   });
   it('makes all destinations searchable independently of rankings and source type', () => {
-    expect(auditDestinations('', 'all')).toHaveLength(71);
-    expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(71);
-    expect(sourceCounts).toEqual({station:28,mixed:6,grid:37});
+    expect(auditDestinations('', 'all')).toHaveLength(77);
+    expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(77);
+    expect(sourceCounts).toEqual({station:28,mixed:6,grid:43});
     expect(auditDestinations('Queenstown', 'grid').map(c => c.name)).toEqual(['Queenstown']);
     expect(auditDestinations('El Médano', 'station').map(c => c.name)).toEqual(['Tenerife']);
     expect(auditDestinations('Banff', 'mixed').map(c => c.name)).toEqual(['Banff']);
@@ -378,5 +378,40 @@ describe('domestic and international destinations', () => {
       expect(domestic.length + international.length).toBe(all.length);
       expect(domestic.some(result => international.includes(result))).toBe(false);
     }
+  });
+});
+
+describe('specific regional destinations', () => {
+  it('keeps legacy sources on named anchors and queries six independent points', () => {
+    expect(destination('Galápagos').displayName).toBe('Puerto Ayora');
+    expect(destination('Goa').displayName).toBe('Bandoli area');
+    expect(destination('Patagonia').displayName).toBe('El Calafate');
+    const added = ['Puerto Baquerizo Moreno', 'Puerto Villamil', 'Panaji', 'Palolem', 'El Chaltén', 'Puerto Natales'];
+    const urls = added.map(name => {
+      const city = destination(name), climate = climateFor(name);
+      expect(climate.lat).toBe(city.lat); expect(climate.lon).toBe(city.lon);
+      const url = new URL(climate.sourceUrl);
+      expect(Number(url.searchParams.get('latitude'))).toBe(city.lat);
+      expect(Number(url.searchParams.get('longitude'))).toBe(city.lon);
+      expect(climateSourceKind(climate)).toBe('grid');
+      return climate.sourceUrl;
+    });
+    expect(new Set(urls).size).toBe(6);
+    expect(climateSourceKind(climateFor('Galápagos'))).toBe('station');
+    expect(auditDestinations('Galápagos', 'all')).toHaveLength(3);
+    expect(auditDestinations('Puerto Ayora', 'all').map(c => c.name)).toEqual(['Galápagos']);
+    expect(auditRows('El Calafate', 'all')).toContain('data-audit-city="Patagonia"');
+  });
+  it('preserves country boundaries within Patagonia and discloses regional estimates', () => {
+    expect(destination('Puerto Natales').country).toBe('Chile');
+    expect(matchesDestinationScope(destination('Puerto Natales').country, 'Argentina', 'domestic')).toBe(false);
+    const summer = results('2027-08-01', '2027-08-15');
+    for (const name of ['Goa', 'Panaji', 'Palolem']) {
+      const result = summer.find(r => r.city.name === name)!;
+      expect(result.risks).toContain('Monsoon season');
+      expect(scoreBreakdown(result, 'F')).toContain('Inherited from the Goa regional estimate');
+    }
+    expect(gridElevationMismatch(climateFor('El Chaltén'))).not.toBeNull();
+    expect(climateProvenance(climateFor('Puerto Natales'))).toContain('Grid terrain mismatch');
   });
 });
