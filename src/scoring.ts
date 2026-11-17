@@ -5,7 +5,7 @@ import { eventsForYear } from './data/events';
 import { weatherFlagsFor } from './weather';
 import { climateFor, temperatureFrequency, wetDayFrequency } from './climate';
 import { bostonTrip } from './flights';
-import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, TemperatureRange, Travel, Trip, TripEvent, WeatherPeriod, Weights } from './types';
+import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, ScoreFactors, TemperatureRange, Travel, Trip, TripEvent, WeatherPeriod, Weights } from './types';
 
 export { easter, thanksgiving, eventsForYear } from './data/events';
 export const DAY = 86_400_000;
@@ -13,6 +13,7 @@ export const TRAVEL_HOURS_PER_USABLE_DAY = 14;
 export const DEFAULT_WEIGHTS: Readonly<Weights> = { weather: 40, dry: 25, crowds: 10, travel: 25 };
 export const DEFAULT_TEMPERATURE: Readonly<TemperatureRange> = { min: 20, max: 30 };
 export const WEIGHT_KEYS = ['weather', 'dry', 'crowds', 'travel'] as const;
+export const SCORE_KEYS = ['weather', 'dry', 'reliability', 'crowds', 'travel'] as const;
 export const clamp = (value: number, low: number, high: number): number => Math.max(low, Math.min(high, value));
 const mean = (values: readonly number[]): number => values.reduce((sum, value) => sum + value, 0) / values.length;
 const mod = (value: number, divisor: number): number => ((value % divisor) + divisor) % divisor;
@@ -161,10 +162,57 @@ export function tripEvents(trip: Trip): TripEvent[] {
   return events;
 }
 
+/** Probability that successful days cover at least the target amount of usable time. */
+export function comfortableDryChance(periods: readonly { days: number; chance: number }[], target: number): number {
+  if (target <= 0) return 0;
+  const wholeDays = periods.reduce((sum, period) => sum + Math.floor(period.days + 1e-9), 0);
+  if (wholeDays > 90) {
+    let expected = 0, variance = 0;
+    for (const { days, chance } of periods) {
+      const whole = Math.floor(days + 1e-9);
+      expected += days * chance;
+      variance += (whole + (days - whole) ** 2) * chance * (1 - chance);
+    }
+    if (!variance) return Number(expected + 1e-9 >= target);
+    // Approximate the normal CDF for long trips, where an exact count grows quadratically.
+    const z = (expected - target) / Math.sqrt(variance);
+    return 1 / (1 + Math.exp(-1.5976 * z - 0.07056 * z ** 3));
+  }
+
+  const counts = new Float64Array(wholeDays + 1);
+  counts[0] = 1;
+  let processed = 0;
+  let edges = [{ days: 0, chance: 1 }];
+  for (const { days, chance } of periods) {
+    const whole = Math.floor(days + 1e-9);
+    for (let day = 0; day < whole; day++) {
+      for (let count = ++processed; count > 0; count--) {
+        counts[count] = counts[count] * (1 - chance) + counts[count - 1] * chance;
+      }
+      counts[0] *= 1 - chance;
+    }
+    const fraction = days - whole;
+    if (fraction > 1e-9) {
+      edges = edges.flatMap(edge => [
+        { days: edge.days, chance: edge.chance * (1 - chance) },
+        { days: edge.days + fraction, chance: edge.chance * chance },
+      ]);
+    }
+  }
+  return clamp(edges.reduce((sum, edge) => sum + edge.chance * counts
+    .subarray(Math.max(0, Math.ceil(target - edge.days - 1e-9)))
+    .reduce((tail, chance) => tail + chance, 0), 0), 0, 1);
+}
+
 export function scoreCity(city: City, home: Origin, samples: SampledTrip, weights: Weights, events: readonly TripEvent[], temperatureRange: TemperatureRange = DEFAULT_TEMPERATURE, nonstopOnly = false, forecast?: DailyForecast, homeForecast?: DailyForecast): CityScore {
   const temperatureError = validateTemperature(temperatureRange);
   if (temperatureError) throw new RangeError(temperatureError);
-  const shares = normalizeWeights(weights);
+  const base = normalizeWeights(weights);
+  const move = base.weather && base.dry ? 0.2 : 0;
+  const shares: ScoreFactors = {
+    ...base, weather: base.weather * (1 - move), dry: base.dry * (1 - move),
+    reliability: (base.weather + base.dry) * move,
+  };
   const climate = climateFor(city.name), homeClimate = climateFor(home.name);
   const monthlyFits = climate.months.map(month => temperatureFrequency(month, temperatureRange));
   const monthlyHighs = climate.months.map(month => month.meanHigh);
@@ -224,12 +272,23 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const usableStart = usableEnd - journey.usable;
   let comfortableDays = 0, comfortableDryDays = 0;
   const weatherPeriods: WeatherPeriod[] = [];
+  const reliabilityPeriods: { days: number; chance: number }[] = [];
   for (let index = 0; index < weatherSamples.length; index++) {
     const offset = (weatherSamples[index] - start) / DAY;
     const usableDays = Math.max(0, Math.min(offset + widths[index], usableEnd) - Math.max(offset, usableStart));
     const comfortable = usableDays * weatherFits[index];
     comfortableDays += comfortable;
-    const contribution = comfortable * (1 - wetLevels[index]);
+    const chance = weatherFits[index] * (1 - wetLevels[index]);
+    const contribution = usableDays * chance;
+    if (usableDays > 0) {
+      // A sampled bucket may contain both partial boundary days and whole days.
+      const from = Math.max(offset, usableStart);
+      const to = Math.min(offset + widths[index], usableEnd);
+      const first = Math.min(to, Math.ceil(from)) - from;
+      const rest = to - from - first;
+      if (first > 0) reliabilityPeriods.push({ days: first, chance });
+      if (rest > 0) reliabilityPeriods.push({ days: rest, chance });
+    }
     comfortableDryDays += contribution;
     const timestamp = weatherSamples[index], forecastDay = forecast?.get(timestamp);
     weatherPeriods.push({
@@ -244,13 +303,15 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const usableTemperatureFit = journey.usable > 0 ? clamp(comfortableDays / journey.usable, 0, 1) : 0;
   const weatherMean = (values: number[]) => exactDates.length
     ? values.reduce((sum, value, index) => sum + value * widths[index], 0) / samples.tripDays : mean(values);
-  const fits: Weights = { weather: weatherMean(weatherFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: Math.max(0, journey.factor - connectionFitPenalty(journey, samples.tripDays)) * routeCoverageFactor(journey) };
-  const contributions = Object.fromEntries(WEIGHT_KEYS.map(key => [key, fits[key] * shares[key]])) as unknown as Weights;
-  const score = WEIGHT_KEYS.reduce((sum, key) => sum + contributions[key], 0);
+  const targetDays = journey.usable / 2;
+  const weatherReliability = { targetDays, chance: comfortableDryChance(reliabilityPeriods, targetDays) };
+  const fits: ScoreFactors = { reliability: weatherReliability.chance, weather: weatherMean(weatherFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: Math.max(0, journey.factor - connectionFitPenalty(journey, samples.tripDays)) * routeCoverageFactor(journey) };
+  const contributions = Object.fromEntries(SCORE_KEYS.map(key => [key, fits[key] * shares[key]])) as unknown as ScoreFactors;
+  const score = SCORE_KEYS.reduce((sum, key) => sum + contributions[key], 0);
   const weatherFlags = weatherFlagsFor(city, climate, samples, { highs: historicalHighs, lows: historicalLows, wet: historicalWet });
   const iso = (day: number) => new Date(day).toISOString().slice(0, 10);
   return {
-    city, climate, score, comfortableDryDays, usableTemperatureFit,
+    city, climate, score, comfortableDryDays, weatherReliability, usableTemperatureFit,
     weatherPeriods,
     weatherDates: { start: iso(start), end: iso(end), forecast: forecastDates.map(iso) },
     high: weatherMean(highs), low: weatherMean(lows), homeHigh: weatherMean(homeHighs), rain: mean(rains), wetFrequency: weatherMean(wetLevels), crowd: mean(crowdLevels),

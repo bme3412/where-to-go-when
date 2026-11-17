@@ -57,10 +57,11 @@ export interface CityClimate {
   referenceLabel?: string; referenceUrl?: string; referenceNote?: string;
   agencyReview?: AgencyReview;
 }
+export type ScoreFactors = Weights & { reliability: number };
 export interface ScoreBreakdown {
-  fits: Weights;
-  contributions: Weights;
-  weights: Weights;
+  fits: ScoreFactors;
+  contributions: ScoreFactors;
+  weights: ScoreFactors;
   temperatureRange: TemperatureRange;
 }
 export type WeatherKind = 'wet' | 'heat' | 'cold' | 'storm';
@@ -76,7 +77,7 @@ export interface WeatherPeriod {
   rain: { source: 'forecast'; millimeters: number } | { source: 'historical'; wetFrequency: number };
   comfortableDryDays: number;
 }
-export interface CityScore { weatherPeriods: WeatherPeriod[]; weatherDates: { start: string; end: string; forecast: string[] }; city: City; climate: CityClimate; score: number; comfortableDryDays: number; usableTemperatureFit: number; high: number; low: number; homeHigh: number; rain: number; wetFrequency: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[]; weatherFlags: WeatherFlag[] }
+export interface CityScore { weatherPeriods: WeatherPeriod[]; weatherDates: { start: string; end: string; forecast: string[] }; city: City; climate: CityClimate; score: number; comfortableDryDays: number; weatherReliability: { targetDays: number; chance: number }; usableTemperatureFit: number; high: number; low: number; homeHigh: number; rain: number; wetFrequency: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[]; weatherFlags: WeatherFlag[] }
 export type RankedCity = CityScore & { rank: number };
 export interface Country { name: string; lat: number; lon: number }
 export interface TripEvent { cities: ReadonlySet<string>; start: number; end: number; crowd: number; name: string; festival: boolean }

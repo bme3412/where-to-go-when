@@ -131,12 +131,13 @@ npm run build
 
 ## Scoring model
 
-`match = temperatureFit × temperatureWeight + dryFit × dryWeight + crowdFit × crowdWeight + travelFit × travelWeight`
+`match = temperatureFit × temperatureWeight + dryFit × dryWeight + reliability × reliabilityWeight + crowdFit × crowdWeight + travelFit × travelWeight`
 
-Fits are 0–1; integer weights always sum to 100. The app uses fixed weights of 40% temperature, 25% dry days, 10% crowds, and 25% travel.
+Fits are 0–1; integer weights always sum to 100. The app uses fixed weights of 32% temperature, 20% dry days, 13% weather reliability, 10% crowds, and 25% travel.
 
 - **Temperature:** historical fraction of daily highs inside the inclusive preferred range, using 0.1°C histogram bins.
 - **Dry:** historical fraction of days with less than 1 mm total precipitation (including snowfall water equivalent). Monthly rain volume is context only.
+- **Weather reliability:** estimated probability that at least half the usable stay is comfortable and dry. Historical temperature and rain are modeled independently within days and across days. Forecast dates use the predicted outcome. Partial travel days count by usable fraction, and trips with more than 90 full usable days use a normal approximation.
 - **Crowds:** 1 minus the original estimated seasonal crowd level plus dated event adjustments. No measured attendance claim.
 - **Travel:** estimated usable days divided by trip days. Boston flights use stored route durations, separate outbound/return paths, and explicit connection/transfer allowances. Other origins and incomplete Boston directions use the distance estimate. Driving, airport time, transfers and time-zone recovery remain estimates; schedules and bookable connections are not checked.
 

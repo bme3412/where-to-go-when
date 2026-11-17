@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
-import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, connectionFitPenalty, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
+import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, comfortableDryChance, connectionFitPenalty, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
 import { band, comfortableDryTime, destinationTime, displayedContributions, climateProvenance, rankingRouteLabel, scoreBreakdown } from './format';
 import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency, gridElevationMismatch, sharedGridHistory, climateResolutionLabel } from './climate';
 import { auditDestinations, auditRows, sourceCounts } from './audit';
@@ -234,11 +234,19 @@ describe('travel and scoring', () => {
     expect(fromLondon.breakdown.fits.travel).toBe(fromLondon.travel.factor);
   });
 
+  it('estimates the chance of enough comfortable, dry time with partial and forecast days', () => {
+    const periods = [{ days: 0.4, chance: 0.5 }, { days: 1, chance: 0.7 }, { days: 0.6, chance: 0.8 }];
+    expect(comfortableDryChance(periods, 1)).toBeCloseTo(0.7 + 0.3 * 0.5 * 0.8);
+    expect(comfortableDryChance([{ days: 1, chance: 1 }, { days: 1, chance: 0 }], 1)).toBe(1);
+    expect(comfortableDryChance([{ days: 1, chance: 1 }, { days: 1, chance: 0 }], 1.1)).toBe(0);
+    expect(comfortableDryChance([{ days: 100, chance: 0.5 }], 50)).toBeCloseTo(0.5);
+  });
+
   it('keeps long-haul destinations eligible on the Boston holiday trip', () => {
     const ranked = rankCities(results('2026-12-20', '2027-01-03'));
     expect(ranked.every(result => result.travel.usable > 0)).toBe(true);
     expect(ranked.every(result => result.comfortableDryDays >= 0 && result.comfortableDryDays <= result.travel.usable)).toBe(true);
-    expect(ranked.slice(0, 3).map(result => result.city.name)).toEqual(['Lima', 'Tenerife', 'Palolem']);
+    expect(ranked.slice(0, 3).map(result => result.city.name)).toEqual(['Lima', 'Tenerife', 'Miami']);
     const puertoVillamil = ranked.find(result => result.city.name === 'Puerto Villamil')!;
     expect(puertoVillamil.comfortableDryDays).toBeGreaterThan(ranked.find(result => result.city.name === 'Mexico City')!.comfortableDryDays);
     expect(puertoVillamil.rank).toBeGreaterThan(17);
@@ -496,7 +504,7 @@ describe('percentage priorities', () => {
 
 describe('personalized additive score', () => {
   const trip = { start: '2027-01-01', end: '2027-01-14' };
-  it('sums the four contributions exactly with no extra penalties or bonuses', () => {
+  it('sums all contributions exactly with no extra penalties or bonuses', () => {
     for (const result of results('2027-09-12', '2027-09-18')) {
       const b = result.breakdown;
       expect(Object.values(b.contributions).reduce((a, b) => a + b, 0)).toBeCloseTo(result.score, 10);
