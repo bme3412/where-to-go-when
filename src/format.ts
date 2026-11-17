@@ -2,7 +2,7 @@ import { FORECAST_SOURCE } from './forecast';
 import { destinationName, regionMetadata } from './regions';
 import type { CityClimate, CityScore, ClimateSource, Country, FlightJourney, FlightRoute, Travel, Unit, Weights, WeatherFlag } from './types';
 import { BOSTON_FLIGHTS } from './flights';
-import { DAY, minimumUsableStay, routeCoverageFactor, WEIGHT_KEYS } from './scoring';
+import { connectionFitPenalty, DAY, minimumUsableStay, routeCoverageFactor, WEIGHT_KEYS } from './scoring';
 import { WEATHER_SYMBOLS, weatherFlagLabel } from './weather';
 import { AGENCY_STATUS_LABELS, climateLabel, climateSourceKind, gridElevationMismatch, sharedGridHistory } from './climate';
 
@@ -183,12 +183,14 @@ export function scoreBreakdown(result: CityScore, unit: Unit): string {
   const stayRule = minimumStay ? ` Recommendations for these dates require at least ${minimumStay === 0.5 ? 'half a day' : 'one day'} at the destination.` : '';
   const coverageNote = coverage === 0 ? ' The travel factor gives no points when both directions use distance estimates.'
     : coverage < 1 ? ' The travel factor gives half credit when one direction uses a distance estimate.' : '';
+  const connectionPenalty = connectionFitPenalty(result.travel, result.tripDays);
+  const connectionNote = connectionPenalty > 0 ? ' Recorded connections also reduce the travel fit more on short trips.' : '';
   const weatherQuality = result.weatherDates.forecast.length ? 'Open-Meteo forecast for covered dates' : '';
   const components: { key: keyof Weights; label: string; quality: string; note: string }[] = [
     { key: 'weather', label: 'Temperature', quality: weatherQuality || sourceLabel(result.climate.sources.temperature), note: `${Math.round(b.fits.weather * 100)}% estimated daytime highs in your ${temperatureBound(b.temperatureRange.min, unit)}–${temperatureBound(b.temperatureRange.max, unit)} range.` },
     { key: 'dry', label: 'Dry days', quality: weatherQuality || sourceLabel(result.climate.sources.precipitation), note: `${Math.round(b.fits.dry * 100)}% estimated dry days, with less than 1 mm of precipitation.` },
     { key: 'crowds', label: 'Few crowds', quality: 'Estimated', note: `${crowdWord(result.crowd)}. Seasonal levels and listed event adjustments are assigned estimates, not measured visitor counts.${result.city.region ? ` Inherited from the ${result.city.region} regional estimate; local crowd differences are not measured.` : ''}` },
-    { key: 'travel', label: 'Short travel', quality: result.travel.basis === 'routes' ? 'Saved routes + estimated transfers' : result.travel.basis === 'mixed' ? 'Partial route coverage' : 'Estimated', note: `${result.travel.usable.toFixed(1)} of ${result.tripDays} days usable after modeled travel and time-zone recovery. ${result.travel.basis === 'routes' ? 'Uses saved BOS routes in both directions with connection and transfer allowances; schedules are unverified.' : result.travel.basis === 'mixed' ? 'One direction uses saved BOS routes; the other uses a distance estimate.' : result.travel.flights ? 'Route coverage is incomplete; the distance estimate is used.' : result.travel.mode === 'drive' ? 'Driving uses distance; roads and traffic are not checked.' : 'Routes and schedules are not checked.'}${coverageNote}${stayRule}` },
+    { key: 'travel', label: 'Short travel', quality: result.travel.basis === 'routes' ? 'Saved routes + estimated transfers' : result.travel.basis === 'mixed' ? 'Partial route coverage' : 'Estimated', note: `${result.travel.usable.toFixed(1)} of ${result.tripDays} days usable after modeled travel and time-zone recovery. ${result.travel.basis === 'routes' ? 'Uses saved BOS routes in both directions with connection and transfer allowances; schedules are unverified.' : result.travel.basis === 'mixed' ? 'One direction uses saved BOS routes; the other uses a distance estimate.' : result.travel.flights ? 'Route coverage is incomplete; the distance estimate is used.' : result.travel.mode === 'drive' ? 'Driving uses distance; roads and traffic are not checked.' : 'Routes and schedules are not checked.'}${coverageNote}${connectionNote}${stayRule}` },
   ];
   return `<section class="score-breakdown" aria-labelledby="breakdown-title">
     <div class="breakdown-heading"><h3 id="breakdown-title">Why this score?</h3><span>${result.score.toFixed(1)} / 100</span></div><p class="breakdown-intro"><strong>${comfortableDryTime(result.comfortableDryDays)}</strong> expected after travel. Your four priorities determine the recommendation order and match label.</p>

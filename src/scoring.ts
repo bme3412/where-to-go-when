@@ -147,6 +147,14 @@ export function routeCoverageFactor(journey: Travel): number {
   return journey.basis === 'mixed' ? 0.5 : 0;
 }
 
+/** Count the friction of a known connection separately from time spent traveling. */
+export function connectionFitPenalty(journey: Travel, tripDays: number): number {
+  const connections = [journey.flights?.outbound, journey.flights?.inbound]
+    .reduce((sum, direction) => sum + (direction?.totalMinutes == null ? 0 : Math.max(0, direction.route.legs.length - 1)), 0);
+  const shortTripWeight = clamp((14 - tripDays) / 11, 0, 1);
+  return connections * 1.5 / (TRAVEL_HOURS_PER_USABLE_DAY * tripDays) * shortTripWeight;
+}
+
 export function tripEvents(trip: Trip): TripEvent[] {
   const events: TripEvent[] = [];
   for (let year = Number(trip.start.slice(0, 4)) - 1; year <= Number(trip.end.slice(0, 4)); year++) events.push(...eventsForYear(year));
@@ -236,7 +244,7 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const usableTemperatureFit = journey.usable > 0 ? clamp(comfortableDays / journey.usable, 0, 1) : 0;
   const weatherMean = (values: number[]) => exactDates.length
     ? values.reduce((sum, value, index) => sum + value * widths[index], 0) / samples.tripDays : mean(values);
-  const fits: Weights = { weather: weatherMean(weatherFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: journey.factor * routeCoverageFactor(journey) };
+  const fits: Weights = { weather: weatherMean(weatherFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: Math.max(0, journey.factor - connectionFitPenalty(journey, samples.tripDays)) * routeCoverageFactor(journey) };
   const contributions = Object.fromEntries(WEIGHT_KEYS.map(key => [key, fits[key] * shares[key]])) as unknown as Weights;
   const score = WEIGHT_KEYS.reduce((sum, key) => sum + contributions[key], 0);
   const weatherFlags = weatherFlagsFor(city, climate, samples, { highs: historicalHighs, lows: historicalLows, wet: historicalWet });

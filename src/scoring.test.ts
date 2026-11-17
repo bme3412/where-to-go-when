@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { TZ } from './data/timezones';
-import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
+import { DAY, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, WEIGHT_KEYS, connectionFitPenalty, defaultTrip, easter, interp, matchesDestinationScope, normalizeWeights, rankCities, sampleDays, scoreCities, setWeight, thanksgiving, travel, tripEvents, validateTemperature, validateTrip } from './scoring';
 import { band, comfortableDryTime, destinationTime, displayedContributions, climateProvenance, rankingRouteLabel, scoreBreakdown } from './format';
 import { climateFor, climateLabel, climateSourceKind, CLIMATE_SOURCE, temperatureFrequency, wetDayFrequency, gridElevationMismatch, sharedGridHistory, climateResolutionLabel } from './climate';
 import { auditDestinations, auditRows, sourceCounts } from './audit';
@@ -209,6 +209,29 @@ describe('travel and scoring', () => {
     const fit = days.map(({ month }) => interp(highs, month) * (1 - interp(wet, month)));
     const expected = fit[0] * (1 - miami.travel.hours / 14) + fit[1] + fit[2] * (1 - miami.travel.returnHours / 14);
     expect(miami.comfortableDryDays).toBeCloseTo(expected, 10);
+  });
+
+  it('penalizes known connections on short trips and uses estimated duration when routes are missing', () => {
+    const trip = { start: '2026-12-18', end: '2026-12-20' };
+    const miami = destination('Miami');
+    const nonstop = travel(boston, miami, 3);
+    expect(connectionFitPenalty(nonstop, 3)).toBe(0);
+    const direction = nonstop.flights!.outbound!;
+    const withConnection = {
+      ...nonstop,
+      flights: {
+        ...nonstop.flights!,
+        outbound: { ...direction, route: { ...direction.route, legs: [...direction.route.legs, ...direction.route.legs] } },
+      },
+    };
+    expect(connectionFitPenalty(withConnection, 3)).toBeCloseTo(1.5 / (14 * 3));
+    expect(connectionFitPenalty(withConnection, 7)).toBeLessThan(connectionFitPenalty(withConnection, 3));
+    expect(connectionFitPenalty(withConnection, 14)).toBe(0);
+
+    const fromLondon = scoreCities(trip, london).find(result => result.city.name === 'Paris')!;
+    expect(fromLondon.travel.basis).toBe('distance');
+    expect(connectionFitPenalty(fromLondon.travel, 3)).toBe(0);
+    expect(fromLondon.breakdown.fits.travel).toBe(fromLondon.travel.factor);
   });
 
   it('keeps long-haul destinations eligible on the Boston holiday trip', () => {
