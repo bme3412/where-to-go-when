@@ -136,7 +136,23 @@ export const CITY_ROWS = [
 ["Medellín","Colombia",6.25,-75.56,[],[]],
 ["Quito","Ecuador",-0.22,-78.51,[],[]],
 ["Montevideo","Uruguay",-34.9,-56.16,[],[]],
-["Guadalajara","Mexico",20.67,-103.35,[],[]]
+["Guadalajara","Mexico",20.67,-103.35,[],[]],
+["Warsaw","Poland",52.23,21.01,[],[]],
+["Budapest","Hungary",47.5,19.04,[],[]],
+["Munich","Germany",48.14,11.58,[],[]],
+["Edinburgh","United Kingdom",55.95,-3.19,[],[]],
+["Kigali","Rwanda",-1.95,30.06,[],[]],
+["Kampala","Uganda",0.35,32.58,[],[]],
+["Luanda","Angola",-8.84,13.23,[],[]],
+["Amman","Jordan",31.95,35.93,[],[]],
+["Surabaya","Indonesia",-7.25,112.75,[],[]],
+["Hyderabad","India",17.39,78.49,[],[]],
+["Fukuoka","Japan",33.59,130.4,[],[]],
+["Brisbane","Australia",-27.47,153.03,[],[]],
+["Philadelphia","United States of America",39.95,-75.16,[],[]],
+["Atlanta","United States of America",33.75,-84.39,[],[]],
+["Montréal","Canada",45.5,-73.57,[],[]],
+["San Salvador","El Salvador",13.69,-89.22,[],[]]
 ] as const satisfies readonly CityRow[];
 
 export const CITIES: readonly City[] = CITY_ROWS.map(([name, country, lat, lon, peak, shoulder]) => ({name, country, lat, lon, peak, shoulder, tz: TZ[name], ...regionMetadata(name)}));

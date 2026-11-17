@@ -4,6 +4,7 @@ import type { CITY_ROWS } from './cities';
 const flags: Readonly<Record<string, string>> = {
   Nigeria: '🇳🇬', "Côte d'Ivoire": '🇨🇮', Algeria: '🇩🇿', Tunisia: '🇹🇳', Philippines: '🇵🇭', Panama: '🇵🇦', Uruguay: '🇺🇾',
   Kenya: '🇰🇪', Ethiopia: '🇪🇹', Ghana: '🇬🇭', Senegal: '🇸🇳', Oman: '🇴🇲', Qatar: '🇶🇦',
+  Poland: '🇵🇱', Hungary: '🇭🇺', Rwanda: '🇷🇼', Uganda: '🇺🇬', Angola: '🇦🇴', 'El Salvador': '🇸🇻',
   Austria: '🇦🇹', Belgium: '🇧🇪', Germany: '🇩🇪', Ireland: '🇮🇪', Sweden: '🇸🇪', Malaysia: '🇲🇾', Taiwan: '🇹🇼',
   Argentina: '🇦🇷', Aruba: '🇦🇼', Australia: '🇦🇺', Brazil: '🇧🇷', Cambodia: '🇰🇭', Canada: '🇨🇦',
   Chile: '🇨🇱', China: '🇨🇳', Colombia: '🇨🇴', 'Costa Rica': '🇨🇷', Croatia: '🇭🇷', Cuba: '🇨🇺',
@@ -154,6 +155,22 @@ const localActivities = {
   Quito: ['Walk between the plazas in Quito’s historic center on a clear morning.', 'Visit the Casa del Alabado museum.'],
   Montevideo: ['Walk a stretch of the Rambla along the Río de la Plata.', 'Have lunch under cover at Mercado del Puerto.'],
   Guadalajara: ['Walk between the plazas around Guadalajara Cathedral.', 'Visit the indoor murals at Hospicio Cabañas.'],
+  Warsaw: ['Walk through Łazienki Park and its palace grounds.', 'Explore the galleries at the National Museum in Warsaw.'],
+  Budapest: ['Walk the Danube embankment and cross the Chain Bridge.', 'Explore the collections at the Hungarian National Gallery.'],
+  Munich: ['Walk the shaded paths of the Englischer Garten.', 'Spend a cooler or rainy afternoon at the Deutsches Museum.'],
+  Edinburgh: ['Walk up Calton Hill when visibility is clear.', 'Explore the galleries at the National Museum of Scotland.'],
+  Kigali: ['Explore the streets and cafés of Kimihurura on a dry morning.', 'Visit the galleries at Inema Arts Center.'],
+  Kampala: ['Explore the streets of Mengo in the cooler morning hours.', 'Stop for a Ugandan meal under cover during the wetter part of the day.'],
+  Luanda: ['Walk the Marginal waterfront before the afternoon heat.', 'Explore the indoor exhibits at the National Museum of Slavery outside central Luanda.'],
+  Amman: ['Visit the Citadel early, then walk down toward the Roman Theatre.', 'Spend the hotter or wetter part of the day at the Jordan Museum.'],
+  Surabaya: ['Walk through Surabaya’s old town early in the morning.', 'Try East Javanese food at a covered market stall.'],
+  Hyderabad: ['See Charminar and stroll through the surrounding lanes early.', 'Explore the collections at the Salar Jung Museum.'],
+  Fukuoka: ['Walk the lakeside path in Ōhori Park.', 'Browse the galleries at Fukuoka Asian Art Museum.'],
+  Brisbane: ['Walk the South Bank riverfront before the afternoon heat.', 'Browse the galleries at Queensland Art Gallery and GOMA.'],
+  Philadelphia: ['Walk through Old City and around Independence Mall.', 'Spend a cold or rainy afternoon at the Philadelphia Museum of Art.'],
+  Atlanta: ['Walk the Eastside Trail of the Beltline in the morning.', 'Browse the galleries at the High Museum of Art.'],
+  Montréal: ['Walk along the Old Port and through the streets of Old Montréal.', 'Visit the Montréal Museum of Fine Arts.'],
+  'San Salvador': ['Walk between the plazas in the historic center on a dry morning.', 'Visit the National Museum of Anthropology.'],
 } satisfies Record<(typeof CITY_ROWS)[number][0], ActivityPair>;
 
 const activities: Readonly<Partial<Record<string, ActivityPair>>> = localActivities;

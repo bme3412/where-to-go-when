@@ -1,10 +1,10 @@
 {
-  "auditedAt": "2026-11-17T19:43:35.020661+00:00",
+  "auditedAt": "2026-11-17T19:48:01.328399+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 134 reference points, all 134 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 150 reference points, all 150 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 1059,
+    "sourceFingerprints": 1091,
     "dailyGridFingerprints": true,
     "monthDenominators": true,
     "histogramCounts": true,
@@ -15,9 +15,9 @@
     "agencyReviewCompleteness": true
   },
   "destinationCounts": {
-    "station": 37,
-    "grid": 89,
-    "mixed": 8
+    "station": 42,
+    "grid": 99,
+    "mixed": 9
   },
   "additions": [
     {
@@ -270,6 +270,70 @@
     },
     {
       "name": "Guadalajara",
+      "source": "grid"
+    },
+    {
+      "name": "Warsaw",
+      "source": "grid"
+    },
+    {
+      "name": "Budapest",
+      "source": "station"
+    },
+    {
+      "name": "Munich",
+      "source": "station"
+    },
+    {
+      "name": "Edinburgh",
+      "source": "mixed"
+    },
+    {
+      "name": "Kigali",
+      "source": "grid"
+    },
+    {
+      "name": "Kampala",
+      "source": "grid"
+    },
+    {
+      "name": "Luanda",
+      "source": "grid"
+    },
+    {
+      "name": "Amman",
+      "source": "grid"
+    },
+    {
+      "name": "Surabaya",
+      "source": "grid"
+    },
+    {
+      "name": "Hyderabad",
+      "source": "grid"
+    },
+    {
+      "name": "Fukuoka",
+      "source": "grid"
+    },
+    {
+      "name": "Brisbane",
+      "source": "station"
+    },
+    {
+      "name": "Philadelphia",
+      "source": "station"
+    },
+    {
+      "name": "Atlanta",
+      "source": "station"
+    },
+    {
+      "name": "Montréal",
+      "source": "grid"
+    },
+    {
+      "name": "San Salvador",
       "source": "grid"
     }
   ],
@@ -694,7 +758,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 134 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 150 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -3518,6 +3582,342 @@
       "name": "Guadalajara",
       "kind": "grid",
       "reference": "Guadalajara",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Warsaw",
+      "kind": "grid",
+      "reference": "Warsaw",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Budapest",
+      "kind": "station",
+      "reference": "Budapest",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BUDAPEST",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "BUDAPEST",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Munich",
+      "kind": "station",
+      "reference": "Munich",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "MUNCHEN-NYMPHENBURG",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "MUNCHEN-NYMPHENBURG",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Edinburgh",
+      "kind": "mixed",
+      "reference": "Edinburgh",
+      "factors": {
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "EDINBURGH: ROYAL BOTANIC GARDE",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Kigali",
+      "kind": "grid",
+      "reference": "Kigali",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Kampala",
+      "kind": "grid",
+      "reference": "Kampala",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Luanda",
+      "kind": "grid",
+      "reference": "Luanda",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Amman",
+      "kind": "grid",
+      "reference": "Amman",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Surabaya",
+      "kind": "grid",
+      "reference": "Surabaya",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Hyderabad",
+      "kind": "grid",
+      "reference": "Hyderabad",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Fukuoka",
+      "kind": "grid",
+      "reference": "Fukuoka",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Brisbane",
+      "kind": "station",
+      "reference": "Brisbane",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "ARCHERFIELD AIRPORT",
+          "acceptedDays": 9924,
+          "minimumMonthlyCoverage": 0.8226
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "ARCHERFIELD AIRPORT",
+          "acceptedDays": 9786,
+          "minimumMonthlyCoverage": 0.8602
+        }
+      }
+    },
+    {
+      "name": "Philadelphia",
+      "kind": "station",
+      "reference": "Philadelphia",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "PHILA INTL AP",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "PHILA INTL AP",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Atlanta",
+      "kind": "station",
+      "reference": "Atlanta",
+      "factors": {
+        "temperature": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "ATLANTA HARTSFIELD-JACKSON INT",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "station",
+          "provider": "NOAA GHCN-Daily",
+          "station": "ATLANTA HARTSFIELD-JACKSON INT",
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Montréal",
+      "kind": "grid",
+      "reference": "Montréal",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "San Salvador",
+      "kind": "grid",
+      "reference": "San Salvador",
       "factors": {
         "temperature": {
           "kind": "grid",

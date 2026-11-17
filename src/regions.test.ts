@@ -23,7 +23,7 @@ describe('destination region filtering', () => {
   it('ranks only European destinations, including unserved destinations, for different dates', () => {
     const expected = ['Paris', 'London', 'Rome', 'Barcelona', 'Seville', 'Lisbon', 'Athens', 'Santorini',
       'Dubrovnik', 'Amsterdam', 'Prague', 'Copenhagen', 'Interlaken', 'Reykjavik', 'Istanbul',
-      'Berlin', 'Brussels', 'Dublin', 'Frankfurt', 'Madrid', 'Milan', 'Stockholm', 'Vienna'].sort();
+      'Berlin', 'Brussels', 'Dublin', 'Frankfurt', 'Madrid', 'Milan', 'Stockholm', 'Vienna', 'Warsaw', 'Budapest', 'Munich', 'Edinburgh'].sort();
     for (const trip of [{ start: '2027-01-01', end: '2027-01-07' }, { start: '2027-07-01', end: '2027-07-07' }]) {
       const ranked = rankCities(scoreCities(trip, boston)
         .filter(result => matchesDestinationRegion(result.city, 'europe')));
@@ -49,7 +49,7 @@ describe('destination region filtering', () => {
       .filter(result => matchesDestinationRegion(result.city, 'europe'));
     const maps = nonstopFlightMaps(scores);
     expect(maps.map(map => map.airports.at(-1)!.code).sort())
-      .toEqual(['AMS', 'ATH', 'BCN', 'CDG', 'CPH', 'DUB', 'FCO', 'FRA', 'IST', 'KEF', 'LHR', 'LIS', 'MAD', 'MXP', 'VIE', 'ZRH']);
+      .toEqual(['AMS', 'ATH', 'BCN', 'CDG', 'CPH', 'DUB', 'EDI', 'FCO', 'FRA', 'IST', 'KEF', 'LHR', 'LIS', 'MAD', 'MUC', 'MXP', 'VIE', 'ZRH']);
     expect(maps.every(map => map.destinations.every(destination => matchesDestinationRegion(destination, 'europe')))).toBe(true);
     expect(maps.find(map => map.label === 'BOS → ZRH')!.destinations.map(destination => destination.name)).toEqual(['Interlaken']);
   });
