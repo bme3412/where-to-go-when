@@ -275,6 +275,34 @@ describe('travel and scoring', () => {
     }
   });
 
+  it.each([
+    [{ start: '2026-12-18', end: '2026-12-20' }, 'Mexico City', 480, 2],
+    [{ start: '2026-12-20', end: '2027-01-03' }, 'Tenerife', 1380, 17],
+  ] as const)('uses complete costs and preserves unpriced scores for %j', (trip, first, mexicoTotal, miamiRank) => {
+    const prices = new Map([
+      ['Miami', { airfare: 380, nightlyLodging: 225 }],
+      ['Mexico City', { airfare: 330, nightlyLodging: 75 }],
+      ['Lima', { airfare: 620, nightlyLodging: 85 }],
+      ['Guadalajara', { airfare: 320 }],
+    ]);
+    const baseline = scoreCities(trip, boston);
+    const ranked = rankCities(scoreCities(trip, boston, undefined, undefined, false, undefined, prices));
+    expect(ranked[0].city.name).toBe(first);
+    expect(ranked.find(result => result.city.name === 'Miami')?.rank).toBe(miamiRank);
+    const mexico = ranked.find(result => result.city.name === 'Mexico City')!;
+    expect(mexico.tripCost?.total).toBe(mexicoTotal);
+    expect(mexico.breakdown.weights.cost).toBe(10);
+    expect(Object.values(mexico.breakdown.weights).reduce((sum, weight) => sum + weight, 0)).toBeCloseTo(100);
+    expect(scoreBreakdown(mexico, 'F')).toContain('Your estimate · USD');
+    for (const name of ['Guadalajara', 'Aruba']) {
+      const original = baseline.find(result => result.city.name === name)!;
+      const result = ranked.find(result => result.city.name === name)!;
+      expect(result.score).toBe(original.score);
+      expect(result.breakdown).toEqual(original.breakdown);
+      expect(result.tripCost).toBeUndefined();
+    }
+  });
+
   it('requires half a modeled day at the destination for a same-day trip', () => {
     const ranked = rankCities(results('2026-12-20', '2026-12-20'));
     expect(ranked.map(result => result.city.name)).toEqual(['Cape Cod']);

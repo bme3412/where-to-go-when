@@ -57,7 +57,9 @@ export interface CityClimate {
   referenceLabel?: string; referenceUrl?: string; referenceNote?: string;
   agencyReview?: AgencyReview;
 }
-export type ScoreFactors = Weights & { reliability: number };
+export interface TripPriceEstimate { airfare?: number; nightlyLodging?: number }
+export interface PricedTrip { airfare: number; nightlyLodging: number; nights: number; total: number }
+export type ScoreFactors = Weights & { reliability: number; cost: number };
 export interface ScoreBreakdown {
   fits: ScoreFactors;
   contributions: ScoreFactors;
@@ -78,7 +80,7 @@ export interface WeatherPeriod {
   rain: { source: 'forecast'; millimeters: number } | { source: 'historical'; wetFrequency: number };
   comfortableDryDays: number;
 }
-export interface CityScore { weatherPeriods: WeatherPeriod[]; weatherDates: { start: string; end: string; forecast: string[] }; city: City; climate: CityClimate; score: number; comfortableDryDays: number; weatherReliability: { targetDays: number; chance: number }; usableTemperatureFit: number; temperatureComfort: { daytimeFit: number; apparentDays: number }; high: number; low: number; homeHigh: number; rain: number; wetFrequency: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[]; weatherFlags: WeatherFlag[] }
+export interface CityScore { tripCost?: PricedTrip; weatherPeriods: WeatherPeriod[]; weatherDates: { start: string; end: string; forecast: string[] }; city: City; climate: CityClimate; score: number; comfortableDryDays: number; weatherReliability: { targetDays: number; chance: number }; usableTemperatureFit: number; temperatureComfort: { daytimeFit: number; apparentDays: number }; high: number; low: number; homeHigh: number; rain: number; wetFrequency: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[]; weatherFlags: WeatherFlag[] }
 export type RankedCity = CityScore & { rank: number };
 export interface Country { name: string; lat: number; lon: number }
 export interface TripEvent { cities: ReadonlySet<string>; start: number; end: number; crowd: number; name: string; festival: boolean }

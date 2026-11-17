@@ -5,7 +5,7 @@ import { eventsForYear } from './data/events';
 import { weatherFlagsFor } from './weather';
 import { climateFor, temperatureFrequency, wetDayFrequency } from './climate';
 import { bostonTrip } from './flights';
-import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, ScoreFactors, TemperatureRange, Travel, Trip, TripEvent, WeatherPeriod, Weights } from './types';
+import type { City, CityScore, Dealbreaker, DestinationScope, Origin, Place, RankedCity, SampledTrip, ScoreFactors, TemperatureRange, Travel, Trip, TripEvent, TripPriceEstimate, WeatherPeriod, Weights } from './types';
 
 export { easter, thanksgiving, eventsForYear } from './data/events';
 export const DAY = 86_400_000;
@@ -13,7 +13,8 @@ export const TRAVEL_HOURS_PER_USABLE_DAY = 14;
 export const DEFAULT_WEIGHTS: Readonly<Weights> = { weather: 40, dry: 25, crowds: 10, travel: 25 };
 export const DEFAULT_TEMPERATURE: Readonly<TemperatureRange> = { min: 20, max: 30 };
 export const WEIGHT_KEYS = ['weather', 'dry', 'crowds', 'travel'] as const;
-export const SCORE_KEYS = ['weather', 'dry', 'reliability', 'crowds', 'travel'] as const;
+const BASE_SCORE_KEYS = ['weather', 'dry', 'reliability', 'crowds', 'travel'] as const;
+export const SCORE_KEYS = [...BASE_SCORE_KEYS, 'cost'] as const;
 export const clamp = (value: number, low: number, high: number): number => Math.max(low, Math.min(high, value));
 const mean = (values: readonly number[]): number => values.reduce((sum, value) => sum + value, 0) / values.length;
 const mod = (value: number, divisor: number): number => ((value % divisor) + divisor) % divisor;
@@ -210,7 +211,7 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const base = normalizeWeights(weights);
   const move = base.weather && base.dry ? 0.2 : 0;
   const shares: ScoreFactors = {
-    ...base, weather: base.weather * (1 - move), dry: base.dry * (1 - move),
+    ...base, cost: 0, weather: base.weather * (1 - move), dry: base.dry * (1 - move),
     reliability: (base.weather + base.dry) * move,
   };
   const climate = climateFor(city.name), homeClimate = climateFor(home.name);
@@ -314,7 +315,7 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
     ? values.reduce((sum, value, index) => sum + value * widths[index], 0) / samples.tripDays : mean(values);
   const targetDays = journey.usable / 2;
   const weatherReliability = { targetDays, chance: comfortableDryChance(reliabilityPeriods, targetDays) };
-  const fits: ScoreFactors = { reliability: weatherReliability.chance, weather: weatherMean(comfortFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: Math.max(0, journey.factor - connectionFitPenalty(journey, samples.tripDays)) * routeCoverageFactor(journey) };
+  const fits: ScoreFactors = { cost: 0, reliability: weatherReliability.chance, weather: weatherMean(comfortFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: Math.max(0, journey.factor - connectionFitPenalty(journey, samples.tripDays)) * routeCoverageFactor(journey) };
   const contributions = Object.fromEntries(SCORE_KEYS.map(key => [key, fits[key] * shares[key]])) as unknown as ScoreFactors;
   const score = SCORE_KEYS.reduce((sum, key) => sum + contributions[key], 0);
   const weatherFlags = weatherFlagsFor(city, climate, samples, { highs: historicalHighs, lows: historicalLows, wet: historicalWet });
@@ -333,9 +334,38 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   };
 }
 
-export function scoreCities(trip: Trip, home: Origin, weights: Weights = DEFAULT_WEIGHTS, temperatureRange: TemperatureRange = DEFAULT_TEMPERATURE, nonstopOnly = false, forecasts?: Forecasts): CityScore[] {
+/** Use an optional USD estimate for one traveler. Unpriced trips retain the original score. */
+function applyTripCost(result: CityScore, estimate?: TripPriceEstimate): CityScore {
+  const nights = result.tripDays - 1;
+  const airfare = estimate?.airfare;
+  const nightlyLodging = nights === 0 ? 0 : estimate?.nightlyLodging;
+  if (airfare === undefined || nightlyLodging === undefined || !Number.isFinite(airfare)
+    || !Number.isFinite(nightlyLodging) || airfare < 0 || nightlyLodging < 0) return result;
+  const total = airfare + nights * nightlyLodging;
+  if (!Number.isFinite(total)) return result;
+  const low = 250 + nights * 75, high = 1200 + nights * 250;
+  const cost = clamp((high - total) / (high - low), 0, 1);
+  const { breakdown } = result;
+  const weights = { ...breakdown.weights, cost: 10 };
+  const contributions = { ...breakdown.contributions, cost: cost * weights.cost };
+  for (const key of BASE_SCORE_KEYS) {
+    weights[key] *= 0.9;
+    contributions[key] = breakdown.fits[key] * weights[key];
+  }
+  return {
+    ...result,
+    tripCost: { airfare, nightlyLodging, nights, total },
+    score: SCORE_KEYS.reduce((sum, key) => sum + contributions[key], 0),
+    breakdown: { ...breakdown, weights, contributions, fits: { ...breakdown.fits, cost } },
+  };
+}
+
+export function scoreCities(trip: Trip, home: Origin, weights: Weights = DEFAULT_WEIGHTS, temperatureRange: TemperatureRange = DEFAULT_TEMPERATURE, nonstopOnly = false, forecasts?: Forecasts, prices?: ReadonlyMap<string, TripPriceEstimate>): CityScore[] {
   const samples = sampleDays(trip), events = tripEvents(trip);
-  return CITIES.map(city => scoreCity(city, home, samples, weights, events, temperatureRange, nonstopOnly, forecasts?.get(city.name), forecasts?.get(home.name)));
+  return CITIES.map(city => {
+    const result = scoreCity(city, home, samples, weights, events, temperatureRange, nonstopOnly, forecasts?.get(city.name), forecasts?.get(home.name));
+    return applyTripCost(result, prices?.get(city.name));
+  });
 }
 
 export function minimumUsableStay(tripDays: number): number {
