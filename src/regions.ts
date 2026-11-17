@@ -20,15 +20,15 @@ const COUNTRY_REGIONS: Readonly<Record<string, DestinationRegionId>> = {
   Finland: 'europe', Norway: 'europe', Luxembourg: 'europe', Romania: 'europe', Bulgaria: 'europe', Serbia: 'europe', Poland: 'europe', Hungary: 'europe', Austria: 'europe', Belgium: 'europe', Germany: 'europe', Ireland: 'europe', Sweden: 'europe',
   Czechia: 'europe', Denmark: 'europe', Switzerland: 'europe', Iceland: 'europe',
   'United States of America': 'north-america', Canada: 'north-america', Mexico: 'north-america',
-  'El Salvador': 'central-america', Honduras: 'central-america', Panama: 'central-america', 'Costa Rica': 'central-america', Cuba: 'central-america', 'Puerto Rico': 'central-america', Aruba: 'central-america',
+  'El Salvador': 'central-america', Jamaica: 'central-america', 'Dominican Republic': 'central-america', Honduras: 'central-america', Panama: 'central-america', 'Costa Rica': 'central-america', Cuba: 'central-america', 'Puerto Rico': 'central-america', Aruba: 'central-america',
   Colombia: 'south-america', Ecuador: 'south-america', Peru: 'south-america', Brazil: 'south-america',
-  Argentina: 'south-america', Uruguay: 'south-america', Chile: 'south-america',
+  Paraguay: 'south-america', Argentina: 'south-america', Uruguay: 'south-america', Chile: 'south-america',
   Nigeria: 'africa', "Côte d'Ivoire": 'africa', Algeria: 'africa', Tunisia: 'africa',
   Zambia: 'africa', Mauritania: 'africa', Gambia: 'africa', Namibia: 'africa', Botswana: 'africa', Mozambique: 'africa', Madagascar: 'africa', Rwanda: 'africa', Uganda: 'africa', Angola: 'africa', Kenya: 'africa', Ethiopia: 'africa', Ghana: 'africa', Senegal: 'africa', Morocco: 'africa', Egypt: 'africa', 'South Africa': 'africa', Tanzania: 'africa', Zimbabwe: 'africa', Mauritius: 'africa',
   Georgia: 'asia', Armenia: 'asia', Kazakhstan: 'asia', Uzbekistan: 'asia',
   Philippines: 'asia', Malaysia: 'asia', Taiwan: 'asia', Japan: 'asia', 'South Korea': 'asia', China: 'asia', Thailand: 'asia', Vietnam: 'asia', Cambodia: 'asia',
   Indonesia: 'asia', Singapore: 'asia', Maldives: 'asia', India: 'asia', Nepal: 'asia', 'Sri Lanka': 'asia',
-  Kuwait: 'middle-east', Bahrain: 'middle-east', Oman: 'middle-east', Qatar: 'middle-east', Turkey: 'middle-east', Jordan: 'middle-east', 'United Arab Emirates': 'middle-east',
+  'Saudi Arabia': 'middle-east', Kuwait: 'middle-east', Bahrain: 'middle-east', Oman: 'middle-east', Qatar: 'middle-east', Turkey: 'middle-east', Jordan: 'middle-east', 'United Arab Emirates': 'middle-east',
   Australia: 'oceania', 'New Zealand': 'oceania', Fiji: 'oceania',
 };
 // Group overseas locations by their location, while domestic/global scope still uses country.

@@ -1095,5 +1095,85 @@
     "name": "Portland, Oregon",
     "lat": 45.52,
     "lon": -122.68
+  },
+  {
+    "name": "Glasgow",
+    "lat": 55.86,
+    "lon": -4.25
+  },
+  {
+    "name": "Manchester",
+    "lat": 53.48,
+    "lon": -2.24
+  },
+  {
+    "name": "Naples",
+    "lat": 40.85,
+    "lon": 14.27
+  },
+  {
+    "name": "Palermo",
+    "lat": 38.12,
+    "lon": 13.36
+  },
+  {
+    "name": "Sendai",
+    "lat": 38.27,
+    "lon": 140.87
+  },
+  {
+    "name": "Nagoya",
+    "lat": 35.18,
+    "lon": 136.91
+  },
+  {
+    "name": "Shenzhen",
+    "lat": 22.54,
+    "lon": 114.06
+  },
+  {
+    "name": "Cebu City",
+    "lat": 10.32,
+    "lon": 123.89
+  },
+  {
+    "name": "Salalah",
+    "lat": 17.02,
+    "lon": 54.09
+  },
+  {
+    "name": "Jeddah",
+    "lat": 21.49,
+    "lon": 39.19
+  },
+  {
+    "name": "Riyadh",
+    "lat": 24.71,
+    "lon": 46.68
+  },
+  {
+    "name": "Tangier",
+    "lat": 35.76,
+    "lon": -5.83
+  },
+  {
+    "name": "Santo Domingo",
+    "lat": 18.49,
+    "lon": -69.93
+  },
+  {
+    "name": "Kingston",
+    "lat": 18.0,
+    "lon": -76.79
+  },
+  {
+    "name": "Barranquilla",
+    "lat": 10.98,
+    "lon": -74.8
+  },
+  {
+    "name": "Asunción",
+    "lat": -25.28,
+    "lon": -57.63
   }
 ]
