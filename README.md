@@ -191,3 +191,5 @@ The Site build produces `dist/server/index.js`, which serves both the frontend a
 For catalog destinations with an airport mapping, use **Check round-trip airfare** in destination details. The search uses one mapped airport in each city, selected dates, one economy traveler, and USD. Results show the cheapest and fastest eligible journeys returned by the search. The nonstop option excludes connections and technical stops in both directions. **Use fare** applies the selected airfare estimate to the existing cost score. It does not book travel or update the modeled journey time. Overnight arrivals can affect the actual lodging dates.
 
 Set `NUITEE_FLIGHTS_ENABLED=true` on the Sites Worker only after confirming flight access and terms for the server-side `NUITEE_API_KEY`. Fare searches are on demand and results are not cached across sessions.
+
+On Vercel, the root `api/` functions use the same handlers. Set `NUITEE_API_KEY` in the Production environment and set `NUITEE_FLIGHTS_ENABLED=true` for a flight-enabled key. Vercel builds the Vite frontend and the two functions separately.
