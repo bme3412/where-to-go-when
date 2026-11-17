@@ -2,6 +2,7 @@ import type { CityScore } from '../types';
 import type { CITY_ROWS } from './cities';
 
 const flags: Readonly<Record<string, string>> = {
+  Nigeria: '🇳🇬', "Côte d'Ivoire": '🇨🇮', Algeria: '🇩🇿', Tunisia: '🇹🇳', Philippines: '🇵🇭', Panama: '🇵🇦', Uruguay: '🇺🇾',
   Kenya: '🇰🇪', Ethiopia: '🇪🇹', Ghana: '🇬🇭', Senegal: '🇸🇳', Oman: '🇴🇲', Qatar: '🇶🇦',
   Austria: '🇦🇹', Belgium: '🇧🇪', Germany: '🇩🇪', Ireland: '🇮🇪', Sweden: '🇸🇪', Malaysia: '🇲🇾', Taiwan: '🇹🇼',
   Argentina: '🇦🇷', Aruba: '🇦🇼', Australia: '🇦🇺', Brazil: '🇧🇷', Cambodia: '🇰🇭', Canada: '🇨🇦',
@@ -138,6 +139,21 @@ const localActivities = {
   Lima: ['Walk the clifftop paths of the Miraflores malecón.', 'See the collections at the Larco Museum.'],
   'Ho Chi Minh City': ['Walk the streets around the Central Post Office early in the morning.', 'Spend a hot or rainy afternoon at the Ho Chi Minh City Museum of Fine Arts.'],
   Osaka: ['Walk the park around Osaka Castle on a clear morning.', 'Visit the indoor exhibits at Osaka Aquarium Kaiyukan.'],
+  Lagos: ['Walk the Lekki Conservation Centre boardwalk when conditions are dry.', 'Browse the galleries at the Nike Art Gallery.'],
+  Abidjan: ['Walk shaded paths in Banco National Park on a clear morning.', 'Explore the covered stalls of an Abidjan market.'],
+  Algiers: ['Walk the paths of the Jardin d’Essai du Hamma.', 'Visit the National Museum of Fine Arts.'],
+  Tunis: ['Walk the lanes of the medina before the afternoon heat.', 'Spend an afternoon seeing the mosaics at the Bardo Museum.'],
+  'Dar es Salaam': ['Walk the waterfront in the cooler morning hours.', 'Visit the National Museum in the city center.'],
+  Bengaluru: ['Walk the shaded paths of Cubbon Park in the morning.', 'Browse the galleries of the Museum of Art and Photography.'],
+  Manila: ['Walk the streets and walls of Intramuros before midday.', 'Visit the indoor galleries of the National Museum of Fine Arts.'],
+  Jakarta: ['Explore the streets around Fatahillah Square early in the day.', 'Visit the Jakarta History Museum in Kota Tua.'],
+  Chengdu: ['Walk through People’s Park and stop for tea.', 'Explore the Chengdu Museum near Tianfu Square.'],
+  Busan: ['Walk along Gwangalli Beach for views of the bridge.', 'Browse the covered fish market at Jagalchi.'],
+  'Panama City': ['Walk the waterfront paths of the Cinta Costera in the morning.', 'Explore the exhibits at the Biomuseo.'],
+  Medellín: ['Walk through Medellín’s botanical garden on a dry morning.', 'Browse the galleries at the Museo de Antioquia.'],
+  Quito: ['Walk between the plazas in Quito’s historic center on a clear morning.', 'Visit the Casa del Alabado museum.'],
+  Montevideo: ['Walk a stretch of the Rambla along the Río de la Plata.', 'Have lunch under cover at Mercado del Puerto.'],
+  Guadalajara: ['Walk between the plazas around Guadalajara Cathedral.', 'Visit the indoor murals at Hospicio Cabañas.'],
 } satisfies Record<(typeof CITY_ROWS)[number][0], ActivityPair>;
 
 const activities: Readonly<Partial<Record<string, ActivityPair>>> = localActivities;

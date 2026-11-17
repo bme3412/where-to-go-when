@@ -71,7 +71,7 @@ describe('flight paths on the globe', () => {
 
   it('shows every covered nonstop flight together with all endpoints on the visible hemisphere', () => {
     const maps = nonstopFlightMaps(CITIES.map(city => ({ city, travel: travel(boston, city, 7, true) })));
-    expect(maps).toHaveLength(44);
+    expect(maps).toHaveLength(45);
     const airports = [...new Map(maps.flatMap(map => map.airports.map(airport => [airport.code, airport] as const))).values()];
     const [lon, lat] = flightMapCenter({ airports });
     const projection = geoOrthographic().rotate([-lon, -lat]).clipAngle(90);

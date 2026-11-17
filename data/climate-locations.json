@@ -700,5 +700,80 @@
     "name": "Osaka",
     "lat": 34.69,
     "lon": 135.5
+  },
+  {
+    "name": "Lagos",
+    "lat": 6.52,
+    "lon": 3.38
+  },
+  {
+    "name": "Abidjan",
+    "lat": 5.35,
+    "lon": -4.03
+  },
+  {
+    "name": "Algiers",
+    "lat": 36.75,
+    "lon": 3.05
+  },
+  {
+    "name": "Tunis",
+    "lat": 36.81,
+    "lon": 10.18
+  },
+  {
+    "name": "Dar es Salaam",
+    "lat": -6.8,
+    "lon": 39.28
+  },
+  {
+    "name": "Bengaluru",
+    "lat": 12.97,
+    "lon": 77.59
+  },
+  {
+    "name": "Manila",
+    "lat": 14.6,
+    "lon": 120.98
+  },
+  {
+    "name": "Jakarta",
+    "lat": -6.18,
+    "lon": 106.83
+  },
+  {
+    "name": "Chengdu",
+    "lat": 30.57,
+    "lon": 104.07
+  },
+  {
+    "name": "Busan",
+    "lat": 35.18,
+    "lon": 129.08
+  },
+  {
+    "name": "Panama City",
+    "lat": 8.98,
+    "lon": -79.52
+  },
+  {
+    "name": "Medellín",
+    "lat": 6.25,
+    "lon": -75.56
+  },
+  {
+    "name": "Quito",
+    "lat": -0.22,
+    "lon": -78.51
+  },
+  {
+    "name": "Montevideo",
+    "lat": -34.9,
+    "lon": -56.16
+  },
+  {
+    "name": "Guadalajara",
+    "lat": 20.67,
+    "lon": -103.35
   }
 ]
