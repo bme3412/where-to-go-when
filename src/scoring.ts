@@ -225,7 +225,8 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
   const crowds = Array.from({ length: 12 }, (_, month) => city.peak.includes(month + 1) ? 0.8 : city.shoulder.includes(month + 1) || !hasCrowdSeasons ? 0.5 : 0.2);
   const eventNames = new Set<string>();
   const dealbreakers = new Set<Dealbreaker>();
-  const highs: number[] = [], lows: number[] = [], homeHighs: number[] = [], rains: number[] = [], crowdLevels: number[] = [], wetLevels: number[] = [], weatherFits: number[] = [];
+  const highs: number[] = [], lows: number[] = [], homeHighs: number[] = [], rains: number[] = [], crowdLevels: number[] = [], wetLevels: number[] = [], weatherFits: number[] = [], comfortFits: number[] = [];
+  let apparentDays = 0;
   const start = samples.days[0].timestamp, end = start + (samples.tripDays - 1) * DAY;
   const forecastDates = [...(forecast?.keys() ?? [])].filter(day => day >= start && day <= end).sort((a, b) => a - b);
   const originDates = [...(homeForecast?.keys() ?? [])].filter(day => day >= start && day <= end);
@@ -244,7 +245,14 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
     const high = forecastDay?.high ?? historicalHigh;
     const rain = interp(monthlyRain, month);
     const homeHigh = homeForecast?.get(timestamp)?.high ?? interp(monthlyHome, month);
-    const fit = forecastDay ? Number(high >= temperatureRange.min - 1e-8 && high <= temperatureRange.max + 1e-8) : interp(monthlyFits, month);
+    const apparentHigh = forecastDay?.apparentHigh;
+    if (apparentHigh !== undefined) apparentDays++;
+    const daytimeHigh = apparentHigh ?? high;
+    const fit = forecastDay ? Number(daytimeHigh >= temperatureRange.min - 1e-8 && daytimeHigh <= temperatureRange.max + 1e-8) : interp(monthlyFits, month);
+    const low = forecastDay?.low ?? historicalLow;
+    // Warm nights reduce temperature points gradually. Keep the daytime estimate separate.
+    const nightHeat = clamp((low - 20) / 6, 0, 1);
+    comfortFits.push(fit * (1 - 0.2 * nightHeat));
     const wetFrequency = forecastDay ? Number(forecastDay.precipitation >= 1) : baselineWet;
     let crowd = interp(crowds, month);
     if ((timestamp - start) % (samples.step * DAY) === 0) {
@@ -259,11 +267,11 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
       crowdLevels.push(crowd); rains.push(rain);
       historicalHighs.push(historicalHigh); historicalLows.push(historicalLow); historicalWet.push(baselineWet);
     }
-    if (fit < 0.25 && high < temperatureRange.min) dealbreakers.add('Too cold');
-    if (fit < 0.25 && high > temperatureRange.max) dealbreakers.add('Too hot');
+    if (fit < 0.25 && daytimeHigh < temperatureRange.min) dealbreakers.add('Too cold');
+    if (fit < 0.25 && daytimeHigh > temperatureRange.max) dealbreakers.add('Too hot');
     if (wetFrequency > 0.65) dealbreakers.add('Frequent precipitation');
     weatherFits.push(fit); wetLevels.push(wetFrequency);
-    highs.push(high); lows.push(forecastDay?.low ?? historicalLow); homeHighs.push(homeHigh);
+    highs.push(high); lows.push(low); homeHighs.push(homeHigh);
     widths.push(width);
   }
   const journey = travel(home, city, samples.tripDays, nonstopOnly);
@@ -295,6 +303,7 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
       start: timestamp,
       days: widths[index],
       high: highs[index],
+      apparentHigh: forecastDay?.apparentHigh,
       rain: forecastDay ? { source: 'forecast', millimeters: forecastDay.precipitation }
         : { source: 'historical', wetFrequency: wetLevels[index] },
       comfortableDryDays: contribution,
@@ -305,13 +314,14 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
     ? values.reduce((sum, value, index) => sum + value * widths[index], 0) / samples.tripDays : mean(values);
   const targetDays = journey.usable / 2;
   const weatherReliability = { targetDays, chance: comfortableDryChance(reliabilityPeriods, targetDays) };
-  const fits: ScoreFactors = { reliability: weatherReliability.chance, weather: weatherMean(weatherFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: Math.max(0, journey.factor - connectionFitPenalty(journey, samples.tripDays)) * routeCoverageFactor(journey) };
+  const fits: ScoreFactors = { reliability: weatherReliability.chance, weather: weatherMean(comfortFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: Math.max(0, journey.factor - connectionFitPenalty(journey, samples.tripDays)) * routeCoverageFactor(journey) };
   const contributions = Object.fromEntries(SCORE_KEYS.map(key => [key, fits[key] * shares[key]])) as unknown as ScoreFactors;
   const score = SCORE_KEYS.reduce((sum, key) => sum + contributions[key], 0);
   const weatherFlags = weatherFlagsFor(city, climate, samples, { highs: historicalHighs, lows: historicalLows, wet: historicalWet });
   const iso = (day: number) => new Date(day).toISOString().slice(0, 10);
   return {
     city, climate, score, comfortableDryDays, weatherReliability, usableTemperatureFit,
+    temperatureComfort: { daytimeFit: weatherMean(weatherFits), apparentDays },
     weatherPeriods,
     weatherDates: { start: iso(start), end: iso(end), forecast: forecastDates.map(iso) },
     high: weatherMean(highs), low: weatherMean(lows), homeHigh: weatherMean(homeHighs), rain: mean(rains), wetFrequency: weatherMean(wetLevels), crowd: mean(crowdLevels),

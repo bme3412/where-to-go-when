@@ -57,7 +57,7 @@ function dailyWeatherTable(result: CityScore, unit: Unit): string {
     const start = new Date(period.start), end = new Date(period.start + (period.days - 1) * DAY);
     const date = weatherDateFormat.formatRange(start, end);
     const rain = period.rain;
-    return `<tr><th scope="row">${date}</th><td>${temperature(period.high, unit)}</td>
+    return `<tr><th scope="row">${date}</th><td>${temperature(period.high, unit)}${period.apparentHigh === undefined ? '' : `<br><small>Feels like ${temperature(period.apparentHigh, unit)}</small>`}</td>
       <td>${rain.source === 'forecast' ? `${rain.millimeters} mm` : `${Math.round(rain.wetFrequency * 100)}% wet-day chance`}</td>
       <td>${rain.source === 'forecast' ? 'Forecast' : 'Historical climate'}</td><td>${contribution(period.comfortableDryDays)}</td></tr>`;
   }).join('');
@@ -67,7 +67,7 @@ function dailyWeatherTable(result: CityScore, unit: Unit): string {
     <tbody>${rows}</tbody>
     <tfoot><tr><th scope="row" colspan="4">Total after travel</th><td>${contribution(result.comfortableDryDays)}</td></tr></tfoot>
   </table></div>
-  <p id="daily-weather-note" class="weather-caveat">Forecast rows show predicted highs and precipitation. Historical rows show typical highs and the chance of at least 1 mm of precipitation. Contributions account for estimated travel time and may differ slightly from the total due to rounding.${grouped ? ' Date ranges share one historical sample. Their contribution covers the full range shown.' : ''}</p>`;
+  <p id="daily-weather-note" class="weather-caveat">Forecast rows show predicted highs and precipitation. Feels-like highs are used for daytime comfort when available. Historical rows show typical highs and the chance of at least 1 mm of precipitation. Contributions account for estimated travel time and may differ slightly from the total due to rounding.${grouped ? ' Date ranges share one historical sample. Their contribution covers the full range shown.' : ''}</p>`;
 }
 
 export function weatherDetails(result: CityScore, unit: Unit): string {
@@ -189,8 +189,14 @@ export function scoreBreakdown(result: CityScore, unit: Unit): string {
   const roundedChance = Math.round(chance * 100);
   const chanceLabel = roundedChance === 100 && chance < 1 ? '>99%' : roundedChance === 0 && chance > 0 ? '<1%' : `~${roundedChance}%`;
   const weatherQuality = result.weatherDates.forecast.length ? 'Open-Meteo forecast for covered dates' : '';
+  const { daytimeFit, apparentDays } = result.temperatureComfort;
+  const daytimeBasis = apparentDays
+    ? `Feels-like highs include humidity and wind on ${apparentDays} forecast ${apparentDays === 1 ? 'day' : 'days'}. Other dates use air temperatures.`
+    : 'Uses air temperatures for these dates.';
+  const nightPenalty = (daytimeFit - b.fits.weather) * b.weights.weather;
+  const nightNote = nightPenalty >= 0.05 ? ` Warm nights reduce the match score by ${nightPenalty.toFixed(1)} points.` : '';
   const components: { key: keyof ScoreFactors; label: string; quality: string; note: string }[] = [
-    { key: 'weather', label: 'Temperature', quality: weatherQuality || sourceLabel(result.climate.sources.temperature), note: `${Math.round(b.fits.weather * 100)}% estimated daytime highs in your ${temperatureBound(b.temperatureRange.min, unit)}–${temperatureBound(b.temperatureRange.max, unit)} range.` },
+    { key: 'weather', label: 'Temperature', quality: weatherQuality || sourceLabel(result.climate.sources.temperature), note: `${Math.round(daytimeFit * 100)}% estimated daytime highs in your ${temperatureBound(b.temperatureRange.min, unit)}–${temperatureBound(b.temperatureRange.max, unit)} range. ${daytimeBasis}${nightNote}` },
     { key: 'dry', label: 'Dry days', quality: weatherQuality || sourceLabel(result.climate.sources.precipitation), note: `${Math.round(b.fits.dry * 100)}% estimated dry days, with less than 1 mm of precipitation.` },
     { key: 'reliability', label: 'Weather reliability', quality: 'Estimated probability', note: `${chanceLabel} chance that at least half your usable time is comfortable and dry (~${targetDays.toFixed(1)} days). Forecast-covered days use the predicted outcome. Historical days are modeled independently.` },
     { key: 'crowds', label: 'Few crowds', quality: 'Estimated', note: `${crowdWord(result.crowd)}. Seasonal levels and listed event adjustments are assigned estimates, not measured visitor counts.${result.city.region ? ` Inherited from the ${result.city.region} regional estimate; local crowd differences are not measured.` : ''}` },

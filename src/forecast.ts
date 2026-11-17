@@ -3,7 +3,7 @@ import type { Place, Trip } from './types';
 
 export const FORECAST_DAYS = 7;
 export const FORECAST_SOURCE = 'https://open-meteo.com/en/docs';
-export interface ForecastDay { high: number; low: number; precipitation: number }
+export interface ForecastDay { high: number; low: number; precipitation: number; apparentHigh?: number }
 export type DailyForecast = ReadonlyMap<number, ForecastDay>;
 export type Forecasts = ReadonlyMap<string, DailyForecast>;
 
@@ -20,12 +20,16 @@ function readDaily(payload: unknown): DailyForecast {
   if (!payload || typeof payload !== 'object' || !('daily' in payload)) return forecast;
   const daily = payload.daily as Record<string, unknown> | null;
   const dates = daily?.time, highs = daily?.temperature_2m_max, lows = daily?.temperature_2m_min, rain = daily?.precipitation_sum;
+  const apparentHighs = Array.isArray(daily?.apparent_temperature_max) ? daily.apparent_temperature_max : [];
   if (!Array.isArray(dates) || !Array.isArray(highs) || !Array.isArray(lows) || !Array.isArray(rain)) return forecast;
   dates.slice(0, FORECAST_DAYS).forEach((date, index) => {
     const day = typeof date === 'string' ? parseDate(date) : null;
     const high = highs[index], low = lows[index], precipitation = rain[index];
     if (day !== null && Number.isFinite(high) && Number.isFinite(low) && Number.isFinite(precipitation)
-      && low <= high && precipitation >= 0) forecast.set(day, { high, low, precipitation });
+      && low <= high && precipitation >= 0) {
+      const apparentHigh = apparentHighs[index];
+      forecast.set(day, { high, low, precipitation, ...(Number.isFinite(apparentHigh) ? { apparentHigh } : {}) });
+    }
   });
   return forecast;
 }
@@ -41,7 +45,7 @@ export async function loadForecast(places: readonly Place[], request: typeof fet
     const params = new URLSearchParams({
       latitude: batch.map(place => place.lat).join(','),
       longitude: batch.map(place => place.lon).join(','),
-      daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum',
+      daily: 'temperature_2m_max,temperature_2m_min,apparent_temperature_max,precipitation_sum',
       timezone: batch.map(() => 'auto').join(','),
       forecast_days: String(FORECAST_DAYS),
     });

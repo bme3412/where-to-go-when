@@ -74,10 +74,11 @@ export interface WeatherPeriod {
   start: number;
   days: number;
   high: number;
+  apparentHigh?: number;
   rain: { source: 'forecast'; millimeters: number } | { source: 'historical'; wetFrequency: number };
   comfortableDryDays: number;
 }
-export interface CityScore { weatherPeriods: WeatherPeriod[]; weatherDates: { start: string; end: string; forecast: string[] }; city: City; climate: CityClimate; score: number; comfortableDryDays: number; weatherReliability: { targetDays: number; chance: number }; usableTemperatureFit: number; high: number; low: number; homeHigh: number; rain: number; wetFrequency: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[]; weatherFlags: WeatherFlag[] }
+export interface CityScore { weatherPeriods: WeatherPeriod[]; weatherDates: { start: string; end: string; forecast: string[] }; city: City; climate: CityClimate; score: number; comfortableDryDays: number; weatherReliability: { targetDays: number; chance: number }; usableTemperatureFit: number; temperatureComfort: { daytimeFit: number; apparentDays: number }; high: number; low: number; homeHigh: number; rain: number; wetFrequency: number; crowd: number; tripDays: number; travel: Travel; breakdown: ScoreBreakdown; events: string[]; risks: string[]; dealbreakers: Dealbreaker[]; weatherFlags: WeatherFlag[] }
 export type RankedCity = CityScore & { rank: number };
 export interface Country { name: string; lat: number; lon: number }
 export interface TripEvent { cities: ReadonlySet<string>; start: number; end: number; crowd: number; name: string; festival: boolean }

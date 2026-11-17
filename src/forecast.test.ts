@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { CITIES } from './data/cities';
 import { ORIGINS } from './data/origins';
 import { loadForecast, needsForecast } from './forecast';
-import { weatherDetails, weatherSourceSummary } from './format';
+import { scoreBreakdown, weatherDetails, weatherSourceSummary } from './format';
 import { parseDate, rankCities, sampleDays, scoreCities } from './scoring';
 
 const boston = ORIGINS.find(origin => origin.name === 'Boston')!;
@@ -65,6 +65,29 @@ describe('near-term weather', () => {
     expect(sampleDays(longTrip).step).toBeGreaterThan(1);
     expect(result.weatherPeriods.filter(period => period.rain.source === 'forecast').every(period => period.days === 1)).toBe(true);
     expect(weatherDetails(result, 'C')).toContain('Their contribution covers the full range shown.');
+  });
+
+  it('uses feels-like highs where supplied and scores warm nights separately', async () => {
+    const comfortDates = dates.slice(1);
+    const comfortTrip = { start: comfortDates[0], end: comfortDates[2] };
+    const score = async (apparentHigh: number | null, low: number) => {
+      const snapshot = await loadForecast([miami], async () => Response.json({
+        daily: { time: comfortDates, temperature_2m_max: [28, 28, 28], temperature_2m_min: [low, low, low],
+          precipitation_sum: [0, 0, 0], apparent_temperature_max: [apparentHigh, apparentHigh, apparentHigh] },
+      }));
+      return scoreCities(comfortTrip, boston, undefined, undefined, false, snapshot).find(result => result.city.name === 'Miami')!;
+    };
+    const fallback = await score(null, 20);
+    const warmNight = await score(null, 26);
+    const humid = await score(34, 20);
+    expect(fallback.temperatureComfort).toEqual({ daytimeFit: 1, apparentDays: 0 });
+    expect(warmNight.breakdown.fits.weather).toBeCloseTo(0.8);
+    expect(fallback.comfortableDryDays).toBeGreaterThan(1);
+    expect(warmNight.comfortableDryDays).toBe(fallback.comfortableDryDays);
+    expect(scoreBreakdown(warmNight, 'F')).toContain('Warm nights reduce the match score by 6.4 points.');
+    expect(humid.breakdown.fits.weather).toBe(0);
+    expect(humid.comfortableDryDays).toBe(0);
+    expect(weatherDetails(humid, 'F')).toContain('Feels like 93°F');
   });
 
   it('keeps distant trips historical and handles a failed forecast request', async () => {

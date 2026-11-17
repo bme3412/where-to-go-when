@@ -135,7 +135,7 @@ npm run build
 
 Fits are 0–1; integer weights always sum to 100. The app uses fixed weights of 32% temperature, 20% dry days, 13% weather reliability, 10% crowds, and 25% travel.
 
-- **Temperature:** historical fraction of daily highs inside the inclusive preferred range, using 0.1°C histogram bins.
+- **Temperature:** historical highs use 0.1°C histogram bins. Forecast days use the feels-like high when supplied by Open-Meteo, which includes humidity, wind and sunlight. Other dates use air temperatures. Daily lows above 20°C gradually reduce the temperature fit by up to 20% at 26°C or above. Historical days use baseline average lows. This overnight adjustment affects temperature points only.
 - **Dry:** historical fraction of days with less than 1 mm total precipitation (including snowfall water equivalent). Monthly rain volume is context only.
 - **Weather reliability:** estimated probability that at least half the usable stay is comfortable and dry. Historical temperature and rain are modeled independently within days and across days. Forecast dates use the predicted outcome. Partial travel days count by usable fraction, and trips with more than 90 full usable days use a normal approximation.
 - **Crowds:** 1 minus the original estimated seasonal crowd level plus dated event adjustments. No measured attendance claim.
