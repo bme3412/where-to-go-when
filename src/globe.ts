@@ -97,7 +97,7 @@ export class Globe {
       if (width < 1 || height < 1) return;
       const previousBaseScale = this.baseScale, zoom = this.scale / previousBaseScale;
       this.width = width; this.height = height;
-      this.baseScale = Math.min(width, height) * 0.5;
+      this.baseScale = Math.min(width, height) * 0.46;
       this.scale = clamp(this.baseScale * zoom, this.baseScale * 0.79, 60000);
       if (this.flight) {
         const ratio = this.baseScale / previousBaseScale;

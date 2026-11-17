@@ -9,8 +9,9 @@ interface Journey {
   offers?: { expiration?: string; pricing?: { display?: { total?: number; currency?: string } } }[];
 }
 
-function optionsFrom(body: unknown, from: string, to: string, nonstop: boolean, now: number): AirfareOption[] {
+function optionsFrom(body: unknown, from: string, to: string, nonstop: boolean, now: number) {
   const data = (body as { data?: { journeys?: Journey[] }[] } | null)?.data;
+  let nonstopValidUntil = 0;
   const candidates: Omit<AirfareOption, 'kind'>[] = [];
   for (const batch of Array.isArray(data) ? data : []) {
     for (const journey of Array.isArray(batch?.journeys) ? batch.journeys : []) {
@@ -18,11 +19,12 @@ function optionsFrom(body: unknown, from: string, to: string, nonstop: boolean, 
       const leg = (direction: Direction, origin: string, destination: string) => {
         const segments = journey.segments!.filter(segment => segment?.direction === direction);
         if (segments[0]?.originCode !== origin || segments.at(-1)?.destinationCode !== destination) return;
-        if (nonstop && segments.some(segment => segment.stopCount == null && !Array.isArray(segment.stops))) return;
+        const knownStops = segments.every(segment => (Number.isInteger(segment.stopCount) && segment.stopCount! >= 0) || Array.isArray(segment.stops));
+        if (nonstop && !knownStops) return;
         const stops = segments.length - 1 + segments.reduce((count, segment) =>
           count + (Number.isInteger(segment.stopCount) && segment.stopCount! >= 0 ? segment.stopCount! : segment.stops?.length ?? 0), 0);
         const minutes = journey.legDurations!.find(item => item?.direction === direction)?.duration?.minutes;
-        if (typeof minutes === 'number' && Number.isInteger(minutes) && minutes > 0) return { stops, minutes };
+        if (typeof minutes === 'number' && Number.isInteger(minutes) && minutes > 0) return { stops, minutes, knownStops };
       };
       const outbound = leg('OUTBOUND', from, to), inbound = leg('INBOUND', to, from);
       if (!outbound || !inbound || (nonstop && (outbound.stops || inbound.stops))) continue;
@@ -31,6 +33,9 @@ function optionsFrom(body: unknown, from: string, to: string, nonstop: boolean, 
         if (price?.currency !== 'USD' || typeof price.total !== 'number' || !Number.isFinite(price.total) || price.total <= 0) continue;
         const expiry = offer.expiration ? Date.parse(offer.expiration) : NaN;
         if (Number.isFinite(expiry) && expiry <= now) continue;
+        if (outbound.knownStops && inbound.knownStops && outbound.stops === 0 && inbound.stops === 0) {
+          nonstopValidUntil = Math.max(nonstopValidUntil, Math.min(Number.isFinite(expiry) ? expiry : Infinity, now + 600_000));
+        }
         candidates.push({ total: price.total, minutes: outbound.minutes + inbound.minutes, outboundStops: outbound.stops,
           returnStops: inbound.stops, expiresAt: Number.isFinite(expiry) ? new Date(expiry).toISOString() : undefined });
       }
@@ -38,10 +43,11 @@ function optionsFrom(body: unknown, from: string, to: string, nonstop: boolean, 
   }
   const lowest = [...candidates].sort((a, b) => a.total - b.total || a.minutes - b.minutes)[0];
   const shortest = candidates.sort((a, b) => a.minutes - b.minutes || a.total - b.total)[0];
-  if (!lowest || !shortest) return [];
-  return lowest === shortest
+  if (!lowest || !shortest) return { options: [], nonstopValidUntil };
+  const options: AirfareOption[] = lowest === shortest
     ? [{ ...lowest, kind: 'both' }]
     : [{ ...lowest, kind: 'lowest' }, { ...shortest, kind: 'shortest' }];
+  return { options, nonstopValidUntil };
 }
 
 export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.now) {
@@ -89,8 +95,8 @@ export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.
       });
       if (response.status === 429) return json({ error: 'Too many airfare lookups.' }, 429);
       if (!response.ok) return json({ error: 'Airfare lookup is unavailable.' }, 502);
-      const options = optionsFrom(await response.json(), from, to, nonstop, now());
-      return options.length ? json({ from, to, options }) : json({ error: 'No matching round-trip fares found.' }, 404);
+      const { options, nonstopValidUntil } = optionsFrom(await response.json(), from, to, nonstop, now());
+      return options.length ? json({ from, to, options, nonstopValidUntil }) : json({ error: 'No matching round-trip fares found.' }, 404);
     } catch {
       return json({ error: 'Airfare lookup is unavailable.' }, 502);
     }

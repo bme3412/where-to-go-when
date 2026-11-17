@@ -11,7 +11,7 @@ import { ORIGINS } from './data/origins';
 import { climateLabel, climateResolutionLabel } from './climate';
 import { auditContent, auditDestinations, auditRows } from './audit';
 import type { AuditFilter } from './audit';
-import { band, cityTooltip, countryTooltip, displayCountry, escapeHtml, flightDetails, flightRouteDetails, rankingRouteLabel, scoreBreakdown, temperature, temperatureBound, tripPrice, weatherBadges, weatherDetails, weatherSourceSummary } from './format';
+import { band, cityTooltip, countryTooltip, displayCountry, escapeHtml, flightDetails, flightRouteDetails, rankingRouteLabel, scoreBreakdown, temperature, tripPrice, weatherBadges, weatherDetails, weatherSourceSummary } from './format';
 import { Globe } from './globe';
 import { isNonstopBostonTrip } from './flights';
 import { flightMapFor, nonstopFlightMaps } from './flight-map';
@@ -22,23 +22,28 @@ import { AIRFARE_ENDPOINT, airfareAirports } from './airfare';
 import type { AirfareOption } from './airfare';
 import { LODGING_ENDPOINT, lodgingCountryCode } from './lodging';
 import type { LodgingQuote } from './lodging';
-import { clamp, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, defaultTrip, isRankableCity, matchesDestinationScope, minimumUsableStay, rankCities, sampleDays, scoreCities, validateTemperature } from './scoring';
+import { clamp, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, defaultTrip, isRankableCity, matchesDestinationScope, minimumUsableStay, rankCities, scoreCities } from './scoring';
 import { weatherFlagLabel } from './weather';
 import { weatherLegend, WEATHER_KINDS } from './weather-map';
-import type { CityScore, DestinationScope, RankedCity, TemperatureRange, TripPriceEstimate, Unit, WeatherKind, WeatherLayer } from './types';
+import type { CityScore, DestinationScope, RankedCity, TripPriceEstimate, Unit, WeatherKind, WeatherLayer } from './types';
 
 const app = document.querySelector<HTMLElement>('#app')!;
 const initialTrip = defaultTrip(new Date());
 let trip = initialTrip;
 const tripPrices = new Map<string, Map<string, TripPriceEstimate>>();
 const airfareQuotes = new WeakMap<HTMLFormElement, AirfareOption[]>();
+const nonstopFares = new Map<string, number>();
+function nonstopFareKey(city: string): string {
+  return JSON.stringify([home.name, trip.start, trip.end, city]);
+}
+function hasNonstopFare(city: string): boolean {
+  return (nonstopFares.get(nonstopFareKey(city)) ?? 0) > Date.now();
+}
 const lodgingQuotes = new WeakMap<HTMLFormElement, LodgingQuote>();
 function tripPriceKey(nonstop: boolean): string {
   return JSON.stringify([home.name, trip.start, trip.end, nonstop]);
 }
 
-const preferredTemperature: TemperatureRange = { ...DEFAULT_TEMPERATURE };
-const temperaturePresets = { cool: { min: 10, max: 20 }, mild: { min: 15, max: 25 }, warm: { min: 20, max: 30 } };
 let weatherLayer: WeatherLayer = 'temperature';
 let weatherKinds = new Set<WeatherKind>(WEATHER_KINDS);
 const weatherFlagLabels = { wet: 'Wet periods', heat: 'Heat', cold: 'Freezing nights', storm: 'Storm seasons' };
@@ -85,30 +90,11 @@ app.innerHTML = `
         <fieldset class="destination-scope"><legend>Where to?</legend><div class="scope-options">${(['all', 'domestic', 'international'] as const).map(value => `<label class="scope-choice"><input type="radio" name="destination-scope" value="${value}" aria-label="${{ all: 'All destinations', domestic: 'Domestic destinations', international: 'Global destinations' }[value]}" ${value === 'all' ? 'checked' : ''} /><span>${{ all: 'Anywhere', domestic: 'Domestic', international: 'Global' }[value]}</span></label>`).join('')}</div></fieldset>
         <div class="field region-filter" hidden><label for="destination-region">Region</label><select id="destination-region"><option value="all">All regions</option>${GLOBE_REGIONS.map(region => `<option value="${region.id}">${region.name}</option>`).join('')}</select></div>
         <div id="boston-flight-filter" class="flight-filter"><label for="nonstop-only"><span class="flight-filter-copy"><strong id="nonstop-label">Nonstop flights only</strong><span id="nonstop-help">Both ways · schedules unverified</span></span><input type="checkbox" role="switch" id="nonstop-only" aria-labelledby="nonstop-label" aria-describedby="nonstop-help" /><span class="switch-track" aria-hidden="true"></span></label></div>
-        <section class="trip-dates" aria-labelledby="trip-dates-title">
-          <div class="trip-dates-heading"><h3 id="trip-dates-title">Travel dates</h3><output id="trip-length" aria-live="polite">15 days</output></div>
-          ${datePickerMarkup}
-        </section>
-        <div class="section-divider"></div>
-        <fieldset class="temperature-preference">
-          <legend>Preferred daytime highs</legend>
-          <div class="temperature-presets" role="group" aria-label="Temperature presets">
-            ${Object.keys(temperaturePresets).map(key => `<button type="button" data-temperature-preset="${key}" aria-pressed="${key === 'warm'}"><strong>${key[0].toUpperCase() + key.slice(1)}</strong><span></span></button>`).join('')}
-          </div>
-          <details id="custom-temperature" class="custom-temperature">
-            <summary>Custom range<span id="custom-temperature-range"></span></summary>
-            <div class="temperature-fields">
-              <div><label for="temperature-min">Minimum <span class="temperature-unit">°F</span></label><input type="number" id="temperature-min" step="any" aria-describedby="temperature-error" /></div>
-              <div><label for="temperature-max">Maximum <span class="temperature-unit">°F</span></label><input type="number" id="temperature-max" step="any" aria-describedby="temperature-error" /></div>
-            </div>
-            <p id="temperature-error" class="date-error" role="alert" hidden></p>
-          </details>
-        </fieldset>
 
       </div>
     </aside>
     <section class="globe-stage" aria-label="Interactive destination globe">
-      <div class="stage-heading"><div class="stage-itinerary"><div class="trip-summary"><h2 id="summary-route">Explore from Boston</h2><div class="summary-meta"><span id="summary-dates"></span><span class="summary-scope" id="summary-scope" hidden></span></div></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid settings</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
+      <div class="stage-heading"><div class="stage-itinerary"><div class="trip-summary"><h2 id="summary-route">Explore from Boston</h2><div class="summary-meta"><div class="trip-dates">${datePickerMarkup}</div><span class="summary-scope" id="summary-scope" hidden></span></div></div></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
       <section id="region-explorer" class="region-explorer" aria-label="Places in this region" hidden></section>
       <details class="map-toolbar">
         <summary>Weather<span aria-hidden="true"></span></summary>
@@ -150,8 +136,6 @@ setupDatePicker(document.querySelector<HTMLElement>('.trip-dates')!, initialTrip
 });
 const homeInput = document.querySelector<HTMLInputElement>('#home')!;
 const nonstopInput = document.querySelector<HTMLInputElement>('#nonstop-only')!;
-const temperatureMin = document.querySelector<HTMLInputElement>('#temperature-min')!;
-const temperatureMax = document.querySelector<HTMLInputElement>('#temperature-max')!;
 const weatherOptions = document.querySelector<HTMLElement>('#map-weather-options')!;
 const weatherSurfaces = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-surface]')];
 const weatherFlags = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-kind]')];
@@ -198,7 +182,7 @@ const globe = new Globe(document.querySelector<SVGSVGElement>('#globe')!, {
 
 function renderPick(r: RankedCity): string {
   const rating = band(r.score);
-  const route = rankingRouteLabel(r.travel);
+  const route = hasNonstopFare(r.city.name) ? 'Nonstop both ways · Nuitée' : rankingRouteLabel(r.travel);
   const sources = escapeHtml(weatherSourceSummary(r));
   const activity = escapeHtml(destinationActivity(r));
   return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(destinationName(r.city))}, ${rating.label}. ${activity} ${sources}. ${climateLabel(r.climate)}.${r.weatherFlags.length ? ` Seasonal weather: ${escapeHtml(r.weatherFlags.map(weatherFlagLabel).join(", "))}.` : ""}${route ? ` ${escapeHtml(route)}.` : ''} Center on globe."><span class="pick-heading"><span class="pick-place"><strong class="city-name">${escapeHtml(destinationName(r.city))}</strong><span class="country-name"><span class="country-flag" aria-hidden="true">${countryFlag(r.city.country)}</span>${escapeHtml(displayCountry(r.city.country))}${r.climate.referenceLabel ? ` · ${escapeHtml(r.climate.referenceLabel)}` : ''}</span></span><span class="rating ${rating.key}">${rating.label}</span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span>${r.tripCost ? `<span>${tripPrice(r.tripCost.total)} estimated trip</span>` : ''}</span><span class="pick-activity">${activity}</span>${weatherBadges(r.weatherFlags.slice(0, 2))}${route ? `<span class="pick-route${r.travel.basis !== 'routes' ? ' route-estimate' : ''}">${escapeHtml(route)}</span>` : ''}${r.weatherDates.forecast.length ? `<span class="weather-coverage">${sources}</span>` : ''}</button>`;
@@ -320,7 +304,7 @@ function selectedRegionName(): string {
 function focusGlobe(initial = false): void {
   const region = GLOBE_REGIONS.find(item => item.id === selectedRegion);
   if (region) globe.focusLocation(region.lon, region.lat, region.zoom, initial);
-  else globe.focusLocation(home.lon, home.lat, initial ? 1.15 : .98, initial);
+  else globe.focusLocation(home.lon, home.lat, 1, initial);
 }
 regionSelect.addEventListener('change', () => {
   activeRegion = '';
@@ -332,13 +316,6 @@ function recompute(shouldFly: boolean): void {
   const global = nextScope === 'international';
   regionSelect.closest<HTMLElement>('.region-filter')!.hidden = !global;
   if (!global) regionSelect.value = 'all';
-  const temperatureError = validateTemperature(preferredTemperature);
-  const temperatureErrorElement = document.querySelector<HTMLElement>('#temperature-error')!;
-  temperatureErrorElement.hidden = !temperatureError; temperatureErrorElement.textContent = temperatureError ?? '';
-  temperatureMin.setAttribute('aria-invalid', String(Boolean(temperatureError)));
-  temperatureMax.setAttribute('aria-invalid', String(Boolean(temperatureError)));
-  document.querySelector<HTMLElement>('#invalid-summary')!.hidden = !temperatureError;
-  if (temperatureError) return;
   const forecastStatus = document.querySelector('#forecast-status')!;
   const nearTerm = needsForecast(trip, new Date());
   if (nearTerm && Date.now() >= forecastExpires && !forecastPending) {
@@ -367,30 +344,24 @@ function recompute(shouldFly: boolean): void {
   document.querySelector<HTMLElement>('#boston-flight-filter')!.hidden = home.name !== 'Boston';
   nonstopOnly = home.name === 'Boston' && nonstopInput.checked;
   scope = nextScope;
-  allCityScores = scoreCities(trip, home, DEFAULT_WEIGHTS, preferredTemperature, false, tripForecasts, tripPrices.get(tripPriceKey(false)));
-  const nonstopCandidates = home.name === 'Boston' ? scoreCities(trip, home, DEFAULT_WEIGHTS, preferredTemperature, true, tripForecasts, tripPrices.get(tripPriceKey(true))) : [];
+  allCityScores = scoreCities(trip, home, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, false, tripForecasts, tripPrices.get(tripPriceKey(false)));
+  const nonstopCandidates = home.name === 'Boston' ? scoreCities(trip, home, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, true, tripForecasts, tripPrices.get(tripPriceKey(true))) : [];
   const candidates = nonstopOnly ? nonstopCandidates : allCityScores;
   const inScope = (result: CityScore) => isRankableCity(result) && matchesDestinationScope(result.city.country, home.country, scope)
     && matchesDestinationRegion(result.city, selectedRegion);
-  const eligible = (result: CityScore) => inScope(result) && (!nonstopOnly || isNonstopBostonTrip(result.travel));
+  const eligible = (result: CityScore) => inScope(result) && (!nonstopOnly || hasNonstopFare(result.city.name) || isNonstopBostonTrip(result.travel));
   cityScores = candidates.filter(eligible);
   nonstopCityScores = nonstopCandidates.filter(inScope);
   nonstopMaps = nonstopFlightMaps(nonstopCityScores);
   globe.setNonstopRoutes(nonstopMaps);
   ranked = rankCities(cityScores);
-  const samples = sampleDays(trip), duration = `${samples.tripDays} ${samples.tripDays === 1 ? 'day' : 'days'}`;
-  const dateLabel = new Intl.DateTimeFormat('en-US', { month: 'numeric', day: 'numeric', timeZone: 'UTC' });
-  const startDate = dateLabel.format(new Date(trip.start));
-  const endDate = dateLabel.format(new Date(trip.end));
-  document.querySelector('#trip-length')!.textContent = duration;
-  document.querySelector('#summary-dates')!.textContent = trip.start === trip.end ? startDate : `${startDate} to ${endDate}`;
   if (shouldFly || homeChanged || regionChanged || !cityScores.some(result => result.city.name === selectedName)) selectedName = null;
   if (activeRegion && !cityScores.some(result => result.city.region === activeRegion)) activeRegion = '';
   renderLists(); renderSelection(); renderRegion(); renderWeatherControls(); globe.update(cityScores, ranked, home); globe.setSelected(selectedName);
   document.querySelector('#results-announcement')!.textContent = ranked.length
     ? `${ranked.length} matching destinations from ${home.name}.`
     : `No matching destinations from ${home.name}.`;
-  if (homeChanged) globe.focusLocation(home.lon, home.lat, 1.15);
+  if (homeChanged) globe.focusLocation(home.lon, home.lat, 1);
   else if (shouldFly || regionChanged) focusGlobe();
 }
 for (const control of document.querySelectorAll<HTMLInputElement>('[name="destination-scope"]')) control.addEventListener('change', () => {
@@ -414,37 +385,6 @@ weatherOptions.addEventListener('change', event => {
   globe.setWeatherLayer(weatherLayer, weatherKinds);
   renderWeatherControls();
 });
-function syncTemperature(): void {
-  for (const [key, input] of [['min', temperatureMin], ['max', temperatureMax]] as const) {
-    const celsius = preferredTemperature[key];
-    input.value = Number.isFinite(celsius) ? String(Number((unit === 'F' ? celsius * 9 / 5 + 32 : celsius).toFixed(1))) : '';
-    input.min = '-40'; input.max = unit === 'F' ? '122' : '50';
-  }
-  document.querySelectorAll('.temperature-unit').forEach(label => label.textContent = `°${unit}`);
-  syncTemperaturePresets();
-}
-function syncTemperaturePresets(): void {
-  let hasActivePreset = false;
-  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-temperature-preset]')) {
-    const preset = temperaturePresets[button.dataset.temperaturePreset as keyof typeof temperaturePresets];
-    const active = Math.abs(preferredTemperature.min - preset.min) < 1e-8 && Math.abs(preferredTemperature.max - preset.max) < 1e-8;
-    hasActivePreset ||= active;
-    button.setAttribute('aria-pressed', String(active));
-    button.querySelector('span')!.textContent = `${temperatureBound(preset.min, unit)}–${temperatureBound(preset.max, unit)}`;
-  }
-  document.querySelector('#custom-temperature-range')!.textContent = hasActivePreset || validateTemperature(preferredTemperature)
-    ? ''
-    : `${temperatureBound(preferredTemperature.min, unit)}–${temperatureBound(preferredTemperature.max, unit)}`;
-}
-for (const button of document.querySelectorAll<HTMLButtonElement>('[data-temperature-preset]')) button.addEventListener('click', () => {
-  Object.assign(preferredTemperature, temperaturePresets[button.dataset.temperaturePreset as keyof typeof temperaturePresets]);
-  syncTemperature(); recompute(false);
-});
-for (const [key, input] of [['min', temperatureMin], ['max', temperatureMax]] as const) input.addEventListener('input', () => {
-  preferredTemperature[key] = unit === 'F' ? (input.valueAsNumber - 32) * 5 / 9 : input.valueAsNumber;
-  syncTemperaturePresets();
-  recompute(false);
-});
 spinButton.addEventListener('click', () => globe.toggleSpin());
 document.querySelector('#zoom-in')!.addEventListener('click', () => globe.zoom(1.2));
 document.querySelector('#zoom-out')!.addEventListener('click', () => globe.zoom(1 / 1.2));
@@ -453,7 +393,7 @@ unitButton.addEventListener('click', () => {
   unit = unit === 'F' ? 'C' : 'F';
   unitButton.innerHTML = `<span class="${unit === 'F' ? 'unit-active' : ''}">°F</span><span class="unit-divider">/</span><span class="${unit === 'C' ? 'unit-active' : ''}">°C</span>`;
   unitButton.setAttribute('aria-label', `Temperature unit: ${unit === 'F' ? 'Fahrenheit. Switch to Celsius.' : 'Celsius. Switch to Fahrenheit.'}`);
-  syncTemperature(); hideTooltip(); renderLists(); renderSelection(); renderRegion(); renderWeatherControls();
+  hideTooltip(); renderLists(); renderSelection(); renderRegion(); renderWeatherControls();
 });
 destinationList.addEventListener('click', event => {
   if ((event.target as Element).closest('[data-clear-region]')) {
@@ -590,8 +530,12 @@ detailsDialog.addEventListener('click', async event => {
         : 'Airfare estimates are currently unavailable.';
       return;
     }
-    const { options } = await response.json() as { options: AirfareOption[] };
+    const { options, nonstopValidUntil } = await response.json() as { options: AirfareOption[]; nonstopValidUntil: number };
     if (!current()) return;
+    if (nonstopValidUntil > Date.now()) {
+      nonstopFares.set(nonstopFareKey(city), nonstopValidUntil);
+      renderLists();
+    }
     airfareQuotes.set(form, options);
     const stops = (count: number) => count === 0 ? 'nonstop' : `${count} ${count === 1 ? 'stop' : 'stops'}`;
     for (const [index, option] of options.entries()) {
@@ -694,6 +638,5 @@ window.addEventListener('resize', hideTooltip);
 document.querySelector('.panel-toggles')!.addEventListener('click', hideTooltip);
 document.querySelectorAll('.panel-scroll').forEach(panel => panel.addEventListener('scroll', hideTooltip, { passive: true }));
 window.addEventListener('pagehide', () => globe.destroy(), { once: true });
-syncTemperature();
 recompute(false);
 window.setTimeout(() => focusGlobe(true), 600);

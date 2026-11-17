@@ -88,13 +88,10 @@ h2 { font-size: 16px; font-weight: 600; letter-spacing: -.3px; margin: 0; }
 .field label { font-size: 11px; font-weight: 550; }
 input[type="date"], select { width: 100%; min-width: 0; height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 7px; color: var(--ink); background: var(--surface); font-size: 12px; }
 select { padding-right: 24px; }
-.trip-dates { margin-top: 14px; padding-top: 17px; border-top: 1px solid var(--border); }
-.trip-dates-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
-.trip-dates-heading h3 { font-size: 11px; font-weight: 550; }
-.trip-dates-heading output { font-size: 10px; color: var(--accent); background: var(--subtle); padding: 4px 7px; border-radius: 12px; white-space: nowrap; }
+.trip-dates { position: relative; max-width: 100%; }
 .date-range-button { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); text-align: left; font-size: 12px; font-weight: 550; }
 .date-range-button svg { width: 16px; height: 16px; flex: none; color: var(--accent); }
-.trip-calendar { margin-top: 8px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.trip-calendar { position: absolute; z-index: 20; top: 100%; left: 50%; transform: translateX(-50%); width: min(280px, calc(100vw - 32px)); text-align: left; margin-top: 8px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 .calendar-nav { display: flex; justify-content: space-between; align-items: center; gap: 4px; font-size: 11px; }
 .calendar-nav .icon-button { width: 30px; height: 30px; font-size: 19px; color: var(--accent); }
 .calendar-nav .icon-button:disabled { opacity: .4; }
@@ -173,7 +170,7 @@ h3 { font-size: 12px; font-weight: 600; margin: 0; }
 .stage-heading { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(0, auto) minmax(100px, 1fr); align-items: center; gap: 12px; flex-shrink: 0; }
 .stage-itinerary { grid-column: 2; text-align: center; min-width: 0; }
 .trip-summary h2 { font-size: clamp(17px, 2vw, 24px); line-height: 1.2; overflow-wrap: anywhere; }
-.summary-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.summary-meta { display: flex; flex-direction: column; align-items: center; flex-wrap: wrap; justify-content: center; gap: 4px 8px; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.5; }
 #summary-dates { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
 .stage-actions { grid-column: 3; justify-self: end; display: flex; gap: 6px; }
 .small-button { min-height: 32px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); padding: 7px 9px; font-size: 10px; white-space: nowrap; }

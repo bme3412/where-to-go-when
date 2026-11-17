@@ -76,3 +76,18 @@ it('handles another origin, empty results, and unavailable provider access', asy
   expect((await handler(request, 'fixture')).status).toBe(404);
   expect((await handler(request, 'fixture')).status).toBe(429);
 });
+
+it('recognizes a confirmed nonstop outside the displayed offers and requires evidence on both legs', async () => {
+  const cheap = journey('BOS', 'LIM', 400, 300, 'connection');
+  const fast = journey('BOS', 'LIM', 900, 200, 'technical');
+  const direct = journey('BOS', 'LIM', 700, 250, 'nonstop');
+  const handler = createAirfareHandler(async () => Response.json({ data: [{ journeys: [cheap, fast, direct] }] }), clock);
+  const request = new Request('https://site.test/api/airfare-estimate?origin=Boston&city=Lima&start=2026-12-20&end=2027-01-03');
+  const first = await (await handler(request, 'fixture')).json();
+  expect(first.options.map((option: AirfareOption) => option.total)).toEqual([400, 900]);
+  expect(first.nonstopValidUntil).toBeGreaterThan(clock());
+  direct.segments[1].stopCount = 1;
+  expect((await (await handler(request, 'fixture')).json()).nonstopValidUntil).toBe(0);
+  Reflect.deleteProperty(direct.segments[1], 'stopCount');
+  expect((await (await handler(request, 'fixture')).json()).nonstopValidUntil).toBe(0);
+});
