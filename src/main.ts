@@ -102,16 +102,16 @@ app.innerHTML = `
       </div>
     </aside>
     <section class="globe-stage" aria-label="Interactive destination globe">
-      <div class="stage-heading"><div><div class="trip-summary"><span id="summary-origin">From Boston</span><span aria-hidden="true">·</span><span id="summary-dates">Dec 20 – Jan 3</span><span class="summary-duration" id="summary-duration">15 days</span><span class="summary-scope" id="summary-scope" hidden></span></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid settings</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
+      <div class="stage-heading"><div class="stage-itinerary"><div class="trip-summary"><h2 id="summary-route">Explore from Boston</h2><div class="summary-meta"><span id="summary-dates"></span><span class="summary-scope" id="summary-scope" hidden></span></div></div><p class="invalid-summary" id="invalid-summary" hidden>Showing your last valid settings</p></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
       <section id="region-explorer" class="region-explorer" aria-label="Places in this region" hidden></section>
-      <fieldset class="map-toolbar">
-        <legend>Weather on globe</legend>
-        <div class="map-weather-options" id="map-weather-options">
+      <details class="map-toolbar">
+        <summary>Weather<span aria-hidden="true"></span></summary>
+        <div class="map-weather-options" id="map-weather-options" role="group" aria-label="Weather layers">
           <label><input type="checkbox" data-weather-surface="temperature" checked />Daytime temperature</label>
           <label><input type="checkbox" data-weather-surface="wet" />Precipitation</label>
           ${WEATHER_KINDS.map(kind => `<label><input type="checkbox" data-weather-kind="${kind}" checked />${weatherFlagLabels[kind]}</label>`).join('')}
         </div>
-      </fieldset>
+      </details>
       <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Destination globe"></svg><div id="weather-legend" class="weather-legend" aria-label="Weather color legend"></div><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
       <section id="flight-map-controls" class="flight-map-controls" aria-label="Boston flight routes" hidden>
         <div id="selected-flight-route" class="selected-flight-route" hidden><div class="flight-map-caption"><strong id="flight-map-path"></strong><span id="flight-map-note">Highlighted flight legs · schedules unverified</span></div><div class="flight-map-actions"><div class="route-directions" role="group" aria-label="Flight direction"><button type="button" id="route-outbound" data-route-direction="outbound" aria-pressed="true">Outbound</button><button type="button" id="route-inbound" data-route-direction="inbound" aria-pressed="false">Return</button></div><button type="button" id="view-flight-route" class="text-button">View route</button></div><div id="flight-map-details" class="flight-map-details" role="status" aria-live="polite" aria-atomic="true"></div></div>
@@ -229,6 +229,9 @@ function renderWeatherControls(): void {
 }
 function renderSelection(): void {
   const result = selectedDestination();
+  document.querySelector('#summary-route')!.textContent = result
+    ? `${home.name} to ${destinationName(result.city)}`
+    : `Explore from ${home.name}`;
   const selection = document.querySelector<HTMLElement>('#selection')!;
   selection.hidden = !result;
   renderFlightMap(result);
@@ -356,11 +359,11 @@ function recompute(shouldFly: boolean): void {
   globe.setNonstopRoutes(nonstopMaps);
   ranked = rankCities(cityScores);
   const samples = sampleDays(trip), duration = `${samples.tripDays} ${samples.tripDays === 1 ? 'day' : 'days'}`;
-  const dateLabel = (value: string) => new Date(`${value}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const dateLabel = new Intl.DateTimeFormat('en-US', { month: 'numeric', day: 'numeric', timeZone: 'UTC' });
+  const startDate = dateLabel.format(new Date(trip.start));
+  const endDate = dateLabel.format(new Date(trip.end));
   document.querySelector('#trip-length')!.textContent = duration;
-  document.querySelector('#summary-origin')!.textContent = `From ${home.name}`;
-  document.querySelector('#summary-dates')!.textContent = `${dateLabel(trip.start)} – ${dateLabel(trip.end)}`;
-  document.querySelector('#summary-duration')!.textContent = duration;
+  document.querySelector('#summary-dates')!.textContent = trip.start === trip.end ? startDate : `${startDate} to ${endDate}`;
   if (shouldFly || homeChanged || regionChanged || !cityScores.some(result => result.city.name === selectedName)) selectedName = null;
   if (activeRegion && !cityScores.some(result => result.city.region === activeRegion)) activeRegion = '';
   renderLists(); renderSelection(); renderRegion(); renderWeatherControls(); globe.update(cityScores, ranked, home); globe.setSelected(selectedName);
