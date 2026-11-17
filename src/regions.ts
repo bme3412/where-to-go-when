@@ -23,10 +23,10 @@ const COUNTRY_REGIONS: Readonly<Record<string, DestinationRegionId>> = {
   'Costa Rica': 'central-america', Cuba: 'central-america', 'Puerto Rico': 'central-america', Aruba: 'central-america',
   Colombia: 'south-america', Ecuador: 'south-america', Peru: 'south-america', Brazil: 'south-america',
   Argentina: 'south-america', Chile: 'south-america',
-  Morocco: 'africa', Egypt: 'africa', 'South Africa': 'africa', Tanzania: 'africa', Zimbabwe: 'africa', Mauritius: 'africa',
+  Kenya: 'africa', Ethiopia: 'africa', Ghana: 'africa', Senegal: 'africa', Morocco: 'africa', Egypt: 'africa', 'South Africa': 'africa', Tanzania: 'africa', Zimbabwe: 'africa', Mauritius: 'africa',
   Malaysia: 'asia', Taiwan: 'asia', Japan: 'asia', 'South Korea': 'asia', China: 'asia', Thailand: 'asia', Vietnam: 'asia', Cambodia: 'asia',
   Indonesia: 'asia', Singapore: 'asia', Maldives: 'asia', India: 'asia', Nepal: 'asia', 'Sri Lanka': 'asia',
-  Turkey: 'middle-east', Jordan: 'middle-east', 'United Arab Emirates': 'middle-east',
+  Oman: 'middle-east', Qatar: 'middle-east', Turkey: 'middle-east', Jordan: 'middle-east', 'United Arab Emirates': 'middle-east',
   Australia: 'oceania', 'New Zealand': 'oceania', Fiji: 'oceania',
 };
 // Group overseas locations by their location, while domestic/global scope still uses country.

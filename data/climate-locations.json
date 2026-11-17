@@ -640,5 +640,65 @@
     "name": "Santiago",
     "lat": -33.45,
     "lon": -70.67
+  },
+  {
+    "name": "Nairobi",
+    "lat": -1.29,
+    "lon": 36.82
+  },
+  {
+    "name": "Addis Ababa",
+    "lat": 9.03,
+    "lon": 38.74
+  },
+  {
+    "name": "Accra",
+    "lat": 5.56,
+    "lon": -0.2
+  },
+  {
+    "name": "Dakar",
+    "lat": 14.69,
+    "lon": -17.44
+  },
+  {
+    "name": "Casablanca",
+    "lat": 33.59,
+    "lon": -7.62
+  },
+  {
+    "name": "Doha",
+    "lat": 25.29,
+    "lon": 51.53
+  },
+  {
+    "name": "Abu Dhabi",
+    "lat": 24.45,
+    "lon": 54.38
+  },
+  {
+    "name": "Muscat",
+    "lat": 23.59,
+    "lon": 58.41
+  },
+  {
+    "name": "Bogotá",
+    "lat": 4.71,
+    "lon": -74.07
+  },
+  {
+    "name": "Lima",
+    "lat": -12.05,
+    "lon": -77.04
+  },
+  {
+    "name": "Ho Chi Minh City",
+    "lat": 10.78,
+    "lon": 106.7
+  },
+  {
+    "name": "Osaka",
+    "lat": 34.69,
+    "lon": 135.5
   }
 ]

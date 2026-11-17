@@ -1,10 +1,10 @@
 {
-  "auditedAt": "2026-11-17T19:29:19.037248+00:00",
+  "auditedAt": "2026-11-17T19:37:56.478382+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 107 reference points, all 107 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 119 reference points, all 119 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 1005,
+    "sourceFingerprints": 1029,
     "dailyGridFingerprints": true,
     "monthDenominators": true,
     "histogramCounts": true,
@@ -16,7 +16,7 @@
   },
   "destinationCounts": {
     "station": 37,
-    "grid": 62,
+    "grid": 74,
     "mixed": 8
   },
   "additions": [
@@ -162,6 +162,54 @@
     },
     {
       "name": "Santiago",
+      "source": "grid"
+    },
+    {
+      "name": "Nairobi",
+      "source": "grid"
+    },
+    {
+      "name": "Addis Ababa",
+      "source": "grid"
+    },
+    {
+      "name": "Accra",
+      "source": "grid"
+    },
+    {
+      "name": "Dakar",
+      "source": "grid"
+    },
+    {
+      "name": "Casablanca",
+      "source": "grid"
+    },
+    {
+      "name": "Doha",
+      "source": "grid"
+    },
+    {
+      "name": "Abu Dhabi",
+      "source": "grid"
+    },
+    {
+      "name": "Muscat",
+      "source": "grid"
+    },
+    {
+      "name": "Bogotá",
+      "source": "grid"
+    },
+    {
+      "name": "Lima",
+      "source": "grid"
+    },
+    {
+      "name": "Ho Chi Minh City",
+      "source": "grid"
+    },
+    {
+      "name": "Osaka",
       "source": "grid"
     }
   ],
@@ -586,7 +634,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 107 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 119 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -2843,6 +2891,258 @@
       "name": "Santiago",
       "kind": "grid",
       "reference": "Santiago",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Nairobi",
+      "kind": "grid",
+      "reference": "Nairobi",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Addis Ababa",
+      "kind": "grid",
+      "reference": "Addis Ababa",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Accra",
+      "kind": "grid",
+      "reference": "Accra",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Dakar",
+      "kind": "grid",
+      "reference": "Dakar",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Casablanca",
+      "kind": "grid",
+      "reference": "Casablanca",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Doha",
+      "kind": "grid",
+      "reference": "Doha",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Abu Dhabi",
+      "kind": "grid",
+      "reference": "Abu Dhabi",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Muscat",
+      "kind": "grid",
+      "reference": "Muscat",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Bogotá",
+      "kind": "grid",
+      "reference": "Bogotá",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Lima",
+      "kind": "grid",
+      "reference": "Lima",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Ho Chi Minh City",
+      "kind": "grid",
+      "reference": "Ho Chi Minh City",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Osaka",
+      "kind": "grid",
+      "reference": "Osaka",
       "factors": {
         "temperature": {
           "kind": "grid",

@@ -7,8 +7,8 @@ import { WEATHER_SYMBOLS, weatherFlagLabel } from './weather';
 import { AGENCY_STATUS_LABELS, climateLabel, climateSourceKind, gridElevationMismatch, sharedGridHistory } from './climate';
 
 export const BANDS = [
-  { minimum: 75, range: '75–100', label: 'Strong match', key: 'great', color: '#3B6D11' },
-  { minimum: 62, range: '62–74', label: 'Good match', key: 'good', color: '#97C459' },
+  { minimum: 75, range: '75–100', label: 'Strong match', key: 'great', color: '#355B88' },
+  { minimum: 62, range: '62–74', label: 'Good match', key: 'good', color: '#6385AC' },
   { minimum: 48, range: '48–61', label: 'Mixed', key: 'okay', color: '#EF9F27' },
   { minimum: 0, range: '0–47', label: 'Low match', key: 'skip', color: '#E24B4A' },
 ] as const;

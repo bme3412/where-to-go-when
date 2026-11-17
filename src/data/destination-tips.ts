@@ -2,6 +2,7 @@ import type { CityScore } from '../types';
 import type { CITY_ROWS } from './cities';
 
 const flags: Readonly<Record<string, string>> = {
+  Kenya: '🇰🇪', Ethiopia: '🇪🇹', Ghana: '🇬🇭', Senegal: '🇸🇳', Oman: '🇴🇲', Qatar: '🇶🇦',
   Austria: '🇦🇹', Belgium: '🇧🇪', Germany: '🇩🇪', Ireland: '🇮🇪', Sweden: '🇸🇪', Malaysia: '🇲🇾', Taiwan: '🇹🇼',
   Argentina: '🇦🇷', Aruba: '🇦🇼', Australia: '🇦🇺', Brazil: '🇧🇷', Cambodia: '🇰🇭', Canada: '🇨🇦',
   Chile: '🇨🇱', China: '🇨🇳', Colombia: '🇨🇴', 'Costa Rica': '🇨🇷', Croatia: '🇭🇷', Cuba: '🇨🇺',
@@ -125,6 +126,18 @@ const localActivities = {
   Melbourne: ['Walk the Royal Botanic Gardens and the Yarra waterfront.', 'Browse the National Gallery of Victoria.'],
   Auckland: ['Walk the waterfront from the Viaduct to Wynyard Quarter.', 'Visit Auckland War Memorial Museum.'],
   Santiago: ['Walk through Parque Bicentenario on a clear morning.', 'Visit the Museo Chileno de Arte Precolombino.'],
+  Nairobi: ['Walk the forest trails in Karura when the paths are dry.', 'Browse the exhibits at Nairobi National Museum.'],
+  'Addis Ababa': ['Walk the paths of Entoto Park on a clear morning.', 'Spend a cooler or rainy afternoon at the National Museum of Ethiopia.'],
+  Accra: ['Explore the streets and architecture of Jamestown in the morning.', 'Visit the National Museum of Ghana during the hotter part of the day.'],
+  Dakar: ['Walk a stretch of the Corniche before the afternoon heat.', 'Explore the Museum of Black Civilisations.'],
+  Casablanca: ['Walk along the Corniche in the morning.', 'Tour the interior of the Hassan II Mosque when visitor access is available.'],
+  Doha: ['Walk the Doha Corniche near sunset.', 'Spend the hotter part of the day at the Museum of Islamic Art.'],
+  'Abu Dhabi': ['Walk the Corniche before the afternoon heat.', 'Explore the galleries at Louvre Abu Dhabi.'],
+  Muscat: ['Walk the Mutrah Corniche in the evening.', 'Browse the covered lanes of Mutrah Souq.'],
+  Bogotá: ['Walk through La Candelaria and stop in a courtyard café.', 'Visit the Gold Museum during a rainy spell.'],
+  Lima: ['Walk the clifftop paths of the Miraflores malecón.', 'See the collections at the Larco Museum.'],
+  'Ho Chi Minh City': ['Walk the streets around the Central Post Office early in the morning.', 'Spend a hot or rainy afternoon at the Ho Chi Minh City Museum of Fine Arts.'],
+  Osaka: ['Walk the park around Osaka Castle on a clear morning.', 'Visit the indoor exhibits at Osaka Aquarium Kaiyukan.'],
 } satisfies Record<(typeof CITY_ROWS)[number][0], ActivityPair>;
 
 const activities: Readonly<Partial<Record<string, ActivityPair>>> = localActivities;
