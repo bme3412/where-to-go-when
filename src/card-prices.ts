@@ -6,6 +6,33 @@ import type { Trip } from './types';
 interface Estimate { text: string; until: number }
 interface Lookup { url: string; read: (data: unknown) => Estimate }
 const cache = new Map<string, Estimate>();
+const fareStorageKey = 'recent-airfares-v1';
+const recentFares = new Map<string, Estimate>();
+try {
+  const saved = JSON.parse(localStorage.getItem(fareStorageKey) ?? '[]');
+  for (const [url, fare] of saved) {
+    if (typeof url === 'string' && url.startsWith(AIRFARE_ENDPOINT + '?') &&
+        typeof fare?.text === 'string' && /^\$[\d,]+$/.test(fare.text) &&
+        Number.isFinite(fare.until) && fare.until > Date.now()) {
+      recentFares.set(url, fare);
+      cache.set(url, fare);
+    }
+  }
+} catch { /* Storage can be unavailable in private browsing. */ }
+
+function saveFare(url: string, fare: Estimate) {
+  recentFares.set(url, fare);
+  for (const [key, entry] of recentFares) {
+    if (entry.until <= Date.now() || recentFares.size > 100) recentFares.delete(key);
+  }
+  try { localStorage.setItem(fareStorageKey, JSON.stringify([...recentFares])); } catch { /* Memory cache still works. */ }
+}
+
+let lastScroll = 0;
+export function pricesScrolled() {
+  lastScroll = Date.now();
+  schedule();
+}
 interface Task { lookup: Lookup; item: HTMLElement; label: string; settled?: boolean }
 const visible = new Set<HTMLElement>();
 const firstSeen = new WeakMap<HTMLElement, number>();
@@ -26,7 +53,14 @@ function pump() {
   const now = Date.now();
   // A visible fare that has already waited for the provider gets the next free slot.
   const due = (card: HTMLElement) => (tasks.get(card) ?? []).some(t => (retryAt.get(t.lookup.url) ?? Infinity) <= now);
-  const cards = [...visible].sort((a, b) => Number(due(b)) - Number(due(a)));
+  // Start with the first fully visible destination where the reader stopped.
+  function position(card: HTMLElement) {
+    const row = card.parentElement;
+    if (!row) return 0;
+    const top = row.getBoundingClientRect().top - Math.max(0, row.closest('.panel-scroll')?.getBoundingClientRect().top ?? 0);
+    return top >= -2 ? top : Infinity;
+  }
+  const cards = [...visible].sort((a, b) => position(a) - position(b) || Number(due(b)) - Number(due(a)));
   for (const container of cards) {
     for (const task of tasks.get(container) ?? []) {
       const { lookup, item, label } = task;
@@ -43,13 +77,14 @@ function pump() {
         item.textContent = label + ' expired';
         continue;
       }
-      const stableAt = (firstSeen.get(container) ?? now) + 150;
+      const fare = url.startsWith(AIRFARE_ENDPOINT + '?');
+      const dwell = fare && container !== cards[0] ? 1000 : 150;
+      const stableAt = Math.max(firstSeen.get(container) ?? now, fare ? lastScroll : 0) + dwell;
       if (stableAt > now) {
         next = Math.min(next, stableAt);
         continue;
       }
       const endpoint = url.split('?')[0];
-      const fare = endpoint === AIRFARE_ENDPOINT;
       const lane: Lane = lanes.get(endpoint) ?? { starts: [], pause: 0, active: new Set() };
       lanes.set(endpoint, lane);
       if (lane.active.has(url) || lane.active.size >= (fare ? 2 : 1)) continue;
@@ -83,7 +118,9 @@ function pump() {
             retryAt.delete(url);
             cache.set(url, { text: 'no estimate', until: Date.now() + 300_000 });
           } else if (response.ok) {
-            cache.set(url, lookup.read(await response.json()));
+            const estimate = lookup.read(await response.json());
+            cache.set(url, estimate);
+            if (fare) saveFare(url, estimate);
             retryAt.delete(url);
           }
           else throw new Error('Unavailable');
@@ -143,7 +180,7 @@ export function observeCardPrices(container: HTMLElement, origin: string, city: 
         (!nonstop || (o.outboundStops === 0 && o.returnStops === 0)) &&
         (!o.expiresAt || Date.parse(o.expiresAt) > Date.now())).sort((a,b) => a.total-b.total)[0];
       if (!fare) throw new Error('Missing fare');
-      return { text: tripPrice(fare.total), until: Math.min(Date.now()+300_000, fare.expiresAt ? Date.parse(fare.expiresAt) : Infinity) };
+      return { text: tripPrice(fare.total), until: Math.min(Date.now()+900_000, fare.expiresAt ? Date.parse(fare.expiresAt) : Infinity) };
     } } });
   }
   if (start >= today && end <= today + 365 * day && nights >= 1 && nights <= 30 && lodgingCountryCode(city)) {

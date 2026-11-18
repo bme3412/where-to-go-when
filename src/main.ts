@@ -1,4 +1,4 @@
-import { observeCardPrices, resetCardPrices } from './card-prices';
+import { observeCardPrices, pricesScrolled, resetCardPrices } from './card-prices';
 import { rankSeasonalAreas, seasonalArea, seasonalScore, seasonalTitle } from "./seasonal";
 import { tripFromUrl } from './trip-date-feedback';
 import destinationPhotos from './data/destination-photos.json';
@@ -175,6 +175,8 @@ const container = document.querySelector<HTMLElement>('#globe-container')!;
 const spinButton = document.querySelector<HTMLButtonElement>('#spin')!;
 const unitButton = document.querySelector<HTMLButtonElement>('#units')!;
 const destinationList = document.querySelector<HTMLDivElement>('#destination-list')!;
+destinationList.closest('.panel-scroll')?.addEventListener('scroll', pricesScrolled, { passive: true });
+window.addEventListener('scroll', pricesScrolled, { passive: true });
 const detailsDialog = document.querySelector<HTMLDialogElement>('#details-dialog')!;
 const panels = setupPanels(container);
 function hideTooltip(): void {
