@@ -40,6 +40,7 @@ const tasks = new Map<HTMLElement, Task[]>();
 interface Lane { starts: number[]; pause: number; active: Set<string> }
 const lanes = new Map<string, Lane>();
 // Retry a transient fare failure once promptly, then return to the normal cooldown.
+const fareLimitedUntil = new Map<string, number>();
 const retryAt = new Map<string, number>();
 let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -87,7 +88,10 @@ function pump() {
       const endpoint = url.split('?')[0];
       const lane: Lane = lanes.get(endpoint) ?? { starts: [], pause: 0, active: new Set() };
       lanes.set(endpoint, lane);
-      if (lane.active.has(url) || lane.active.size >= (fare ? 2 : 1)) continue;
+      // Let the stopped-on card reach the CDN even when background requests are queued.
+      // The server still rate-limits provider lookups on a CDN miss.
+      const focused = fare && container === cards[0] && !retryAt.has(url);
+      if (lane.active.has(url) || lane.active.size >= (focused ? 3 : fare ? 2 : 1)) continue;
       const retry = retryAt.get(url);
       if (retry !== undefined && retry > now) {
         item.textContent = label + ' retrying…';
@@ -98,7 +102,7 @@ function pump() {
       // Reserve the fifth minute slot while another visible fare could need a retry.
       const reserve = fare && retry === undefined && (lane.active.size > 0 ||
         cards.some(card => tasks.get(card)?.some(t => retryAt.has(t.lookup.url))));
-      const ready = Math.max(lane.pause, (lane.starts.at(reserve ? -4 : -5) ?? 0) + 60_000, (lane.starts.at(-15) ?? 0) + 3_600_000);
+      const ready = focused ? (fareLimitedUntil.get(url) ?? 0) : Math.max(lane.pause, (lane.starts.at(reserve ? -4 : -5) ?? 0) + 60_000, (lane.starts.at(-15) ?? 0) + 3_600_000);
       if (ready > now) {
         item.textContent = label + ' queued';
         item.title = 'Nuitée request limit. Next lookup can start at ' + new Date(ready).toLocaleTimeString();
@@ -114,6 +118,7 @@ function pump() {
           if (response.status === 429) {
             const seconds = Number(response.headers.get('Retry-After'));
             lane.pause = Date.now() + Math.max(60, Number.isFinite(seconds) ? seconds : 0) * 1000;
+            if (fare) fareLimitedUntil.set(url, lane.pause);
           } else if (response.status === 404 || response.status === 400) {
             retryAt.delete(url);
             cache.set(url, { text: 'no estimate', until: Date.now() + 300_000 });
@@ -156,6 +161,7 @@ const observer = new IntersectionObserver(entries => {
 });
 
 export function resetCardPrices() {
+  for (const [url, until] of fareLimitedUntil) if (until <= Date.now()) fareLimitedUntil.delete(url);
   observer.disconnect();
   visible.clear();
   tasks.clear();

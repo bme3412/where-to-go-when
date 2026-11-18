@@ -77,7 +77,7 @@ it('starts the first fully visible fare after scrolling settles', async () => {
   vi.stubGlobal('document', { createElement: () => ({}) });
   const fetchPrice = vi.fn(async (url: string) => url.includes('lodging')
     ? Response.json({ nights: 14, total: 1703 })
-    : Response.json({ options: [{ total: 1400 }] }));
+    : url.includes('city=Phuket') ? new Response(null, { status: 429 }) : Response.json({ options: [{ total: 1400 }] }));
   vi.stubGlobal('fetch', fetchPrice);
   const { observeCardPrices, pricesScrolled, resetCardPrices } = await import('./card-prices');
   const cards = [-30, 8, 110].map(top => ({
@@ -95,5 +95,11 @@ it('starts the first fully visible fare after scrolling settles', async () => {
   await vi.advanceTimersByTimeAsync(100);
   expect(fares()).toHaveLength(1);
   expect(fares()[0]).toContain('city=Phuket');
+  // The previous card's rate limit must not delay the next card's CDN hit.
+  visibility([{ target: cards[1], isIntersecting: false }]);
+  pricesScrolled();
+  await vi.advanceTimersByTimeAsync(250);
+  expect(fares()).toHaveLength(2);
+  expect(fares()[1]).toContain('city=Paris');
   resetCardPrices();
 });
