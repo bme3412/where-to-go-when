@@ -143,14 +143,6 @@ setupDatePicker(document.querySelector<HTMLElement>('.trip-dates')!, initialTrip
 const homeInput = document.querySelector<HTMLInputElement>('#home')!;
 const nonstopInput = document.querySelector<HTMLInputElement>('#nonstop-only')!;
 const weatherOptions = document.querySelector<HTMLElement>('#map-weather-options')!;
-// Give the expanded controls their own page space so the map keeps its size.
-const weatherMenu = weatherOptions.closest('details')!;
-function syncWeatherMenuHeight(): void {
-  const height = weatherMenu.open ? weatherOptions.offsetHeight + 4 : 0;
-  app.style.setProperty('--weather-options-height', `${height}px`);
-}
-weatherMenu.addEventListener('toggle', syncWeatherMenuHeight);
-new ResizeObserver(syncWeatherMenuHeight).observe(weatherOptions);
 const weatherSurfaces = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-surface]')];
 const weatherFlags = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-kind]')];
 const regionSelect = document.querySelector<HTMLSelectElement>('#destination-region')!;
