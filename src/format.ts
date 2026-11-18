@@ -173,9 +173,9 @@ export const tripPrice = (amount: number): string => new Intl.NumberFormat('en-U
 
 export function scoreBreakdown(result: CityScore, unit: Unit): string {
   if (result.seasonal) {
-    const { points, assessment, experience } = result.seasonal;
+    const { points, experience } = result.seasonal;
     const labels: Record<string, string> = { experience: 'Weather for ' + experience, timing: 'Seasonal timing', travel: 'Ease of travel', crowds: 'Few crowds', cost: 'Trip cost' };
-    return `<section class="score-breakdown"><h3>Why this score?</h3><p>${assessment} for ${experience}. Match score ${result.score.toFixed(1)} / 100.</p>
+    return `<section class="score-breakdown"><h3>Why this score?</h3><p>Match score ${result.score.toFixed(1)} / 100.</p>
       ${result.seasonal.dryDaylightHours !== undefined ? `<p>Estimated ${result.seasonal.dryDaylightHours.toFixed(1)} dry daylight hours per day with hourly coverage. Beach comfort is scored separately from rain.</p>` : ''}
       ${Object.entries(points).filter(([key]) => key !== 'cost' || result.tripCost).map(([key, value]) => `<div class="component-heading"><strong>${labels[key]}</strong><b>${value.toFixed(1)} points</b></div>`).join('')}
       ${climateProvenance(result.climate)}<button type="button" class="text-button" data-show-method>See scoring rules</button></section>`;

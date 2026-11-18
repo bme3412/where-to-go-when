@@ -3,7 +3,7 @@ import beachBases from './data/beach-bases.json';
 import { fractionalMonth, interp, rankCities } from './scoring';
 import { destinationName } from './regions';
 import { wetDayFrequency } from './climate';
-import type { CityScore, CityClimate } from './types';
+import type { CityScore, CityClimate, Travel, FlightJourney } from './types';
 
 type Experience = 'coast' | 'nature' | 'sightseeing';
 const coastal = new Set(beachBases);
@@ -19,6 +19,15 @@ function comfort(high: number, experience: Experience) {
   return Math.max(0, 1 - Math.max(0, low - high, high - upper) / taper);
 }
 const hourly: Record<string, { months: { dry: number; light: number; days: number }[] }> = beachHours;
+// Door-to-door time and changing planes matter even when the stay is long.
+export function accessFit(journey: Travel): number {
+  const direction = (hours: number, flight?: FlightJourney | null) => {
+    const duration = Math.max(0, (hours - 6) / 20);
+    const connections = flight ? flight.route.legs.length - 1 : 0;
+    return Math.max(0, 1 - duration - 0.22 * connections);
+  };
+  return (direction(journey.hours, journey.flights?.outbound) + direction(journey.returnHours, journey.flights?.inbound)) / 2;
+}
 const cache = new WeakMap<CityClimate, number[]>();
 export function seasonalScore(r: CityScore): CityScore {
   const experience = coastal.has(r.city.name) ? 'coast' : nature.has(r.city.name) ? 'nature' : 'sightseeing';
@@ -55,10 +64,9 @@ export function seasonalScore(r: CityScore): CityScore {
   const timing = months.reduce((sum, month) => sum + Math.max(0, Math.min(1, 0.5 + (historical - month) / 0.1)), 0) / 12;
   const scale = r.tripCost ? 0.9 : 1;
   const points = { experience: 45 * quality * scale, timing: 25 * timing * quality * scale,
-    travel: 20 * r.breakdown.fits.travel * scale, crowds: 10 * r.breakdown.fits.crowds * scale,
+    travel: 20 * Math.min(r.breakdown.fits.travel, accessFit(r.travel)) * scale, crowds: 10 * r.breakdown.fits.crowds * scale,
     cost: r.tripCost ? 10 * r.breakdown.fits.cost : 0 };
-  const assessment = timing >= 0.7 ? 'Among the better times of year' : timing <= 0.3 ? 'A less favorable time of year' : 'Typical seasonal conditions';
-  return { ...r, score: Object.values(points).reduce((a, b) => a + b, 0), seasonal: { experience, assessment, points, dryDaylightHours: hourlyDays ? dryHours / hourlyDays : undefined } };
+  return { ...r, score: Object.values(points).reduce((a, b) => a + b, 0), seasonal: { experience, points, dryDaylightHours: hourlyDays ? dryHours / hourlyDays : undefined } };
 }
 
 export function rankSeasonalAreas(scores: CityScore[]) {

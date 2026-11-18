@@ -25,7 +25,7 @@ export const methodContent = `
   <p>We subtract modeled outbound travel and time-zone recovery from the start, and return travel from the end. Day trips need at least half a modeled day at the destination. Two- and three-day trips need one modeled day. Longer trips need positive usable time.</p>
   <h3>How the weighted match works</h3>
   <p>Each fit runs from 0 to 100, and its contribution is fit × weight ÷ 100. The contributions add up to your match.</p>
-  <p>Travel contributes up to 20 points and quieter conditions up to 10.</p>
+  <p>Travel contributes up to 20 points. We use the lower of the usable-stay fit and a round-trip access estimate. Each direction starts at full credit, loses 5 percentage points per door-to-door hour beyond six and 22 per recorded connection, and bottoms out at zero. We average both directions. Routes without connection data use duration alone. Quieter conditions contribute up to 10 points.</p>
   <p>When you enter a complete USD trip estimate, cost contributes 10% and the other factors share the remaining 90% in their original proportions. The cost fit ranges from full credit at $250 plus $75 per night to zero at $1,200 plus $250 per night. These are scoring benchmarks. Missing prices leave the original score unchanged. Same-day trips use airfare alone.</p>
   <dl class="method-factors">
     <dt>Few crowds · estimated</dt><dd>Fit = 1 − crowd level. Assigned levels are 0.2 off-season, 0.5 shoulder, and 0.8 peak, with dated event adjustments and limits of 0.05–0.92. Destinations without seasonal crowd estimates start at a neutral 0.5. These are seasonal assumptions, not measured visitor counts.</dd>
