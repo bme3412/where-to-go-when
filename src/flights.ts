@@ -1,3 +1,4 @@
+import { ONWARD_TRANSFERS } from './data/onward-transfers';
 import snapshot from './data/boston-flights.json';
 import type { BostonDestination, BostonTrip, FlightJourney, FlightRoute, Travel } from './types';
 
@@ -15,11 +16,15 @@ export const BOSTON_FLIGHTS = snapshot as {
   destinations: Record<string, BostonDestination>;
 };
 
-function journey(route: FlightRoute | null, destination: BostonDestination, outbound: boolean): FlightJourney | null {
+function journey(route: FlightRoute | null, destination: BostonDestination, outbound: boolean, city: string): FlightJourney | null {
   if (!route) return null;
   const airport = outbound ? route.path.at(-1) : route.path[0];
-  const gateway = destination.gateways.find(item => item.iata === airport);
+  let gateway = destination.gateways.find(item => item.iata === airport);
   if (!gateway) return null;
+  const transfer = ONWARD_TRANSFERS[city];
+  if (gateway.minutes === null && transfer && transfer.gateway === airport) {
+    gateway = { ...gateway, minutes: transfer.minutes, basis: 'reviewed', note: transfer.leg, sourceUrl: transfer.source, checked: '2026-11-18' };
+  }
   const a = BOSTON_FLIGHTS.assumptions;
   const connectionMinutes = Math.max(0, route.legs.length - 1) * a.connectionMinutes;
   const totalMinutes = gateway.minutes === null ? null
@@ -31,9 +36,9 @@ export function bostonTrip(destinationName: string, nonstopOnly = false): Boston
   const destination = BOSTON_FLIGHTS.destinations[destinationName];
   if (!destination) return { outbound: null, inbound: null, note: 'This destination has no entry in the Boston snapshot.', hasGateway: false };
   return {
-    outbound: journey(nonstopOnly ? destination.nonstopOutbound : destination.outbound, destination, true),
-    inbound: journey(nonstopOnly ? destination.nonstopInbound : destination.inbound, destination, false),
-    note: destination.note,
+    outbound: journey(nonstopOnly ? destination.nonstopOutbound : destination.outbound, destination, true, destinationName),
+    inbound: journey(nonstopOnly ? destination.nonstopInbound : destination.inbound, destination, false, destinationName),
+    note: ONWARD_TRANSFERS[destinationName] ? null : destination.note,
     hasGateway: destination.gateways.length > 0,
   };
 }

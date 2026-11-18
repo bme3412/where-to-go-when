@@ -193,12 +193,12 @@ describe('travel and scoring', () => {
     expect(paris.travel.usable).toBeLessThan(1);
     expect(ranked.some(result => result.city.name === 'Paris')).toBe(false);
     expect(scores.find(result => result.city.name === 'Palolem')?.comfortableDryDays).toBe(0);
-    expect(ranked[0].city.name).toBe('Miami');
-    const [miami] = ranked;
+    expect(ranked[0].city.name).toBe('Guadalajara');
+    const miami = ranked.find(result => result.city.name === 'Miami')!;
     const puertoVillamil = ranked.find(result => result.city.name === 'Puerto Villamil')!;
     expect(puertoVillamil.rank).toBeGreaterThan(5);
     expect(rankingRouteLabel(puertoVillamil.travel)).toBe('Route coverage incomplete · distance estimate used');
-    expect(destinationTime(puertoVillamil.travel.usable)).toBe('~1.6 days at destination');
+    expect(destinationTime(puertoVillamil.travel.usable)).toBe('~1.2 days at destination');
     expect(rankingRouteLabel(miami.travel)).toBe('Nonstop listed from BOS');
     expect(destinationTime(miami.travel.usable)).toBe('~1.9 days at destination');
     // Arrival and departure each leave a fraction of the day, while the middle day is fully usable.
@@ -245,13 +245,13 @@ describe('travel and scoring', () => {
     const ranked = rankCities(results('2026-12-20', '2027-01-03'));
     expect(ranked.every(result => result.travel.usable > 0)).toBe(true);
     expect(ranked.every(result => result.comfortableDryDays >= 0 && result.comfortableDryDays <= result.travel.usable)).toBe(true);
-    expect(ranked.slice(0, 3).map(result => result.city.name)).toEqual(['Lima', 'Tenerife', 'Miami']);
+    expect(ranked.slice(0, 3).map(result => result.city.name)).toEqual(['Lima', 'Guadalajara', 'Nouakchott']);
     const puertoVillamil = ranked.find(result => result.city.name === 'Puerto Villamil')!;
     expect(puertoVillamil.comfortableDryDays).toBeGreaterThan(ranked.find(result => result.city.name === 'Mexico City')!.comfortableDryDays);
-    expect(puertoVillamil.rank).toBeGreaterThan(17);
-    expect(puertoVillamil.breakdown.contributions.travel).toBe(0);
+    expect(puertoVillamil.rank).toBe(13);
+    expect(puertoVillamil.breakdown.contributions.travel).toBeCloseTo(puertoVillamil.travel.factor * puertoVillamil.breakdown.weights.travel);
     expect(puertoVillamil.rank).toBeLessThan(ranked.find(result => result.city.name === 'Sapporo')!.rank);
-    expect(scoreBreakdown(puertoVillamil, 'F')).toContain('The travel factor gives no points when both directions use distance estimates.');
+    expect(scoreBreakdown(puertoVillamil, 'F')).toContain('Santa Cruz to Isabela by boat');
     expect(ranked.some(result => result.city.name === 'Paris')).toBe(true);
     const palolem = ranked.find(result => result.city.name === 'Palolem')!;
     expect(destinationTime(palolem.travel.usable)).toBe('~10.5 days at destination');
@@ -259,7 +259,7 @@ describe('travel and scoring', () => {
   });
 
   it.each([
-    [{ start: '2026-12-18', end: '2026-12-20' }, 'Miami'],
+    [{ start: '2026-12-18', end: '2026-12-20' }, 'Guadalajara'],
     [{ start: '2026-12-20', end: '2027-01-03' }, 'Lima'],
   ] as const)('uses the same weighted score for order and match labels on %j', (trip, defaultTop) => {
     const standard = rankCities(scoreCities(trip, boston));
@@ -275,8 +275,8 @@ describe('travel and scoring', () => {
   });
 
   it.each([
-    [{ start: '2026-12-18', end: '2026-12-20' }, 'Mexico City', 480, 2],
-    [{ start: '2026-12-20', end: '2027-01-03' }, 'Tenerife', 1380, 17],
+    [{ start: '2026-12-18', end: '2026-12-20' }, 'Guadalajara', 480, 3],
+    [{ start: '2026-12-20', end: '2027-01-03' }, 'Lima', 1380, 24],
   ] as const)('uses complete costs and preserves unpriced scores for %j', (trip, first, mexicoTotal, miamiRank) => {
     const prices = new Map([
       ['Miami', { airfare: 380, nightlyLodging: 225 }],
@@ -300,6 +300,16 @@ describe('travel and scoring', () => {
       expect(result.breakdown).toEqual(original.breakdown);
       expect(result.tripCost).toBeUndefined();
     }
+  });
+
+  it('awards more crowd points to quieter destinations and half credit for neutral estimates', () => {
+    const scores = results('2026-12-20', '2027-01-03');
+    for (const { crowd, breakdown } of scores) {
+      expect(breakdown.contributions.crowds).toBeCloseTo((1 - crowd) * breakdown.weights.crowds);
+    }
+    expect(scores.some(result => result.crowd < 0.5)).toBe(true);
+    expect(scores.some(result => result.crowd > 0.5)).toBe(true);
+    expect(scores.some(result => result.crowd === 0.5)).toBe(true);
   });
 
   it('requires half a modeled day at the destination for a same-day trip', () => {

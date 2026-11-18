@@ -45,7 +45,7 @@ describe('Nuitée lodging estimates', () => {
       prices.set(city, { airfare: fares[city], nightlyLodging: quote.nightlyAverage, lodgingSource: 'nuitee' });
     }
     const ranked = rankCities(scoreCities(trip, boston, undefined, undefined, false, undefined, prices));
-    expect(ranked[0].city.name).toBe(nights === 2 ? 'Mexico City' : 'Tenerife');
+    expect(ranked[0].city.name).toBe(nights === 2 ? 'Guadalajara' : 'Lima');
     expect(ranked.find(result => result.city.name === 'Miami')?.tripCost?.lodgingSource).toBe('nuitee');
     const callCount = provider.mock.calls.length;
     await lodging(lookup(destinations[0][0], start, end), 'fixture-key', true);

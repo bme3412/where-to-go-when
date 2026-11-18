@@ -24,7 +24,7 @@ export interface FlightJourney { route: FlightRoute; gateway: AirportTransfer; c
 export interface BostonTrip { outbound: FlightJourney | null; inbound: FlightJourney | null; note: string | null; hasGateway: boolean }
 export interface Travel {
   km: number; mode: 'drive' | 'flight'; hours: number; returnHours: number; timeShift: number;
-  lost: number; usable: number; factor: number; basis: 'distance' | 'routes' | 'mixed'; flights?: BostonTrip;
+  lost: number; usable: number; factor: number; basis: 'distance' | 'routes' | 'mixed'; flights?: BostonTrip; onwardTransfer?: import('./data/onward-transfers').OnwardTransfer;
 }
 export type Dealbreaker = 'Too hot' | 'Too cold' | 'Frequent precipitation' | 'Packed';
 export interface ClimateMonth {

@@ -235,23 +235,22 @@ h3 { font-size: 12px; font-weight: 600; margin: 0; }
 .selection .icon-button { width: 24px; height: 24px; padding: 4px; }
 .results-panel .panel-heading { border-bottom: 1px solid var(--border); }
 .results-content { padding: 12px 12px 18px; }
-.destination-list { display: grid; gap: 7px; }
-#show-more-destinations { width: 100%; margin-top: 12px; }
-.pick-row { display: block; width: 100%; padding: 13px 12px 10px; border: 1px solid transparent; border-bottom-color: var(--border); border-radius: 8px; background: transparent; text-align: left; }
+.destination-list { display: grid; }
+.pick-row { display: block; width: 100%; padding: 6px 9px; border: 1px solid transparent; border-bottom-color: var(--border); border-radius: 8px; background: transparent; text-align: left; }
 .pick-row.selected { border-color: var(--accent); background: var(--hover); }
 .pick-heading { display: flex; gap: 10px; align-items: center; }
 .pick-place { flex: 1; min-width: 0; }
 .city-name { display: block; font-weight: 550; font-size: 13px; }
 .country-flag { margin-right: 5px; }
-.country-name { display: block; font-size: 10px; color: var(--muted); margin-top: 4px; }
-.rating { flex-shrink: 0; border-radius: 6px; padding: 5px 7px; font-size: 9px; font-weight: 550; }
-.pick-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; color: var(--muted); font-size: 10px; margin: 10px 0 0; }
+.country-name { display: block; font-size: 10px; color: var(--muted); margin-top: 1px; }
+.rating { flex-shrink: 0; border-radius: 6px; padding: 3px 5px; font-size: 9px; font-weight: 550; }
+.pick-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; color: var(--muted); font-size: 10px; margin: 3px 0 0; }
 .pick-facts > span { white-space: nowrap; }
 .pick-facts span + span::before { content: '·'; margin-right: 7px; color: var(--border-strong); }
-.pick-activity { display: block; margin: 5px 0 0; font-size: 10px; line-height: 1.5; }
-.pick-route { display: block; color: var(--accent); font-size: 9px; line-height: 1.5; margin-top: 5px; overflow-wrap: anywhere; }
+.pick-row .weather-badges { margin-top: 2px; }
+.pick-route { display: block; color: var(--accent); font-size: 9px; line-height: 1.3; margin-top: 2px; overflow-wrap: anywhere; }
 .forecast-status { margin: 0 0 9px; font-size: 11px; color: var(--muted); }
-.weather-coverage { display: block; margin-top: 5px; font-size: 10px; line-height: 1.5; }
+.weather-coverage { display: block; margin-top: 2px; font-size: 10px; line-height: 1.5; }
 .route-estimate { color: var(--muted); font-weight: 650; }
 .flight-caption { color: var(--accent); }
 .flight-details { border-top: 1px solid var(--border); margin-top: 24px; padding-top: 18px; }
@@ -358,7 +357,7 @@ dialog::backdrop { background: #16223778; }
 .data-note strong { color: var(--ink); font-size: 12px; font-weight: 550; }
 .method-link { margin-top: 20px; font-size: 11px; color: var(--accent); text-align: left; text-decoration: underline; text-underline-offset: 3px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-@media (min-width: 1600px) { .workspace { --left-width: 292px; --right-width: 340px; gap: 26px; } .panel-heading, .settings-content { padding-left: 23px; padding-right: 23px; } .pick-row { padding-top: 17px; padding-bottom: 14px; } }
+@media (min-width: 1600px) { .workspace { --left-width: 292px; --right-width: 340px; gap: 26px; } .panel-heading, .settings-content { padding-left: 23px; padding-right: 23px; } }
 @media (max-width: 1250px) and (min-width: 1101px) { #app { padding: 0 16px; } .workspace { --left-width: 250px; --right-width: 290px; gap: 15px; } .settings-content, .panel-heading { padding-left: 16px; padding-right: 16px; } .pick-row { padding-left: 7px; padding-right: 7px; } }
 @media (max-width: 1100px) {
   #app { padding: 0 24px; }

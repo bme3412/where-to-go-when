@@ -25,8 +25,8 @@ function journey(from: string, to: string, fare: number, minutes: number, kind: 
 }
 
 it.each([
-  ['2026-12-18', '2026-12-20', 'Miami', 'MIA', 380, 225, 830, 'Mexico City'],
-  ['2026-12-20', '2027-01-03', 'Lima', 'LIM', 620, 85, 1810, 'Tenerife'],
+  ['2026-12-18', '2026-12-20', 'Miami', 'MIA', 380, 225, 830, 'Guadalajara'],
+  ['2026-12-20', '2027-01-03', 'Lima', 'LIM', 620, 85, 1810, 'Lima'],
 ] as const)('looks up and applies a Boston round trip for %s through %s', async (start, end, city, airport, fare, lodging, total, first) => {
   const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => Response.json({ data: [
     { journeys: [journey('BOS', airport, fare, 250, 'connection'), journey('BOS', airport, fare + 150, 170, 'nonstop')] },

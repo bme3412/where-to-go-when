@@ -1,4 +1,4 @@
-import { countryFlag, destinationActivity } from './data/destination-tips';
+import { countryFlag } from './data/destination-tips';
 import { setupOriginSearch } from './origin-search';
 import { datePickerMarkup, setupDatePicker } from './date-picker';
 import { CITIES } from './data/cities';
@@ -61,8 +61,6 @@ let selectedNonstopRoute = false;
 let cityScores: CityScore[] = [];
 let allCityScores: CityScore[] = [];
 let ranked: RankedCity[] = [];
-const resultsPageSize = 30;
-let visibleResults = resultsPageSize;
 let forecasts: Forecasts | undefined;
 let forecastPending = false;
 let forecastExpires = 0;
@@ -121,7 +119,6 @@ app.innerHTML = `
       <div class="panel-scroll results-content">
         <p id="forecast-status" class="forecast-status" role="status"></p>
         <div id="destination-list" class="destination-list"></div>
-        <button type="button" id="show-more-destinations" class="small-button" aria-controls="destination-list" hidden>Show more destinations</button>
         <p class="results-note">Select a destination to inspect its score.</p>
       </div>
     </aside>
@@ -151,7 +148,6 @@ const container = document.querySelector<HTMLElement>('#globe-container')!;
 const spinButton = document.querySelector<HTMLButtonElement>('#spin')!;
 const unitButton = document.querySelector<HTMLButtonElement>('#units')!;
 const destinationList = document.querySelector<HTMLDivElement>('#destination-list')!;
-const showMoreDestinations = document.querySelector<HTMLButtonElement>('#show-more-destinations')!;
 const detailsDialog = document.querySelector<HTMLDialogElement>('#details-dialog')!;
 const panels = setupPanels(container);
 function hideTooltip(): void {
@@ -190,8 +186,7 @@ function renderPick(r: RankedCity): string {
   const rating = band(r.score);
   const route = hasNonstopFare(r.city.name) ? 'Nonstop both ways · Nuitée' : rankingRouteLabel(r.travel);
   const sources = escapeHtml(weatherSourceSummary(r));
-  const activity = escapeHtml(destinationActivity(r));
-  return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(destinationName(r.city))}, ${rating.label}. ${activity} ${sources}. ${climateLabel(r.climate)}.${r.weatherFlags.length ? ` Seasonal weather: ${escapeHtml(r.weatherFlags.map(weatherFlagLabel).join(", "))}.` : ""}${route ? ` ${escapeHtml(route)}.` : ''} Center on globe."><span class="pick-heading"><span class="pick-place"><strong class="city-name">${escapeHtml(destinationName(r.city))}</strong><span class="country-name"><span class="country-flag" aria-hidden="true">${countryFlag(r.city.country)}</span>${escapeHtml(displayCountry(r.city.country))}${r.climate.referenceLabel ? ` · ${escapeHtml(r.climate.referenceLabel)}` : ''}</span></span><span class="rating ${rating.key}">${rating.label}</span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span>${r.tripCost ? `<span>${tripPrice(r.tripCost.total)} estimated trip</span>` : ''}</span><span class="pick-activity">${activity}</span>${weatherBadges(r.weatherFlags.slice(0, 2))}${route ? `<span class="pick-route${r.travel.basis !== 'routes' ? ' route-estimate' : ''}">${escapeHtml(route)}</span>` : ''}${r.weatherDates.forecast.length ? `<span class="weather-coverage">${sources}</span>` : ''}</button>`;
+  return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(destinationName(r.city))}, ${rating.label}. ${sources}. ${climateLabel(r.climate)}.${r.weatherFlags.length ? ` Seasonal weather: ${escapeHtml(r.weatherFlags.map(weatherFlagLabel).join(", "))}.` : ""}${route ? ` ${escapeHtml(route)}.` : ''} Center on globe."><span class="pick-heading"><span class="pick-place"><strong class="city-name">${escapeHtml(destinationName(r.city))}</strong><span class="country-name"><span class="country-flag" aria-hidden="true">${countryFlag(r.city.country)}</span>${escapeHtml(displayCountry(r.city.country))}${r.climate.referenceLabel ? ` · ${escapeHtml(r.climate.referenceLabel)}` : ''}</span></span><span class="rating ${rating.key}">${rating.label}</span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span>${r.tripCost ? `<span>${tripPrice(r.tripCost.total)} estimated trip</span>` : ''}</span>${weatherBadges(r.weatherFlags.slice(0, 2))}${route ? `<span class="pick-route${r.travel.basis !== 'routes' ? ' route-estimate' : ''}">${escapeHtml(route)}</span>` : ''}${r.weatherDates.forecast.length ? `<span class="weather-coverage">${sources}</span>` : ''}</button>`;
 }
 
 function renderLists(): void {
@@ -205,8 +200,7 @@ function renderLists(): void {
   const scopeLabel = [selectedRegionName(), scope === 'all' ? '' : scopeNames[scope], nonstopOnly ? 'Nonstop flights' : ''].filter(Boolean).join(' · ');
   document.querySelector<HTMLElement>('#summary-scope')!.hidden = !scopeLabel;
   document.querySelector('#summary-scope')!.textContent = scopeLabel;
-  showMoreDestinations.hidden = ranked.length <= visibleResults;
-  destinationList.innerHTML = ranked.slice(0, visibleResults).map(renderPick).join('');
+  destinationList.innerHTML = ranked.map(renderPick).join('');
   if (!ranked.length) destinationList.innerHTML = nonstopOnly
     ? `<div class="empty-results"><strong>No nonstop flights in this view</strong><p>For these dates, no destination fits your filters with time on the ground and a listed nonstop in each direction.</p><button type="button" class="small-button" data-clear-flights>Show all flight routes</button></div>`
     : selectedRegion !== 'all'
@@ -424,13 +418,6 @@ function resultForTarget(target: EventTarget | null): CityScore | undefined {
 destinationList.addEventListener('click', event => {
   const result = resultForTarget(event.target);
   if (result) selectDestination(result);
-});
-showMoreDestinations.addEventListener('click', () => {
-  const previousCount = visibleResults;
-  visibleResults += resultsPageSize;
-  destinationList.insertAdjacentHTML('beforeend', ranked.slice(previousCount, visibleResults).map(renderPick).join(''));
-  showMoreDestinations.hidden = ranked.length <= visibleResults;
-  (destinationList.children[previousCount] as HTMLButtonElement | undefined)?.focus();
 });
 const regionExplorer = document.querySelector<HTMLElement>('#region-explorer')!;
 const regionsDialog = document.querySelector<HTMLDialogElement>('#regions-dialog')!;

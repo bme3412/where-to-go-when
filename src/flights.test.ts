@@ -107,13 +107,23 @@ describe('offline Boston flights', () => {
     expect(flightLabel(result)).toContain('return incomplete');
   });
 
-  it('does not treat an unknown island transfer as zero minutes', () => {
+  it('includes a reviewed speedboat transfer in both recorded Boston journeys', () => {
     const result = travel(boston, destination('Maafushi'), 7);
-    expect(result.flights!.outbound!.route.path).toContain('MLE');
-    expect(result.flights!.outbound!.totalMinutes).toBeNull();
-    expect(result.flights!.inbound!.totalMinutes).toBeNull();
+    expect(result.basis).toBe('routes');
+    for (const direction of [result.flights!.outbound!, result.flights!.inbound!]) {
+      expect(direction.gateway.minutes).toBe(30);
+      expect(direction.totalMinutes).toBe(direction.route.flightMinutes + direction.connectionMinutes + 45 + 120 + 45 + 30);
+    }
+    expect(flightDetails(result)).toContain('Maafushi by speedboat');
+  });
+
+  it.each([boston, london])('adds known onward time in both fallback directions from $name', origin => {
+    const city = destination('Dhigurah');
+    const result = travel(origin, city, 7);
+    const sameLocation = travel(origin, { ...city, name: 'Unmapped location' }, 7);
     expect(result.basis).toBe('distance');
-    expect(flightDetails(result)).toContain('Onward transfer unverified');
+    expect(result.hours - sameLocation.hours).toBeCloseTo(2);
+    expect(result.returnHours - sameLocation.returnHours).toBeCloseTo(2);
   });
 
   it('explains the data limits and actual scoring basis in destination details', () => {

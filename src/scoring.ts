@@ -1,3 +1,4 @@
+import { ONWARD_TRANSFERS } from './data/onward-transfers';
 import type { DailyForecast, Forecasts } from './forecast';
 import { CITIES } from './data/cities';
 import { DOMESTIC_COUNTRY_GROUPS } from './data/origins';
@@ -133,26 +134,22 @@ export function travel(home: Place, destination: Place, tripDays: number, nonsto
   const flights = home.name === 'Boston' && mode === 'flight' ? bostonTrip(destination.name, nonstopOnly) : undefined;
   const outMinutes = flights?.outbound?.totalMinutes, backMinutes = flights?.inbound?.totalMinutes;
   const hasOutbound = outMinutes != null, hasReturn = backMinutes != null;
-  const hours = hasOutbound ? outMinutes / 60 : estimate;
-  const returnHours = hasReturn ? backMinutes / 60 : estimate;
+  const onwardTransfer = mode === 'flight' ? ONWARD_TRANSFERS[destination.name] : undefined;
+  const fallbackHours = estimate + (onwardTransfer?.minutes ?? 0) / 60;
+  const hours = hasOutbound ? outMinutes / 60 : fallbackHours;
+  const returnHours = hasReturn ? backMinutes / 60 : fallbackHours;
   const basis = hasOutbound && hasReturn ? 'routes' : hasOutbound || hasReturn ? 'mixed' : 'distance';
   const difference = Math.abs(home.tz - destination.tz);
   const timeShift = Math.min(difference, 24 - difference);
   const lost = Math.min(tripDays, (hours + returnHours) / TRAVEL_HOURS_PER_USABLE_DAY + Math.min(1.2, 0.1 * timeShift));
   const usable = tripDays - lost;
-  return { km, mode, hours, returnHours, timeShift, lost, usable, factor: usable / tripDays, basis, flights };
-}
-
-/** Discount the travel fit when the Boston snapshot leaves journey time unmodeled. */
-export function routeCoverageFactor(journey: Travel): number {
-  if (!journey.flights || journey.basis === 'routes') return 1;
-  return journey.basis === 'mixed' ? 0.5 : 0;
+  return { km, mode, hours, returnHours, timeShift, lost, usable, factor: usable / tripDays, basis, flights, onwardTransfer };
 }
 
 /** Count the friction of a known connection separately from time spent traveling. */
 export function connectionFitPenalty(journey: Travel, tripDays: number): number {
   const connections = [journey.flights?.outbound, journey.flights?.inbound]
-    .reduce((sum, direction) => sum + (direction?.totalMinutes == null ? 0 : Math.max(0, direction.route.legs.length - 1)), 0);
+    .reduce((sum, direction) => sum + (!direction ? 0 : Math.max(0, direction.route.legs.length - 1)), 0);
   const shortTripWeight = clamp((14 - tripDays) / 11, 0, 1);
   return connections * 1.5 / (TRAVEL_HOURS_PER_USABLE_DAY * tripDays) * shortTripWeight;
 }
@@ -315,7 +312,8 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
     ? values.reduce((sum, value, index) => sum + value * widths[index], 0) / samples.tripDays : mean(values);
   const targetDays = journey.usable / 2;
   const weatherReliability = { targetDays, chance: comfortableDryChance(reliabilityPeriods, targetDays) };
-  const fits: ScoreFactors = { cost: 0, reliability: weatherReliability.chance, weather: weatherMean(comfortFits), dry: 1 - weatherMean(wetLevels), crowds: mean(crowdLevels), travel: Math.max(0, journey.factor - connectionFitPenalty(journey, samples.tripDays)) * routeCoverageFactor(journey) };
+  const crowd = mean(crowdLevels);
+  const fits: ScoreFactors = { cost: 0, reliability: weatherReliability.chance, weather: weatherMean(comfortFits), dry: 1 - weatherMean(wetLevels), crowds: 1 - crowd, travel: Math.max(0, journey.factor - connectionFitPenalty(journey, samples.tripDays)) };
   const contributions = Object.fromEntries(SCORE_KEYS.map(key => [key, fits[key] * shares[key]])) as unknown as ScoreFactors;
   const score = SCORE_KEYS.reduce((sum, key) => sum + contributions[key], 0);
   const weatherFlags = weatherFlagsFor(city, climate, samples, { highs: historicalHighs, lows: historicalLows, wet: historicalWet });
@@ -325,7 +323,7 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
     temperatureComfort: { daytimeFit: weatherMean(weatherFits), apparentDays },
     weatherPeriods,
     weatherDates: { start: iso(start), end: iso(end), forecast: forecastDates.map(iso) },
-    high: weatherMean(highs), low: weatherMean(lows), homeHigh: weatherMean(homeHighs), rain: mean(rains), wetFrequency: weatherMean(wetLevels), crowd: mean(crowdLevels),
+    high: weatherMean(highs), low: weatherMean(lows), homeHigh: weatherMean(homeHighs), rain: mean(rains), wetFrequency: weatherMean(wetLevels), crowd,
     tripDays: samples.tripDays, travel: journey,
     breakdown: {
       fits, weights: shares, contributions, temperatureRange: { ...temperatureRange },
