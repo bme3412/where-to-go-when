@@ -90,7 +90,7 @@ function pump() {
       lanes.set(endpoint, lane);
       // Let the stopped-on card reach the CDN even when background requests are queued.
       // The server still rate-limits provider lookups on a CDN miss.
-      const focused = fare && container === cards[0] && !retryAt.has(url);
+      const focused = fare && container === cards[0];
       if (lane.active.has(url) || lane.active.size >= (focused ? 3 : fare ? 2 : 1)) continue;
       const retry = retryAt.get(url);
       if (retry !== undefined && retry > now) {
@@ -114,7 +114,9 @@ function pump() {
       lane.starts.push(now);
       void (async () => {
         try {
-          const response = await fetch(url, { signal: AbortSignal.timeout(fare ? 26_000 : 18_000) });
+          // Live first-offer streams can take 30s including edge processing.
+          // Keep the original request alive long enough to receive that quote.
+          const response = await fetch(url, { signal: AbortSignal.timeout(fare ? 45_000 : 18_000) });
           if (response.status === 429) {
             const seconds = Number(response.headers.get('Retry-After'));
             lane.pause = Date.now() + Math.max(60, Number.isFinite(seconds) ? seconds : 0) * 1000;

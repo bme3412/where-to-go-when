@@ -99,8 +99,8 @@ it('returns the first valid streamed card fare before the remaining providers fi
   const bytes = new TextEncoder().encode(options('connection', 300) + options('nonstop', 400));
   const stream = new ReadableStream({
     start(controller) {
-      controller.enqueue(bytes.slice(0, 29));
-      controller.enqueue(bytes.slice(29));
+      // Fragment field names, JSON, and CRLF event boundaries.
+      for (let i = 0; i < bytes.length; i += 3) controller.enqueue(bytes.slice(i, i + 3));
       // A slower provider is still searching.
     },
   });

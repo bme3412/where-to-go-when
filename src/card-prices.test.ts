@@ -3,6 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
   vi.resetModules();
 });
 
@@ -101,5 +102,41 @@ it('starts the first fully visible fare after scrolling settles', async () => {
   await vi.advanceTimersByTimeAsync(250);
   expect(fares()).toHaveLength(2);
   expect(fares()[1]).toContain('city=Paris');
+  resetCardPrices();
+});
+
+it('shows a 30-second first offer on the original request', async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-11-18T12:00:00Z'));
+  let show!: (entries: { target: HTMLElement; isIntersecting: boolean }[]) => void;
+  vi.stubGlobal('IntersectionObserver', class {
+    constructor(callback: typeof show) { show = callback; }
+    observe() {}
+    disconnect() {}
+  });
+  vi.stubGlobal('document', { createElement: () => ({}) });
+  // Drive the native fetch deadline with the same clock as the delayed response.
+  vi.spyOn(AbortSignal, 'timeout').mockImplementation(ms => {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), ms);
+    return controller.signal;
+  });
+  const fetchPrice = vi.fn(async (url: string, init: RequestInit) => {
+    if (url.includes('lodging')) return Response.json({ nights: 14, total: 1703 });
+    await new Promise<void>((resolve, reject) => {
+      setTimeout(resolve, 30_000);
+      init.signal!.addEventListener('abort', () => reject(new Error('Timeout')), { once: true });
+    });
+    return Response.json({ options: [{ total: 1328 }] });
+  });
+  vi.stubGlobal('fetch', fetchPrice);
+  const items: { textContent: string }[] = [];
+  const card = { replaceChildren() {}, append(item: typeof items[number]) { items.push(item); } } as unknown as HTMLElement;
+  const { observeCardPrices, resetCardPrices } = await import('./card-prices');
+  observeCardPrices(card, 'Rome', 'Phuket', { start: '2026-12-20', end: '2027-01-03' }, true, false);
+  show([{ target: card, isIntersecting: true }]);
+  await vi.advanceTimersByTimeAsync(30_500);
+  expect(fetchPrice.mock.calls.filter(([url]) => url.includes('airfare'))).toHaveLength(1);
+  expect(items[0].textContent).toBe('Round trip $1,328');
   resetCardPrices();
 });

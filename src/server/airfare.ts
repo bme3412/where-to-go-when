@@ -53,23 +53,36 @@ function optionsFrom(body: unknown, from: string, to: string, nonstop: boolean, 
 // Card estimates can use the first provider batch containing a valid round trip.
 async function firstAvailable(response: Response, from: string, to: string, nonstop: boolean, now: () => number) {
   const reader = response.body!.pipeThrough(new TextDecoderStream()).getReader();
-  let buffer = '';
+  // A supplier batch can be a large single line. Scan only newly arrived text
+  // and join fragments once, when the line is complete.
+  const fragments: string[] = [];
+  let data: string[] = [];
+  let eventType = '';
   try {
     while (true) {
       const { done, value } = await reader.read();
-      buffer += value ?? '';
-      const frames = buffer.split(/\r?\n\r?\n/);
-      buffer = done ? '' : frames.pop()!;
-      for (const frame of frames) {
-        const text = frame.split(/\r?\n/).filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n');
+      const lines = done ? ['', '', ''] : value.split('\n');
+      for (const part of lines.slice(0, -1)) {
+        fragments.push(part);
+        const line = fragments.join('').replace(/\r$/, '');
+        fragments.length = 0;
+        if (line.startsWith('event:')) eventType = line.slice(6).trim();
+        if (line.startsWith('data:')) data.push(line.slice(5).trimStart());
+        if (line) continue;
+        const text = data.join('\n');
+        data = [];
+        const failed = eventType === 'error';
+        eventType = '';
+        if (failed) throw new Error('Provider search failed');
         if (!text || text === '[DONE]') continue;
         const event = JSON.parse(text);
-        if (event.error || /^event: *error$/m.test(frame)) throw new Error('Provider search failed');
+        if (event.error) throw new Error('Provider search failed');
         const batch = event.data ?? event;
         const result = optionsFrom({ data: Array.isArray(batch) ? batch : [batch] }, from, to, nonstop, now());
         if (result.options.length) return result;
       }
       if (done) return { options: [], nonstopValidUntil: 0 };
+      fragments.push(lines[lines.length - 1]);
     }
   } finally {
     void reader.cancel().catch(() => {});
