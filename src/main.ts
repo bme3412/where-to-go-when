@@ -1,3 +1,4 @@
+import { topPickChange, tripFromUrl } from './trip-date-feedback';
 import destinationPhotos from './data/destination-photos.json';
 import { countryFlag } from './data/destination-tips';
 import { setupOriginSearch } from './origin-search';
@@ -33,7 +34,8 @@ const photoCredits = Object.entries(destinationPhotos).sort(([a], [b]) => a.loca
   `<li><a href="${escapeHtml(photo.url)}">${escapeHtml(city)}</a> · ${escapeHtml(photo.author)} · ${photo.licenseUrl ? `<a href="${escapeHtml(photo.licenseUrl)}">${escapeHtml(photo.license)}</a>` : escapeHtml(photo.license)}</li>`
 ).join('');
 const app = document.querySelector<HTMLElement>('#app')!;
-const initialTrip = defaultTrip(new Date());
+const initialTrip = tripFromUrl(new URL(location.href), defaultTrip(new Date()));
+let previousDateRanking: string[] | null = null;
 let trip = initialTrip;
 const tripPrices = new Map<string, Map<string, TripPriceEstimate>>();
 const airfareQuotes = new WeakMap<HTMLFormElement, AirfareOption[]>();
@@ -120,7 +122,7 @@ app.innerHTML = `
       <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span><span id="selected-weather"></span></div><button id="selected-details" class="small-button" type="button" aria-haspopup="dialog">Why this score? ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
     </section>
     <aside id="results-panel" class="side-panel results-panel" aria-labelledby="destinations-title">
-      <div class="panel-heading"><div><h2 id="destinations-title">Discover destinations</h2><p id="results-context"></p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close destinations">${closeIcon}</button></div>
+      <div class="panel-heading"><div><h2 id="destinations-title">Discover destinations</h2><p id="results-context"></p><p id="date-feedback" role="status" aria-live="polite" hidden></p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close destinations">${closeIcon}</button></div>
       <div class="panel-scroll results-content">
         <p id="forecast-status" class="forecast-status" role="status"></p>
         <div id="destination-list" class="destination-list"></div>
@@ -139,8 +141,20 @@ app.innerHTML = `
 `;
 
 setupDatePicker(document.querySelector<HTMLElement>('.trip-dates')!, initialTrip, selected => {
+  if (selected.start === trip.start && selected.end === trip.end) return;
+  previousDateRanking = ranked.map(result => destinationName(result.city));
   trip = selected;
-  recompute(false);
+  const url = new URL(location.href);
+  url.searchParams.set('start', trip.start);
+  url.searchParams.set('end', trip.end);
+  history.replaceState(history.state, '', url);
+  recompute(false, true);
+  document.querySelector('.results-content')!.scrollTop = 0;
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    for (const node of document.querySelectorAll('#date-feedback, .pick-row:nth-child(-n+3)')) {
+      node.animate([{ opacity: 0.6, transform: 'translateY(3px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 220, easing: 'ease-out' });
+    }
+  }
 });
 const homeInput = document.querySelector<HTMLInputElement>('#home')!;
 const nonstopInput = document.querySelector<HTMLInputElement>('#nonstop-only')!;
@@ -318,7 +332,8 @@ regionSelect.addEventListener('change', () => {
   recompute(true);
 });
 
-function recompute(shouldFly: boolean): void {
+function recompute(shouldFly: boolean, keepDateComparison = false): void {
+  if (!keepDateComparison) previousDateRanking = null;
   const nextScope = document.querySelector<HTMLInputElement>('[name="destination-scope"]:checked')!.value as DestinationScope;
   const global = nextScope === 'international';
   regionSelect.closest<HTMLElement>('.region-filter')!.hidden = !global;
@@ -332,7 +347,7 @@ function recompute(shouldFly: boolean): void {
       forecasts = result;
       forecastExpires = Date.now() + (result.size ? 30 : 5) * 60_000;
       forecastPending = false;
-      recompute(false);
+      recompute(false, true);
     });
   }
   const tripForecasts = nearTerm ? forecasts : undefined;
@@ -362,6 +377,9 @@ function recompute(shouldFly: boolean): void {
   nonstopMaps = nonstopFlightMaps(nonstopCityScores);
   globe.setNonstopRoutes(nonstopMaps);
   ranked = rankCities(cityScores);
+  const feedback = document.querySelector<HTMLElement>('#date-feedback')!;
+  feedback.hidden = previousDateRanking === null;
+  feedback.textContent = previousDateRanking ? topPickChange(previousDateRanking, ranked.map(result => destinationName(result.city))) : '';
   if (shouldFly || homeChanged || regionChanged || !cityScores.some(result => result.city.name === selectedName)) selectedName = null;
   if (activeRegion && !cityScores.some(result => result.city.region === activeRegion)) activeRegion = '';
   renderLists(); renderSelection(); renderRegion(); renderWeatherControls(); globe.update(cityScores, ranked, home); globe.setSelected(selectedName);
