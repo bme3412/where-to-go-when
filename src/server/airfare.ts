@@ -96,7 +96,14 @@ export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.
       if (response.status === 429) return json({ error: 'Too many airfare lookups.' }, 429);
       if (!response.ok) return json({ error: 'Airfare lookup is unavailable.' }, 502);
       const { options, nonstopValidUntil } = optionsFrom(await response.json(), from, to, nonstop, now());
-      return options.length ? json({ from, to, options, nonstopValidUntil }) : json({ error: 'No matching round-trip fares found.' }, 404);
+      if (!options.length) return json({ error: 'No matching round-trip fares found.' }, 404);
+      const quotedAt = now();
+      const validUntil = Math.min(quotedAt + 900_000, ...options.map(option =>
+        option.expiresAt ? Date.parse(option.expiresAt) : Infinity));
+      const result = json({ from, to, options, nonstopValidUntil, validUntil });
+      // Public estimates vary by the full query string. Only Vercel may share them.
+      result.headers.set('Vercel-CDN-Cache-Control', 'public, s-maxage=' + Math.max(0, Math.floor((validUntil - quotedAt) / 1000)));
+      return result;
     } catch {
       return json({ error: 'Airfare lookup is unavailable.' }, 502);
     }

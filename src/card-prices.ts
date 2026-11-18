@@ -175,12 +175,12 @@ export function observeCardPrices(container: HTMLElement, origin: string, city: 
   if (start >= today && end <= +fareLimit && flight && airfareAirports(origin, city, nonstop)) {
     const params = new URLSearchParams({ origin, city, ...trip, nonstop: String(nonstop) });
     parts.push({ label: 'Round trip', lookup: { url: AIRFARE_ENDPOINT + '?' + params, read(data) {
-      const { options } = data as { options: AirfareOption[] };
+      const { options, validUntil } = data as { options: AirfareOption[]; validUntil?: number };
       const fare = options.filter(o => Number.isFinite(o.total) && o.total > 0 &&
         (!nonstop || (o.outboundStops === 0 && o.returnStops === 0)) &&
         (!o.expiresAt || Date.parse(o.expiresAt) > Date.now())).sort((a,b) => a.total-b.total)[0];
       if (!fare) throw new Error('Missing fare');
-      return { text: tripPrice(fare.total), until: Math.min(Date.now()+900_000, fare.expiresAt ? Date.parse(fare.expiresAt) : Infinity) };
+      return { text: tripPrice(fare.total), until: Math.min(validUntil ?? Infinity, Date.now()+900_000, fare.expiresAt ? Date.parse(fare.expiresAt) : Infinity) };
     } } });
   }
   if (start >= today && end <= today + 365 * day && nights >= 1 && nights <= 30 && lodgingCountryCode(city)) {

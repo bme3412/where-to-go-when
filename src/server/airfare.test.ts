@@ -37,6 +37,7 @@ it.each([
 
   const regular = await lookup(false);
   expect(regular.status).toBe(200);
+  expect(regular.headers.get('Vercel-CDN-Cache-Control')).toBe('public, s-maxage=900');
   const { options } = await regular.json() as { options: AirfareOption[] };
   expect(options).toEqual([
     { kind: 'lowest', total: fare, minutes: 500, outboundStops: 1, returnStops: 0 },
