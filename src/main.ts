@@ -76,6 +76,11 @@ const globeIcon = icon('<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" 
 app.innerHTML = `
   <header class="app-header">
     <div class="brand"><span class="brand-icon">${globeIcon}</span><h1>Where to go, and when</h1></div>
+    <div class="trip-summary">
+      <h2 id="summary-route">From Boston</h2>
+      <div class="trip-dates">${datePickerMarkup}</div>
+      <span class="summary-scope" id="summary-scope" hidden></span>
+    </div>
     <nav class="panel-toggles" aria-label="Explore controls">
       <button id="toggle-settings" class="panel-toggle" type="button" aria-label="Trip settings" title="Trip settings" aria-controls="settings-panel" aria-expanded="true">${icon('<path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>')}</button>
       <button id="toggle-results" class="panel-toggle" type="button" aria-label="Destinations" title="Destinations" aria-controls="results-panel" aria-expanded="true">${icon('<path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/>')}</button>
@@ -85,16 +90,16 @@ app.innerHTML = `
     <aside id="settings-panel" class="side-panel settings-panel" aria-label="Trip settings">
       <button type="button" class="icon-button close-panel settings-close" data-close-panel aria-label="Close trip settings">${closeIcon}</button>
       <div class="panel-scroll settings-content">
-        <h2 class="trip-panel-title">Your trip</h2>
+        <h2 class="trip-panel-title">Trip settings</h2>
         <div class="field origin-field"><label for="home">Flying from</label><div class="origin-select">${icon('<path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="m22 2-11 11"/>')}<input id="home" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="origin-suggestions" aria-describedby="origin-detail" autocomplete="off" spellcheck="false" placeholder="Search departure cities"><ul id="origin-suggestions" role="listbox" aria-label="Departure cities" hidden></ul></div><p id="origin-detail">Boston Logan · BOS</p></div>
-        <fieldset class="destination-scope"><legend>Where to?</legend><div class="scope-options">${(['all', 'domestic', 'international'] as const).map(value => `<label class="scope-choice"><input type="radio" name="destination-scope" value="${value}" aria-label="${{ all: 'All destinations', domestic: 'Domestic destinations', international: 'Global destinations' }[value]}" ${value === 'all' ? 'checked' : ''} /><span>${{ all: 'Anywhere', domestic: 'Domestic', international: 'Global' }[value]}</span></label>`).join('')}</div></fieldset>
+        <fieldset class="destination-scope"><legend>Destination area</legend><div class="scope-options">${(['all', 'domestic', 'international'] as const).map(value => `<label class="scope-choice"><input type="radio" name="destination-scope" value="${value}" aria-label="${{ all: 'All destinations', domestic: 'Domestic destinations', international: 'Global destinations' }[value]}" ${value === 'all' ? 'checked' : ''} /><span>${{ all: 'Anywhere', domestic: 'Domestic', international: 'Global' }[value]}</span></label>`).join('')}</div></fieldset>
         <div class="field region-filter" hidden><label for="destination-region">Region</label><select id="destination-region"><option value="all">All regions</option>${GLOBE_REGIONS.map(region => `<option value="${region.id}">${region.name}</option>`).join('')}</select></div>
-        <div id="boston-flight-filter" class="flight-filter"><label for="nonstop-only"><span class="flight-filter-copy"><strong id="nonstop-label">Nonstop flights only</strong><span id="nonstop-help">Both ways · schedules unverified</span></span><input type="checkbox" role="switch" id="nonstop-only" aria-labelledby="nonstop-label" aria-describedby="nonstop-help" /><span class="switch-track" aria-hidden="true"></span></label></div>
+        <div id="boston-flight-filter" class="flight-filter"><label for="nonstop-only"><span class="flight-filter-copy"><strong id="nonstop-label">Nonstop flights only</strong><span id="nonstop-help">Round trip · confirm schedules</span></span><input type="checkbox" role="switch" id="nonstop-only" aria-labelledby="nonstop-label" aria-describedby="nonstop-help" /><span class="switch-track" aria-hidden="true"></span></label></div>
 
       </div>
     </aside>
     <section class="globe-stage" aria-label="Interactive destination globe">
-      <div class="stage-heading"><div class="stage-itinerary"><div class="trip-summary"><h2 id="summary-route">Explore from Boston</h2><div class="summary-meta"><div class="trip-dates">${datePickerMarkup}</div><span class="summary-scope" id="summary-scope" hidden></span></div></div></div></div>
+
       <section id="region-explorer" class="region-explorer" aria-label="Places in this region" hidden></section>
 
       <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Destination globe"></svg><div id="weather-legend" class="weather-legend" aria-label="Weather color legend"></div><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
@@ -230,7 +235,7 @@ function renderSelection(): void {
   const result = selectedDestination();
   document.querySelector('#summary-route')!.textContent = result
     ? `${home.name} to ${destinationName(result.city)}`
-    : `Explore from ${home.name}`;
+    : `From ${home.name}`;
   const selection = document.querySelector<HTMLElement>('#selection')!;
   selection.hidden = !result;
   renderFlightMap(result);
