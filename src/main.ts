@@ -1,4 +1,4 @@
-import { showCardPrices } from './card-prices';
+import { observeCardPrices, resetCardPrices } from './card-prices';
 import { rankSeasonalAreas, seasonalArea, seasonalScore, seasonalTitle } from "./seasonal";
 import { tripFromUrl } from './trip-date-feedback';
 import destinationPhotos from './data/destination-photos.json';
@@ -221,22 +221,8 @@ function renderPick(r: RankedCity): string {
   const photo = photos[r.city.name];
   const route = hasNonstopFare(r.city.name) ? 'Nonstop both ways · Nuitée' : rankingRouteLabel(r.travel);
   const sources = escapeHtml(weatherSourceSummary(r));
-  return `<div class="pick-card"><button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(seasonalTitle(r))}, ${rating.label}. ${sources}. ${climateLabel(r.climate)}.${r.weatherFlags.length ? ` Seasonal weather: ${escapeHtml(r.weatherFlags.map(weatherFlagLabel).join(", "))}.` : ""}${route ? ` ${escapeHtml(route)}.` : ''} Center on globe.">${photo ? `<img class="pick-photo" loading="lazy" decoding="async" src="${photo.image}" alt="">` : ''}<span class="pick-copy"><span class="pick-heading"><span class="pick-place"><strong class="city-name">${escapeHtml(seasonalTitle(r))}</strong><span class="country-name"><span class="country-flag" aria-hidden="true">${countryFlag(r.city.country)}</span>${escapeHtml(displayCountry(r.city.country))}${seasonalTitle(r) !== destinationName(r.city) ? ` · ${escapeHtml(destinationName(r.city))}` : ''}</span></span><span class="rating ${rating.key}">${rating.label}</span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span>${r.tripCost ? `<span>${tripPrice(r.tripCost.total)} estimated trip</span>` : ''}</span>${route ? `<span class="pick-route${r.travel.basis !== 'routes' ? ' route-estimate' : ''}">${escapeHtml(route)}</span>` : ''}${r.weatherDates.forecast.length ? `<span class="weather-coverage">${sources}</span>` : ''}</span></button><div class="card-prices" aria-live="polite"><button type="button" data-card-prices aria-label="Check Nuitée prices for ${escapeHtml(seasonalTitle(r))}">Check prices</button></div></div>`;
+  return `<div class="pick-card"><button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(seasonalTitle(r))}, ${rating.label}. ${sources}. ${climateLabel(r.climate)}.${r.weatherFlags.length ? ` Seasonal weather: ${escapeHtml(r.weatherFlags.map(weatherFlagLabel).join(", "))}.` : ""}${route ? ` ${escapeHtml(route)}.` : ''} Center on globe.">${photo ? `<img class="pick-photo" loading="lazy" decoding="async" src="${photo.image}" alt="">` : ''}<span class="pick-copy"><span class="pick-heading"><span class="pick-place"><strong class="city-name">${escapeHtml(seasonalTitle(r))}</strong><span class="country-name"><span class="country-flag" aria-hidden="true">${countryFlag(r.city.country)}</span>${escapeHtml(displayCountry(r.city.country))}${seasonalTitle(r) !== destinationName(r.city) ? ` · ${escapeHtml(destinationName(r.city))}` : ''}</span></span><span class="rating ${rating.key}">${rating.label}</span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span>${r.tripCost ? `<span>${tripPrice(r.tripCost.total)} estimated trip</span>` : ''}</span>${route ? `<span class="pick-route${r.travel.basis !== 'routes' ? ' route-estimate' : ''}">${escapeHtml(route)}</span>` : ''}${r.weatherDates.forecast.length ? `<span class="weather-coverage">${sources}</span>` : ''}</span></button><div class="card-prices" aria-live="polite"></div></div>`;
 }
-
-const requestedCardPrices = new Set<string>();
-
-function loadRowPrices(card: HTMLElement, city: CityScore) {
-  requestedCardPrices.add(JSON.stringify([tripPriceKey(nonstopOnly), city.city.name]));
-  showCardPrices(card.querySelector<HTMLElement>('.card-prices')!, home.name, city.city.name, trip, city.travel.mode === 'flight', nonstopOnly);
-}
-
-destinationList.addEventListener('click', event => {
-  const card = (event.target as Element).closest('[data-card-prices]')?.closest<HTMLElement>('.pick-card');
-  if (!card) return;
-  const city = resultForTarget(card.querySelector('.pick-row'));
-  if (city) loadRowPrices(card, city);
-});
 
 function renderLists(): void {
   document.querySelector('#results-context')!.textContent = `${ranked.length} matches from ${home.name}`;
@@ -250,12 +236,11 @@ function renderLists(): void {
   const scopeLabel = [selectedRegionName(), scope === 'all' ? '' : scopeNames[scope], nonstopOnly ? 'Nonstop flights' : ''].filter(Boolean).join(' · ');
   document.querySelector<HTMLElement>('#summary-scope')!.hidden = !scopeLabel;
   document.querySelector('#summary-scope')!.textContent = scopeLabel;
+  resetCardPrices();
   destinationList.innerHTML = ranked.map(renderPick).join('');
-  const priceKey = tripPriceKey(nonstopOnly);
   ranked.forEach((city, index) => {
-    if (index === 0 || requestedCardPrices.has(JSON.stringify([priceKey, city.city.name]))) {
-      loadRowPrices(destinationList.children[index] as HTMLElement, city);
-    }
+    const container = destinationList.children[index].querySelector<HTMLElement>('.card-prices')!;
+    observeCardPrices(container, home.name, city.city.name, trip, city.travel.mode === 'flight', nonstopOnly);
   });
   if (!ranked.length) destinationList.innerHTML = nonstopOnly
     ? `<div class="empty-results"><strong>No nonstop flights in this view</strong><p>For these dates, no destination fits your filters with time on the ground and a listed nonstop in each direction.</p><button type="button" class="small-button" data-clear-flights>Show all flight routes</button></div>`

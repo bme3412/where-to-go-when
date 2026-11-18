@@ -534,4 +534,3 @@ dialog::backdrop { background: #16223778; }
 .pick-card .pick-row { border: 0; box-shadow: none; }
 .pick-card:has(.pick-row.selected) { border-color: var(--border-strong); }
 .card-prices { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; padding: 1px 8px 5px; font-size: 12px; }
-.card-prices button { color: var(--accent); background: transparent; border: 0; padding: 2px 0; font: inherit; text-decoration: underline; }
