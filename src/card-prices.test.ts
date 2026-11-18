@@ -6,7 +6,7 @@ afterEach(() => {
   vi.resetModules();
 });
 
-it('prices visible cards, pauses limited fares, and reuses lodging across origins', async () => {
+it.each([429, 502])('lazily prices holiday cards and recovers from HTTP %i', async status => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date('2026-11-18T12:00:00Z'));
   let visibility!: (entries: { target: unknown; isIntersecting: boolean }[]) => void;
@@ -18,7 +18,7 @@ it('prices visible cards, pauses limited fares, and reuses lodging across origin
   vi.stubGlobal('document', { createElement: () => ({ textContent: '' }) });
   const fetchPrice = vi.fn(async (url: string) => {
     if (url.includes('lodging')) return Response.json({ nights: 14, total: 1703 });
-    if (fetchPrice.mock.calls.length === 1) return new Response(null, { status: 429 });
+    if (fetchPrice.mock.calls.length === 1) return new Response(null, { status });
     return Response.json({ options: [{ total: url.includes('London') ? 1190 : 1323 }] });
   });
   vi.stubGlobal('fetch', fetchPrice);
@@ -31,18 +31,23 @@ it('prices visible cards, pauses limited fares, and reuses lodging across origin
   await vi.advanceTimersByTimeAsync(100);
   expect(fetchPrice).not.toHaveBeenCalled();
   show();
-  await vi.advanceTimersByTimeAsync(150);
-  expect(items.map(i => i.textContent)).toEqual(['Round trip queued', 'Stay $1,703 / 14 nights']);
+  await vi.advanceTimersByTimeAsync(80);
+  visibility([{target: card, isIntersecting: false}]);
+  await vi.advanceTimersByTimeAsync(200);
+  expect(fetchPrice).not.toHaveBeenCalled();
+  show();
+  await vi.advanceTimersByTimeAsync(300);
+  expect(items.map(i => i.textContent)).toEqual([status === 429 ? 'Round trip queued' : 'Round trip retrying…', 'Stay $1,703 / 14 nights']);
   visibility([{ target: card, isIntersecting: false }]);
-  await vi.advanceTimersByTimeAsync(61_000);
+  await vi.advanceTimersByTimeAsync(status === 429 ? 61_000 : 1500);
   expect(fetchPrice).toHaveBeenCalledTimes(2);
   show();
-  await vi.advanceTimersByTimeAsync(150);
+  await vi.advanceTimersByTimeAsync(300);
   expect(items[0].textContent).toBe('Round trip $1,323');
   resetCardPrices();
   observeCardPrices(card, 'London', 'Phuket', trip, true, false);
   show();
-  await vi.advanceTimersByTimeAsync(150);
+  await vi.advanceTimersByTimeAsync(300);
   expect(items.map(i => i.textContent)).toEqual(['Round trip $1,190', 'Stay $1,703 / 14 nights']);
   expect(fetchPrice.mock.calls.filter(([url]) => url.includes('lodging'))).toHaveLength(1);
   resetCardPrices();

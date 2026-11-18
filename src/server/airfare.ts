@@ -91,7 +91,7 @@ export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.
           adults: 1, currency: 'USD', country: 'US', cabinClass: 'ECONOMY',
           ...(nonstop ? { filters: { maxStops: 0 } } : {}),
         }),
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(22_000),
       });
       if (response.status === 429) return json({ error: 'Too many airfare lookups.' }, 429);
       if (!response.ok) return json({ error: 'Airfare lookup is unavailable.' }, 502);

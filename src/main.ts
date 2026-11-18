@@ -555,7 +555,7 @@ detailsDialog.addEventListener('click', async event => {
   results.replaceChildren();
   status.textContent = `Checking ${airports.from} ↔ ${airports.to}${nonstop ? ' · nonstop only' : ''}…`;
   try {
-    const response = await fetch(`${AIRFARE_ENDPOINT}?${params}`, { signal: AbortSignal.timeout(18_000) });
+    const response = await fetch(`${AIRFARE_ENDPOINT}?${params}`, { signal: AbortSignal.timeout(26_000) });
     if (!current()) return;
     if (!response.ok) {
       status.textContent = response.status === 404 ? `No matching ${nonstop ? 'nonstop ' : ''}round-trip fares found.`

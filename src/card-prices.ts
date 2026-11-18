@@ -8,8 +8,12 @@ interface Lookup { url: string; read: (data: unknown) => Estimate }
 const cache = new Map<string, Estimate>();
 interface Task { lookup: Lookup; item: HTMLElement; label: string; settled?: boolean }
 const visible = new Set<HTMLElement>();
+const firstSeen = new WeakMap<HTMLElement, number>();
 const tasks = new Map<HTMLElement, Task[]>();
-const lanes = new Map<string, { starts: number[]; pause: number; busy: boolean }>();
+interface Lane { starts: number[]; pause: number; active: Set<string> }
+const lanes = new Map<string, Lane>();
+// Retry a transient fare failure once promptly, then return to the normal cooldown.
+const retryAt = new Map<string, number>();
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 function schedule() {
@@ -20,7 +24,10 @@ function schedule() {
 function pump() {
   let next = Infinity;
   const now = Date.now();
-  for (const container of visible) {
+  // A visible fare that has already waited for the provider gets the next free slot.
+  const due = (card: HTMLElement) => (tasks.get(card) ?? []).some(t => (retryAt.get(t.lookup.url) ?? Infinity) <= now);
+  const cards = [...visible].sort((a, b) => Number(due(b)) - Number(due(a)));
+  for (const container of cards) {
     for (const task of tasks.get(container) ?? []) {
       const { lookup, item, label } = task;
       const url = lookup.url;
@@ -36,12 +43,27 @@ function pump() {
         item.textContent = label + ' expired';
         continue;
       }
+      const stableAt = (firstSeen.get(container) ?? now) + 150;
+      if (stableAt > now) {
+        next = Math.min(next, stableAt);
+        continue;
+      }
       const endpoint = url.split('?')[0];
-      const lane = lanes.get(endpoint) ?? { starts: [], pause: 0, busy: false };
+      const fare = endpoint === AIRFARE_ENDPOINT;
+      const lane: Lane = lanes.get(endpoint) ?? { starts: [], pause: 0, active: new Set() };
       lanes.set(endpoint, lane);
-      if (lane.busy) continue;
+      if (lane.active.has(url) || lane.active.size >= (fare ? 2 : 1)) continue;
+      const retry = retryAt.get(url);
+      if (retry !== undefined && retry > now) {
+        item.textContent = label + ' retrying…';
+        next = Math.min(next, retry);
+        continue;
+      }
       lane.starts = lane.starts.filter(start => start + 3_600_000 > now);
-      const ready = Math.max(lane.pause, (lane.starts.at(-5) ?? 0) + 60_000, (lane.starts.at(-15) ?? 0) + 3_600_000);
+      // Reserve the fifth minute slot while another visible fare could need a retry.
+      const reserve = fare && retry === undefined && (lane.active.size > 0 ||
+        cards.some(card => tasks.get(card)?.some(t => retryAt.has(t.lookup.url))));
+      const ready = Math.max(lane.pause, (lane.starts.at(reserve ? -4 : -5) ?? 0) + 60_000, (lane.starts.at(-15) ?? 0) + 3_600_000);
       if (ready > now) {
         item.textContent = label + ' queued';
         item.title = 'Nuitée request limit. Next lookup can start at ' + new Date(ready).toLocaleTimeString();
@@ -49,22 +71,30 @@ function pump() {
         continue;
       }
       item.textContent = label + ' …';
-      lane.busy = true;
+      lane.active.add(url);
       lane.starts.push(now);
       void (async () => {
         try {
-          const response = await fetch(url, { signal: AbortSignal.timeout(18_000) });
+          const response = await fetch(url, { signal: AbortSignal.timeout(fare ? 26_000 : 18_000) });
           if (response.status === 429) {
             const seconds = Number(response.headers.get('Retry-After'));
             lane.pause = Date.now() + Math.max(60, Number.isFinite(seconds) ? seconds : 0) * 1000;
           } else if (response.status === 404 || response.status === 400) {
+            retryAt.delete(url);
             cache.set(url, { text: 'no estimate', until: Date.now() + 300_000 });
-          } else if (response.ok) cache.set(url, lookup.read(await response.json()));
+          } else if (response.ok) {
+            cache.set(url, lookup.read(await response.json()));
+            retryAt.delete(url);
+          }
           else throw new Error('Unavailable');
         } catch {
-          cache.set(url, { text: 'unavailable', until: Date.now() + 60_000 });
+          if (fare && retry === undefined) retryAt.set(url, Date.now() + 1_500);
+          else {
+            retryAt.delete(url);
+            cache.set(url, { text: 'unavailable', until: Date.now() + 60_000 });
+          }
         } finally {
-          lane.busy = false;
+          lane.active.delete(url);
           schedule();
         }
       })();
@@ -76,7 +106,10 @@ function pump() {
 const observer = new IntersectionObserver(entries => {
   for (const entry of entries) {
     const container = entry.target as HTMLElement;
-    if (entry.isIntersecting && tasks.has(container)) visible.add(container);
+    if (entry.isIntersecting && tasks.has(container)) {
+      if (!visible.has(container)) firstSeen.set(container, Date.now());
+      visible.add(container);
+    }
     else {
       visible.delete(container);
       for (const task of tasks.get(container) ?? []) task.settled = false;
