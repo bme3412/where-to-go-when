@@ -50,6 +50,32 @@ function optionsFrom(body: unknown, from: string, to: string, nonstop: boolean, 
   return { options, nonstopValidUntil };
 }
 
+// Card estimates can use the first provider batch containing a valid round trip.
+async function firstAvailable(response: Response, from: string, to: string, nonstop: boolean, now: () => number) {
+  const reader = response.body!.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = '';
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      buffer += value ?? '';
+      const frames = buffer.split(/\r?\n\r?\n/);
+      buffer = done ? '' : frames.pop()!;
+      for (const frame of frames) {
+        const text = frame.split(/\r?\n/).filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n');
+        if (!text || text === '[DONE]') continue;
+        const event = JSON.parse(text);
+        if (event.error || /^event: *error$/m.test(frame)) throw new Error('Provider search failed');
+        const batch = event.data ?? event;
+        const result = optionsFrom({ data: Array.isArray(batch) ? batch : [batch] }, from, to, nonstop, now());
+        if (result.options.length) return result;
+      }
+      if (done) return { options: [], nonstopValidUntil: 0 };
+    }
+  } finally {
+    void reader.cancel().catch(() => {});
+  }
+}
+
 export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.now) {
   let requests: number[] = [];
   return async (request: Request, apiKey?: string): Promise<Response> => {
@@ -57,6 +83,7 @@ export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.
     if (request.method !== 'GET') return json({ error: 'Lookup requires GET.' }, 405);
     if (!apiKey) return json({ error: 'Airfare lookup is unavailable.' }, 503);
     const params = new URL(request.url).searchParams;
+    const first = params.get('view') === 'first';
     const nonstop = params.get('nonstop') === 'true';
     const airports = airfareAirports(params.get('origin') ?? '', params.get('city') ?? '', nonstop);
     const start = params.get('start') ?? '', end = params.get('end') ?? '';
@@ -82,7 +109,7 @@ export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.
     try {
       const response = await provider('https://api.liteapi.travel/v3.0/flights/rates', {
         method: 'POST',
-        headers: { 'X-API-Key': apiKey, 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: { 'X-API-Key': apiKey, 'Content-Type': 'application/json', Accept: first ? 'text/event-stream' : 'application/json' },
         body: JSON.stringify({
           legs: [
             { origin: from, destination: to, date: start, direction: 'OUTBOUND' },
@@ -95,12 +122,15 @@ export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.
       });
       if (response.status === 429) return json({ error: 'Too many airfare lookups.' }, 429);
       if (!response.ok) return json({ error: 'Airfare lookup is unavailable.' }, 502);
-      const { options, nonstopValidUntil } = optionsFrom(await response.json(), from, to, nonstop, now());
+      const { options, nonstopValidUntil } = first && response.headers.get('Content-Type')?.includes('text/event-stream')
+        ? await firstAvailable(response, from, to, nonstop, now)
+        : optionsFrom(await response.json(), from, to, nonstop, now());
       if (!options.length) return json({ error: 'No matching round-trip fares found.' }, 404);
       const quotedAt = now();
       const validUntil = Math.min(quotedAt + 900_000, ...options.map(option =>
         option.expiresAt ? Date.parse(option.expiresAt) : Infinity));
       const result = json({ from, to, options, nonstopValidUntil, validUntil });
+      result.headers.set('Server-Timing', 'fare;dur=' + (quotedAt - time) + ';desc="' + (response.headers.get('Content-Type')?.includes('text/event-stream') ? 'stream' : 'json') + '"');
       // Public estimates vary by the full query string. Only Vercel may share them.
       result.headers.set('Vercel-CDN-Cache-Control', 'public, s-maxage=' + Math.max(0, Math.floor((validUntil - quotedAt) / 1000)));
       return result;

@@ -179,7 +179,7 @@ export function observeCardPrices(container: HTMLElement, origin: string, city: 
   if (fareLimit.getUTCDate() < new Date(today).getUTCDate()) fareLimit.setUTCDate(0);
   const parts: { label: string; lookup: Lookup }[] = [];
   if (start >= today && end <= +fareLimit && flight && airfareAirports(origin, city, nonstop)) {
-    const params = new URLSearchParams({ origin, city, ...trip, nonstop: String(nonstop) });
+    const params = new URLSearchParams({ origin, city, ...trip, nonstop: String(nonstop), view: 'first' });
     parts.push({ label: 'Round trip', lookup: { url: AIRFARE_ENDPOINT + '?' + params, read(data) {
       const { options, validUntil } = data as { options: AirfareOption[]; validUntil?: number };
       const fare = options.filter(o => Number.isFinite(o.total) && o.total > 0 &&

@@ -22,7 +22,7 @@ import { flightMapFor, nonstopFlightMaps } from './flight-map';
 import type { FlightDirection, NonstopFlightMap } from './flight-map';
 import { methodContent } from './method';
 import { setupPanels } from './panels';
-import { AIRFARE_ENDPOINT, airfareAirports } from './airfare';
+import { AIRFARE_ENDPOINT, airfareAirports, airportForCity } from './airfare';
 import type { AirfareOption } from './airfare';
 import { LODGING_ENDPOINT, lodgingCountryCode } from './lodging';
 import type { LodgingQuote } from './lodging';
@@ -55,7 +55,8 @@ function tripPriceKey(nonstop: boolean): string {
 let weatherLayer: WeatherLayer = 'temperature';
 let weatherKinds = new Set<WeatherKind>(WEATHER_KINDS);
 const weatherFlagLabels = { wet: 'Wet periods', heat: 'Heat', cold: 'Freezing nights', storm: 'Storm seasons' };
-let home = ORIGINS[0];
+const originParam = new URL(location.href).searchParams.get('origin');
+let home = ORIGINS.find(origin => origin.name === originParam) ?? ORIGINS.find(origin => origin.name === 'Boston')!;
 let chosenHome = home;
 let unit: Unit = 'F';
 let scope: DestinationScope = 'all';
@@ -83,7 +84,7 @@ app.innerHTML = `
   <header class="app-header">
     <div class="brand"><span class="brand-icon">${globeIcon}</span><h1>Where to go, and when</h1></div>
     <div class="trip-summary">
-      <h2 id="summary-route">From Boston</h2>
+      <h2 id="summary-route">From ${escapeHtml(home.name)}</h2>
       <div class="trip-dates">${datePickerMarkup}</div>
       <span class="summary-scope" id="summary-scope" hidden></span>
     </div>
@@ -97,7 +98,7 @@ app.innerHTML = `
       <button type="button" class="icon-button close-panel settings-close" data-close-panel aria-label="Close trip settings">${closeIcon}</button>
       <div class="panel-scroll settings-content">
         <h2 class="trip-panel-title">Trip settings</h2>
-        <div class="field origin-field"><label for="home">Flying from</label><div class="origin-select">${icon('<path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="m22 2-11 11"/>')}<input id="home" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="origin-suggestions" aria-describedby="origin-detail" autocomplete="off" spellcheck="false" placeholder="Search departure cities"><ul id="origin-suggestions" role="listbox" aria-label="Departure cities" hidden></ul></div><p id="origin-detail">Boston Logan · BOS</p></div>
+        <div class="field origin-field"><label for="home">Flying from</label><div class="origin-select">${icon('<path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="m22 2-11 11"/>')}<input id="home" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="origin-suggestions" aria-describedby="origin-detail" autocomplete="off" spellcheck="false" placeholder="Search departure cities"><ul id="origin-suggestions" role="listbox" aria-label="Departure cities" hidden></ul></div><p id="origin-detail"></p></div>
         <fieldset class="destination-scope"><legend>Destination area</legend><div class="scope-options">${(['all', 'domestic', 'international'] as const).map(value => `<label class="scope-choice"><input type="radio" name="destination-scope" value="${value}" aria-label="${{ all: 'All destinations', domestic: 'Domestic destinations', international: 'Global destinations' }[value]}" ${value === 'all' ? 'checked' : ''} /><span>${{ all: 'Anywhere', domestic: 'Domestic', international: 'Global' }[value]}</span></label>`).join('')}</div></fieldset>
         <div class="field region-filter" hidden><label for="destination-region">Region</label><select id="destination-region"><option value="all">All regions</option>${GLOBE_REGIONS.map(region => `<option value="${region.id}">${region.name}</option>`).join('')}</select></div>
         <div id="boston-flight-filter" class="flight-filter"><label for="nonstop-only"><span class="flight-filter-copy"><strong id="nonstop-label">Nonstop flights only</strong><span id="nonstop-help">Round trip · confirm schedules</span></span><input type="checkbox" role="switch" id="nonstop-only" aria-labelledby="nonstop-label" aria-describedby="nonstop-help" /><span class="switch-track" aria-hidden="true"></span></label></div>
@@ -383,7 +384,7 @@ function recompute(shouldFly: boolean): void {
   const regionChanged = selectedRegion !== regionSelect.value;
   selectedRegion = regionSelect.value as DestinationRegionFilter;
   home = chosenHome; hideTooltip();
-  document.querySelector('#origin-detail')!.textContent = home.name === 'Boston' ? 'Boston Logan · BOS' : displayCountry(home.country);
+  document.querySelector('#origin-detail')!.textContent = [displayCountry(home.country), airportForCity(home.name)].filter(Boolean).join(' · ');
   document.querySelector<HTMLElement>('#boston-flight-filter')!.hidden = home.name !== 'Boston';
   nonstopOnly = home.name === 'Boston' && nonstopInput.checked;
   scope = nextScope;
@@ -412,6 +413,9 @@ for (const control of document.querySelectorAll<HTMLInputElement>('[name="destin
 });
 setupOriginSearch(homeInput, document.querySelector('#origin-suggestions')!, ORIGINS, home, origin => {
   chosenHome = origin;
+  const url = new URL(location.href);
+  url.searchParams.set('origin', origin.name);
+  history.replaceState(history.state, '', url);
   activeRegion = '';
   recompute(true);
 });

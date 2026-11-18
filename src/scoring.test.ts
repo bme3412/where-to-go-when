@@ -15,9 +15,9 @@ const destination = (name: string) => CITIES.find(city => city.name === name)!;
 const results = (start: string, end: string, home = boston) => scoreCities({ start, end }, home, DEFAULT_WEIGHTS);
 
 describe('reference data', () => {
-  it('contains all 234 destinations, 24 origins, and timezone offsets', () => {
+  it('contains all 234 destinations, all selectable as origins, and timezone offsets', () => {
     expect(CITIES).toHaveLength(234);
-    expect(ORIGINS).toHaveLength(24);
+    expect(ORIGINS.map(origin => origin.name).sort()).toEqual(CITIES.map(city => city.name).sort());
     expect(CITIES.every(city => Number.isFinite(TZ[city.name]))).toBe(true);
   });
 });

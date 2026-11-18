@@ -92,3 +92,30 @@ it('recognizes a confirmed nonstop outside the displayed offers and requires evi
   Reflect.deleteProperty(direct.segments[1], 'stopCount');
   expect((await (await handler(request, 'fixture')).json()).nonstopValidUntil).toBe(0);
 });
+
+it('returns the first valid streamed card fare before the remaining providers finish', async () => {
+  const options = (kind: 'nonstop' | 'connection', total: number) =>
+    'data: ' + JSON.stringify({ journeys: [journey('BOS', 'MIA', total, 250, kind)] }) + '\r\n\r\n';
+  const bytes = new TextEncoder().encode(options('connection', 300) + options('nonstop', 400));
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(bytes.slice(0, 29));
+      controller.enqueue(bytes.slice(29));
+      // A slower provider is still searching.
+    },
+  });
+  const provider = vi.fn<typeof fetch>(async () => new Response(stream, { headers: { 'Content-Type': 'text/event-stream' } }));
+  const handler = createAirfareHandler(provider, clock);
+  const response = await handler(new Request('https://site.test/api/airfare-estimate?origin=Boston&city=Miami&start=2026-12-20&end=2027-01-03&nonstop=true&view=first'), 'fixture');
+  expect(new Headers(provider.mock.calls[0][1]?.headers).get('Accept')).toBe('text/event-stream');
+  expect((await response.json()).options[0].total).toBe(400);
+});
+
+it('resolves every catalog departure for holiday fare searches', () => {
+  for (const origin of ORIGINS) {
+    const destination = origin.name === 'Boston' ? 'Phuket' : 'Boston';
+    expect(airfareAirports(origin.name, destination, false)?.from, origin.name).toMatch(/^[A-Z]{3}$/);
+  }
+  expect(airfareAirports('Phuket', 'Boston', false)).toEqual({ from: 'HKT', to: 'BOS' });
+  expect(airfareAirports('Maafushi', 'Phuket', true)).toEqual({ from: 'MLE', to: 'HKT' });
+});
