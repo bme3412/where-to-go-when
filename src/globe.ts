@@ -97,7 +97,7 @@ export class Globe {
       if (width < 1 || height < 1) return;
       const previousBaseScale = this.baseScale, zoom = this.scale / previousBaseScale;
       this.width = width; this.height = height;
-      this.baseScale = Math.min(width, height) * 0.46;
+      this.baseScale = Math.max(1, Math.min(width, height) / 2 - 5);
       this.scale = clamp(this.baseScale * zoom, this.baseScale * 0.79, 60000);
       if (this.flight) {
         const ratio = this.baseScale / previousBaseScale;
@@ -543,7 +543,7 @@ export class Globe {
       visibleMarkers.push({ x: projected[0], y: projected[1], size, weather, stem: weatherStem, flagged: Boolean(flag) });
       node.classList.toggle('selected', selected);
       const weatherColor = weatherMapColor(score, this.weatherLayer, this.weatherKinds);
-      circle.setAttribute('fill', this.weatherLayer === 'off' ? band(score.score).color : weatherColor ?? 'var(--neutral-marker)');
+      circle.setAttribute('fill', band(score.score).color);
       circle.setAttribute('opacity', rank || selected || weatherColor ? '1' : '0.55');
       node.setAttribute('transform', `translate(${projected[0]},${projected[1]})`);
       circle.setAttribute('r', String(size));

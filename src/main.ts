@@ -94,17 +94,18 @@ app.innerHTML = `
       </div>
     </aside>
     <section class="globe-stage" aria-label="Interactive destination globe">
-      <div class="stage-heading"><div class="stage-itinerary"><div class="trip-summary"><h2 id="summary-route">Explore from Boston</h2><div class="summary-meta"><div class="trip-dates">${datePickerMarkup}</div><span class="summary-scope" id="summary-scope" hidden></span></div></div></div><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
+      <div class="stage-heading"><div class="stage-itinerary"><div class="trip-summary"><h2 id="summary-route">Explore from Boston</h2><div class="summary-meta"><div class="trip-dates">${datePickerMarkup}</div><span class="summary-scope" id="summary-scope" hidden></span></div></div></div></div>
       <section id="region-explorer" class="region-explorer" aria-label="Places in this region" hidden></section>
-      <details class="map-toolbar">
+
+      <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Destination globe"></svg><div id="weather-legend" class="weather-legend" aria-label="Weather color legend"></div><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
+      <div class="map-controls"><details class="map-toolbar">
         <summary>Weather<span aria-hidden="true"></span></summary>
         <div class="map-weather-options" id="map-weather-options" role="group" aria-label="Weather layers">
           <label><input type="checkbox" data-weather-surface="temperature" checked />Daytime temperature</label>
           <label><input type="checkbox" data-weather-surface="wet" />Precipitation</label>
           ${WEATHER_KINDS.map(kind => `<label><input type="checkbox" data-weather-kind="${kind}" checked />${weatherFlagLabels[kind]}</label>`).join('')}
         </div>
-      </details>
-      <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Destination globe"></svg><div id="weather-legend" class="weather-legend" aria-label="Weather color legend"></div><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
+      </details><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
       <section id="flight-map-controls" class="flight-map-controls" aria-label="Boston flight routes" hidden>
         <div id="selected-flight-route" class="selected-flight-route" hidden><div class="flight-map-caption"><strong id="flight-map-path"></strong><span id="flight-map-note">Highlighted flight legs · schedules unverified</span></div><div class="flight-map-actions"><div class="route-directions" role="group" aria-label="Flight direction"><button type="button" id="route-outbound" data-route-direction="outbound" aria-pressed="true">Outbound</button><button type="button" id="route-inbound" data-route-direction="inbound" aria-pressed="false">Return</button></div><button type="button" id="view-flight-route" class="text-button">View route</button></div><div id="flight-map-details" class="flight-map-details" role="status" aria-live="polite" aria-atomic="true"></div></div>
       </section>
@@ -137,6 +138,14 @@ setupDatePicker(document.querySelector<HTMLElement>('.trip-dates')!, initialTrip
 const homeInput = document.querySelector<HTMLInputElement>('#home')!;
 const nonstopInput = document.querySelector<HTMLInputElement>('#nonstop-only')!;
 const weatherOptions = document.querySelector<HTMLElement>('#map-weather-options')!;
+// Give the expanded controls their own page space so the map keeps its size.
+const weatherMenu = weatherOptions.closest('details')!;
+function syncWeatherMenuHeight(): void {
+  const height = weatherMenu.open ? weatherOptions.offsetHeight + 4 : 0;
+  app.style.setProperty('--weather-options-height', `${height}px`);
+}
+weatherMenu.addEventListener('toggle', syncWeatherMenuHeight);
+new ResizeObserver(syncWeatherMenuHeight).observe(weatherOptions);
 const weatherSurfaces = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-surface]')];
 const weatherFlags = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-kind]')];
 const regionSelect = document.querySelector<HTMLSelectElement>('#destination-region')!;

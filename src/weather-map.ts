@@ -43,7 +43,7 @@ export function weatherLegend(layer: WeatherLayer, unit: Unit, enabledKinds?: Re
     return { title: `Average daytime high · °${unit}`, items: TEMPERATURE_COLORS.map(band => ({
       color: band.color,
       label: !Number.isFinite(band.min) ? `< ${degrees(band.max)}` : !Number.isFinite(band.max) ? `${degrees(band.min)}+` : `${degrees(band.min)}–${degrees(band.max)}`,
-    })), note: 'Global grid estimate · dots use local data' };
+    })), note: 'Land shows estimated highs · dots show destination match' };
   }
   if (layer === 'off') return { title: '', items: [], note: '' };
   if (layer === 'wet') return {
