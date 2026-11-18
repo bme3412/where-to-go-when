@@ -1,3 +1,4 @@
+import destinationPhotos from './data/destination-photos.json';
 import { countryFlag } from './data/destination-tips';
 import { setupOriginSearch } from './origin-search';
 import { datePickerMarkup, setupDatePicker } from './date-picker';
@@ -27,6 +28,10 @@ import { weatherFlagLabel } from './weather';
 import { weatherLegend, WEATHER_KINDS } from './weather-map';
 import type { CityScore, DestinationScope, RankedCity, TripPriceEstimate, Unit, WeatherKind, WeatherLayer } from './types';
 
+const photos: Readonly<Partial<Record<string, { image: string; author: string; license: string; url: string; licenseUrl: string }>>> = destinationPhotos;
+const photoCredits = Object.entries(destinationPhotos).sort(([a], [b]) => a.localeCompare(b)).map(([city, photo]) =>
+  `<li><a href="${escapeHtml(photo.url)}">${escapeHtml(city)}</a> · ${escapeHtml(photo.author)} · ${photo.licenseUrl ? `<a href="${escapeHtml(photo.licenseUrl)}">${escapeHtml(photo.license)}</a>` : escapeHtml(photo.license)}</li>`
+).join('');
 const app = document.querySelector<HTMLElement>('#app')!;
 const initialTrip = defaultTrip(new Date());
 let trip = initialTrip;
@@ -115,7 +120,7 @@ app.innerHTML = `
       <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span><span id="selected-weather"></span></div><button id="selected-details" class="small-button" type="button" aria-haspopup="dialog">Why this score? ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
     </section>
     <aside id="results-panel" class="side-panel results-panel" aria-labelledby="destinations-title">
-      <div class="panel-heading"><h2 id="destinations-title">Destinations</h2><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close destinations">${closeIcon}</button></div>
+      <div class="panel-heading"><div><h2 id="destinations-title">Discover destinations</h2><p id="results-context"></p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close destinations">${closeIcon}</button></div>
       <div class="panel-scroll results-content">
         <p id="forecast-status" class="forecast-status" role="status"></p>
         <div id="destination-list" class="destination-list"></div>
@@ -130,7 +135,7 @@ app.innerHTML = `
   <dialog id="regions-dialog" class="method-dialog regions-dialog" aria-labelledby="regions-title"><button type="button" class="icon-button dialog-close" aria-label="Close region explorer">${closeIcon}</button><h2 id="regions-title">Compare local areas</h2><p>Compare specific towns, islands and coastlines.</p><div class="region-choices">${REGIONS.map(region => `<button type="button" class="region-choice" data-region="${region}"><strong>${region}</strong><span>${REGION_DESCRIPTIONS[region]}</span></button>`).join('')}</div></dialog>
   <dialog id="details-dialog" class="detail-dialog" aria-label="Destination details"><button type="button" class="icon-button dialog-close" aria-label="Close destination details">${closeIcon}</button><div id="details-content"></div></dialog>
   <dialog id="audit-dialog" class="method-dialog audit-dialog" aria-labelledby="audit-title"><button type="button" class="icon-button dialog-close" aria-label="Close data audit">${closeIcon}</button>${auditContent}</dialog>
-  <dialog id="method-dialog" class="method-dialog" aria-labelledby="method-title"><button type="button" class="icon-button dialog-close" aria-label="Close scoring explanation">${closeIcon}</button>${methodContent}</dialog>
+  <dialog id="method-dialog" class="method-dialog" aria-labelledby="method-title"><button type="button" class="icon-button dialog-close" aria-label="Close scoring explanation">${closeIcon}</button>${methodContent}<details class="method-rules"><summary>Destination photo credits</summary><p>Thumbnails are cropped. Each image retains its listed license.</p><ul>${photoCredits}</ul></details></dialog>
 `;
 
 setupDatePicker(document.querySelector<HTMLElement>('.trip-dates')!, initialTrip, selected => {
@@ -184,17 +189,19 @@ const globe = new Globe(document.querySelector<SVGSVGElement>('#globe')!, {
 
 function renderPick(r: RankedCity): string {
   const rating = band(r.score);
+  const photo = photos[r.city.name];
   const route = hasNonstopFare(r.city.name) ? 'Nonstop both ways · Nuitée' : rankingRouteLabel(r.travel);
   const sources = escapeHtml(weatherSourceSummary(r));
-  return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(destinationName(r.city))}, ${rating.label}. ${sources}. ${climateLabel(r.climate)}.${r.weatherFlags.length ? ` Seasonal weather: ${escapeHtml(r.weatherFlags.map(weatherFlagLabel).join(", "))}.` : ""}${route ? ` ${escapeHtml(route)}.` : ''} Center on globe."><span class="pick-heading"><span class="pick-place"><strong class="city-name">${escapeHtml(destinationName(r.city))}</strong><span class="country-name"><span class="country-flag" aria-hidden="true">${countryFlag(r.city.country)}</span>${escapeHtml(displayCountry(r.city.country))}${r.climate.referenceLabel ? ` · ${escapeHtml(r.climate.referenceLabel)}` : ''}</span></span><span class="rating ${rating.key}">${rating.label}</span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span>${r.tripCost ? `<span>${tripPrice(r.tripCost.total)} estimated trip</span>` : ''}</span>${weatherBadges(r.weatherFlags.slice(0, 2))}${route ? `<span class="pick-route${r.travel.basis !== 'routes' ? ' route-estimate' : ''}">${escapeHtml(route)}</span>` : ''}${r.weatherDates.forecast.length ? `<span class="weather-coverage">${sources}</span>` : ''}</button>`;
+  return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(destinationName(r.city))}, ${rating.label}. ${sources}. ${climateLabel(r.climate)}.${r.weatherFlags.length ? ` Seasonal weather: ${escapeHtml(r.weatherFlags.map(weatherFlagLabel).join(", "))}.` : ""}${route ? ` ${escapeHtml(route)}.` : ''} Center on globe.">${photo ? `<img class="pick-photo" loading="lazy" decoding="async" src="${photo.image}" alt="">` : ''}<span class="pick-copy"><span class="pick-heading"><span class="pick-place"><strong class="city-name">${escapeHtml(destinationName(r.city))}</strong><span class="country-name"><span class="country-flag" aria-hidden="true">${countryFlag(r.city.country)}</span>${escapeHtml(displayCountry(r.city.country))}${r.climate.referenceLabel ? ` · ${escapeHtml(r.climate.referenceLabel)}` : ''}</span></span><span class="rating ${rating.key}">${rating.label}</span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span>${r.tripCost ? `<span>${tripPrice(r.tripCost.total)} estimated trip</span>` : ''}</span>${weatherBadges(r.weatherFlags.slice(0, 2))}${route ? `<span class="pick-route${r.travel.basis !== 'routes' ? ' route-estimate' : ''}">${escapeHtml(route)}</span>` : ''}${r.weatherDates.forecast.length ? `<span class="weather-coverage">${sources}</span>` : ''}</span></button>`;
 }
 
 function renderLists(): void {
+  document.querySelector('#results-context')!.textContent = `${ranked.length} matches from ${home.name}`;
   const minimumStay = ranked[0] ? minimumUsableStay(ranked[0].tripDays) : 0;
   document.querySelector('.results-note')!.textContent = [
     minimumStay === 0.5 ? 'Day trips require at least half a day at the destination.'
       : minimumStay ? 'Short trips require at least one day at the destination.' : '',
-    home.name === 'Boston' ? 'Incomplete Boston routes reduce the travel fit. Flight schedules are unverified.' : '',
+    home.name === 'Boston' ? 'Missing routes use estimated travel time. Flight schedules are unverified.' : '',
   ].filter(Boolean).join(' ');
   document.querySelector<HTMLElement>('.results-note')!.hidden = !ranked.length || (!minimumStay && home.name !== 'Boston');
   const scopeLabel = [selectedRegionName(), scope === 'all' ? '' : scopeNames[scope], nonstopOnly ? 'Nonstop flights' : ''].filter(Boolean).join(' · ');

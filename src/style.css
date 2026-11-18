@@ -497,3 +497,35 @@ dialog::backdrop { background: #16223778; }
 .resolution-warning { padding: 10px; border-left: 3px solid #bc944c; background: #faf6ec; color: #624b26; }
 .region-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 600px) { .region-choices { grid-template-columns: 1fr; } }
+
+/* Destination explorer */
+@media (prefers-color-scheme: light) {
+  :root { color: #18254b; background: #f2f5fc; --page: #f2f5fc; --ink: #15234a; --accent: #294fb5; --muted: #526483; --subtle: #eaf0fd; --border: #d7e1f4; --border-strong: #b6c8ea; --hover: #edf3ff; --route: #477fb6; }
+  body { background: radial-gradient(ellipse at 20% 0%, #fff9, transparent 65%), linear-gradient(140deg,#f4f7fd,#eef2fb); }
+  .brand-icon { background: linear-gradient(145deg,#f4f6ff,#dce5ff); }
+  .globe-canvas { background: radial-gradient(ellipse at center,#e0effb,#f1f6fe); }
+}
+.brand h1 { letter-spacing: -.055em; font-weight: 720; }
+.brand-icon, .side-panel, .date-range-button, .map-toolbar summary, .small-button, .panel-toggle { box-shadow: 0 2px 6px #293f820c; }
+.side-panel, .globe-canvas { border: 1px solid var(--border); border-radius: 16px; }
+.globe-canvas { margin-inline: 0; overflow: hidden; }
+.trip-panel-title, #destinations-title { color: var(--ink); font-size: 18px; font-weight: 700; letter-spacing: -.045em; }
+.results-panel .panel-heading { padding: 15px 15px 12px; background: linear-gradient(115deg,var(--subtle),var(--surface)); }
+.results-panel .panel-heading p { margin-top: 3px; }
+.results-content { padding: 6px 8px 12px; }
+.destination-list { gap: 4px; }
+.pick-row { display: flex; align-items: center; gap: 9px; padding: 4px 7px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface); box-shadow: 0 2px 5px #24386909; }
+.pick-row:hover, .pick-row.selected { background: var(--hover); border-color: var(--border-strong); }
+.pick-photo { width: clamp(48px,5vw,82px); height: 58px; object-fit: cover; border-radius: 7px; flex: none; }
+.pick-copy { flex: 1; min-width: 0; }
+.city-name { color: var(--ink); font-size: 14px; font-weight: 680; letter-spacing: -.025em; }
+.pick-heading { gap: 4px; }
+.rating { border-radius: 12px; }
+.pick-facts { margin-top: 2px; color: var(--ink); font-weight: 550; }
+@media (min-width:1101px) {
+  .workspace { --left-width: clamp(200px,16vw,270px); --right-width: clamp(330px,29vw,490px); gap: 12px; }
+}
+@media (max-width:600px) {
+  .globe-canvas { margin-inline: -10px; }
+  .pick-photo { width: 52px; height: 52px; }
+}
