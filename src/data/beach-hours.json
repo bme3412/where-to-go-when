@@ -1,0 +1,1520 @@
+{
+  "Tenerife": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=28.041389&longitude=-16.541944&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "9529a61ac3f3418bfa1eef512d8b95ea97320014d2a3573a25099e18062d319e",
+    "months": [
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 8957
+      },
+      {
+        "days": 848,
+        "light": 9602,
+        "dry": 8182
+      },
+      {
+        "days": 930,
+        "light": 11242,
+        "dry": 9539
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 9708
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 10330
+      },
+      {
+        "days": 900,
+        "light": 12458,
+        "dry": 11452
+      },
+      {
+        "days": 930,
+        "light": 12825,
+        "dry": 12651
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 11742
+      },
+      {
+        "days": 900,
+        "light": 11507,
+        "dry": 10349
+      },
+      {
+        "days": 930,
+        "light": 10316,
+        "dry": 8458
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 8323
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 8728
+      }
+    ]
+  },
+  "Phuket": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=7.88&longitude=98.39&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "ddd49762b48329ac317186eebdab7e4c9b5b6169d75b96ec9dfabcc9786112d6",
+    "months": [
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 10247
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 9718
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 9843
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 8427
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 6595
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 6359
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 6351
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 5922
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 5352
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 5803
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 7040
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 9156
+      }
+    ]
+  },
+  "Maldives": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=4.18&longitude=73.51&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "49ebaf370863319d6f2c2cbd772d81d4bb60bcbdfa71d33cc39eb2f893fc8ef6",
+    "months": [
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 9019
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 8922
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 9689
+      },
+      {
+        "days": 900,
+        "light": 11272,
+        "dry": 8194
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6691
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 8482
+      },
+      {
+        "days": 930,
+        "light": 11346,
+        "dry": 8265
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8131
+      },
+      {
+        "days": 900,
+        "light": 11530,
+        "dry": 7573
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 6897
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 6550
+      },
+      {
+        "days": 930,
+        "light": 10715,
+        "dry": 6955
+      }
+    ]
+  },
+  "Cairns": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-16.92&longitude=145.77&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "27b5463da1f8588bed8f09520acc0fb60525e16b428ffb1b942bfa9d4809ab0b",
+    "months": [
+      {
+        "days": 930,
+        "light": 11855,
+        "dry": 6564
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 5023
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 6575
+      },
+      {
+        "days": 900,
+        "light": 10760,
+        "dry": 7340
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 8006
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 8302
+      },
+      {
+        "days": 930,
+        "light": 10619,
+        "dry": 9146
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 9822
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 9720
+      },
+      {
+        "days": 930,
+        "light": 12075,
+        "dry": 10408
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 9313
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 8334
+      }
+    ]
+  },
+  "Fiji": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-17.76&longitude=177.44&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "e1b5cb6d9add9cd9f448cd1e0519ddd6af7b03a40b60a06240b5a01a64422ce0",
+    "months": [
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6463
+      },
+      {
+        "days": 848,
+        "light": 10386,
+        "dry": 5176
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 5566
+      },
+      {
+        "days": 900,
+        "light": 10392,
+        "dry": 6841
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 8457
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 8648
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 9353
+      },
+      {
+        "days": 930,
+        "light": 10674,
+        "dry": 9317
+      },
+      {
+        "days": 900,
+        "light": 11033,
+        "dry": 8976
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 9200
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 8146
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 7521
+      }
+    ]
+  },
+  "Tahiti": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-17.54&longitude=-149.57&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "2667ce26a63ab1e854987c7400a1b921eac0a91edbd37484c84674d88561b2d2",
+    "months": [
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6475
+      },
+      {
+        "days": 848,
+        "light": 11024,
+        "dry": 6032
+      },
+      {
+        "days": 930,
+        "light": 11427,
+        "dry": 7017
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 6330
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 7103
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 7271
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 7828
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 8101
+      },
+      {
+        "days": 900,
+        "light": 10624,
+        "dry": 7907
+      },
+      {
+        "days": 930,
+        "light": 11504,
+        "dry": 8134
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 7498
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6141
+      }
+    ]
+  },
+  "Honolulu": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=21.31&longitude=-157.86&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "618c0c99ced88c3a2e365c9b0255c9967bd3783d8c730938d635918f43a42571",
+    "months": [
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 8407
+      },
+      {
+        "days": 848,
+        "light": 9634,
+        "dry": 7896
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8668
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 8376
+      },
+      {
+        "days": 930,
+        "light": 12807,
+        "dry": 10379
+      },
+      {
+        "days": 900,
+        "light": 12600,
+        "dry": 10156
+      },
+      {
+        "days": 930,
+        "light": 12629,
+        "dry": 10058
+      },
+      {
+        "days": 930,
+        "light": 11663,
+        "dry": 9431
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 8809
+      },
+      {
+        "days": 930,
+        "light": 10942,
+        "dry": 8939
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 8024
+      },
+      {
+        "days": 930,
+        "light": 9670,
+        "dry": 7932
+      }
+    ]
+  },
+  "Miami": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=25.76&longitude=-80.19&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "d41c04c9f9a215566b9e240d3d9dd4f53d3471dd18cfa266983d030a607aaf69",
+    "months": [
+      {
+        "days": 930,
+        "light": 9476,
+        "dry": 8138
+      },
+      {
+        "days": 848,
+        "light": 9913,
+        "dry": 8598
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 9850
+      },
+      {
+        "days": 900,
+        "light": 11332,
+        "dry": 9659
+      },
+      {
+        "days": 930,
+        "light": 12571,
+        "dry": 9830
+      },
+      {
+        "days": 900,
+        "light": 12600,
+        "dry": 8210
+      },
+      {
+        "days": 930,
+        "light": 13020,
+        "dry": 8913
+      },
+      {
+        "days": 930,
+        "light": 12301,
+        "dry": 8068
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 6565
+      },
+      {
+        "days": 930,
+        "light": 10452,
+        "dry": 7396
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 8131
+      },
+      {
+        "days": 930,
+        "light": 9735,
+        "dry": 8256
+      }
+    ]
+  },
+  "Cancún": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=21.16&longitude=-86.85&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "174f3bf23a2e8124509d670ef78c4bd6ecad34003269b6981859f7648bdaca39",
+    "months": [
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 8139
+      },
+      {
+        "days": 848,
+        "light": 9328,
+        "dry": 7842
+      },
+      {
+        "days": 930,
+        "light": 11115,
+        "dry": 9702
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 10142
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 9058
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 7640
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 8709
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 8058
+      },
+      {
+        "days": 900,
+        "light": 10935,
+        "dry": 6146
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 6603
+      },
+      {
+        "days": 900,
+        "light": 10388,
+        "dry": 7629
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 7978
+      }
+    ]
+  },
+  "San Juan": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=18.47&longitude=-66.11&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "cbf56ff0fe817364abad68df275d3491b2b6a61e73e064699d4b16dd1de0e2e0",
+    "months": [
+      {
+        "days": 930,
+        "light": 10799,
+        "dry": 8223
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 8265
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 9120
+      },
+      {
+        "days": 900,
+        "light": 10908,
+        "dry": 8374
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 8564
+      },
+      {
+        "days": 900,
+        "light": 12421,
+        "dry": 9858
+      },
+      {
+        "days": 930,
+        "light": 12778,
+        "dry": 9550
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 7827
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 7157
+      },
+      {
+        "days": 930,
+        "light": 10762,
+        "dry": 7106
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 6267
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 7561
+      }
+    ]
+  },
+  "Aruba": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=12.52&longitude=-70.03&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "c3dea5a8e896e8d7135d4da53405c816a1047cc18d0e70268d25a97e4cd674a6",
+    "months": [
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 8391
+      },
+      {
+        "days": 848,
+        "light": 9591,
+        "dry": 8524
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 10302
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 10018
+      },
+      {
+        "days": 930,
+        "light": 11385,
+        "dry": 10710
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 10971
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 11160
+      },
+      {
+        "days": 930,
+        "light": 11611,
+        "dry": 10752
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 9643
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8999
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 7559
+      },
+      {
+        "days": 930,
+        "light": 11073,
+        "dry": 8324
+      }
+    ]
+  },
+  "Cartagena": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=10.39&longitude=-75.48&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "718b39e9295ea1bfb371fb71f9b212432ae952152055f214580187d2aafb9080",
+    "months": [
+      {
+        "days": 930,
+        "light": 10652,
+        "dry": 9988
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 9685
+      },
+      {
+        "days": 930,
+        "light": 11203,
+        "dry": 10084
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 8584
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6299
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 6169
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6787
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6442
+      },
+      {
+        "days": 900,
+        "light": 11340,
+        "dry": 5000
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 4495
+      },
+      {
+        "days": 900,
+        "light": 10527,
+        "dry": 4985
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 7773
+      }
+    ]
+  },
+  "Zanzibar": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-6.16&longitude=39.2&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "31ba31f0d1d584decaf4721daccefb1c296c9de8a054c0fdad8ea97fedb6cf68",
+    "months": [
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8627
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 8127
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 6435
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 4405
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 5784
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 7962
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8907
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8951
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 8777
+      },
+      {
+        "days": 930,
+        "light": 11508,
+        "dry": 8358
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 6837
+      },
+      {
+        "days": 930,
+        "light": 11340,
+        "dry": 6825
+      }
+    ]
+  },
+  "Mauritius": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-20.16&longitude=57.5&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "ffa3a7017aff1fc47d026df01cf4d6a737d718f0d006bff8ecda6316dde2418b",
+    "months": [
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 5671
+      },
+      {
+        "days": 848,
+        "light": 10604,
+        "dry": 4540
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 5375
+      },
+      {
+        "days": 900,
+        "light": 10260,
+        "dry": 5799
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 6897
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 7518
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 7404
+      },
+      {
+        "days": 930,
+        "light": 10265,
+        "dry": 7673
+      },
+      {
+        "days": 900,
+        "light": 11089,
+        "dry": 8261
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 9318
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 8493
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 7495
+      }
+    ]
+  },
+  "Palolem": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=15.01667&longitude=74.01667&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "1569204f090a238c154d557e68895861c62978f814211cad6600a7858ba6a7ac",
+    "months": [
+      {
+        "days": 930,
+        "light": 10327,
+        "dry": 10269
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 10149
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 10931
+      },
+      {
+        "days": 900,
+        "light": 11692,
+        "dry": 11264
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 10025
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 1781
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 355
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 1109
+      },
+      {
+        "days": 900,
+        "light": 11467,
+        "dry": 4390
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 7638
+      },
+      {
+        "days": 900,
+        "light": 9915,
+        "dry": 9267
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 10111
+      }
+    ]
+  },
+  "Sanur": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=-8.675&longitude=115.26111&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "22f453a0668a30eb057cf96dbcc4181d1e738e7e41097eb5b490b550e768dd9a",
+    "months": [
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 3463
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 3102
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 4189
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 5229
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 7058
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 7548
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8109
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8621
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 7986
+      },
+      {
+        "days": 930,
+        "light": 11862,
+        "dry": 7637
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 5435
+      },
+      {
+        "days": 930,
+        "light": 11885,
+        "dry": 4176
+      }
+    ]
+  },
+  "Puerto de la Cruz": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=28.41686&longitude=-16.55085&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "608dce6606fa46699c0f93ee2032d2b4d23caaeca68e8d729d8a7a7af058bfb8",
+    "months": [
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 9419
+      },
+      {
+        "days": 848,
+        "light": 9583,
+        "dry": 8715
+      },
+      {
+        "days": 930,
+        "light": 11244,
+        "dry": 10212
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 10859
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 11575
+      },
+      {
+        "days": 900,
+        "light": 12532,
+        "dry": 12083
+      },
+      {
+        "days": 930,
+        "light": 12875,
+        "dry": 12451
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 11855
+      },
+      {
+        "days": 900,
+        "light": 11507,
+        "dry": 11174
+      },
+      {
+        "days": 930,
+        "light": 10306,
+        "dry": 9378
+      },
+      {
+        "days": 900,
+        "light": 9900,
+        "dry": 8905
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 9204
+      }
+    ]
+  },
+  "Maafushi": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=3.94231&longitude=73.4907&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "544e8b99e28bf6979b2ae7caf6ea1b0153f4737123a546f208b9f62b6eb0a666",
+    "months": [
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8866
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 8879
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 9671
+      },
+      {
+        "days": 900,
+        "light": 11257,
+        "dry": 8194
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6739
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 8647
+      },
+      {
+        "days": 930,
+        "light": 11286,
+        "dry": 8315
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8255
+      },
+      {
+        "days": 900,
+        "light": 11513,
+        "dry": 7584
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 6746
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 6546
+      },
+      {
+        "days": 930,
+        "light": 10768,
+        "dry": 6872
+      }
+    ]
+  },
+  "Dhigurah": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=3.53514&longitude=72.92896&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "918617f0ecbfcf5015b303cc35ec4b4bcff7df42bd3bbcefec23efd19d10ed6e",
+    "months": [
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8894
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 8821
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 9676
+      },
+      {
+        "days": 900,
+        "light": 11027,
+        "dry": 8279
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6976
+      },
+      {
+        "days": 900,
+        "light": 11428,
+        "dry": 8761
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8384
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 8425
+      },
+      {
+        "days": 900,
+        "light": 11348,
+        "dry": 7644
+      },
+      {
+        "days": 930,
+        "light": 11191,
+        "dry": 6781
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 6448
+      },
+      {
+        "days": 930,
+        "light": 10864,
+        "dry": 6934
+      }
+    ]
+  },
+  "El Nido": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=11.2&longitude=119.4&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "e391cd2e5dbc786c0f33c480234de58f3bb89a580b3d508bdfd53b5f360c32ce",
+    "months": [
+      {
+        "days": 930,
+        "light": 10575,
+        "dry": 8054
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 8242
+      },
+      {
+        "days": 930,
+        "light": 11175,
+        "dry": 8786
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 8539
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6362
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 4897
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 4673
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 5417
+      },
+      {
+        "days": 900,
+        "light": 11378,
+        "dry": 4302
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 4340
+      },
+      {
+        "days": 900,
+        "light": 10508,
+        "dry": 5067
+      },
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 5823
+      }
+    ]
+  },
+  "Balabag": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=11.97&longitude=121.92&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "ca0d2a648f9d21b0ba0dfab00db64b4c98f3eaeefbb142fb225c0c88c9b19fde",
+    "months": [
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 6494
+      },
+      {
+        "days": 848,
+        "light": 9548,
+        "dry": 7013
+      },
+      {
+        "days": 930,
+        "light": 11663,
+        "dry": 8809
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 9561
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 9011
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 7304
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 5947
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 6356
+      },
+      {
+        "days": 900,
+        "light": 10936,
+        "dry": 5844
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 5745
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 4980
+      },
+      {
+        "days": 930,
+        "light": 10447,
+        "dry": 4919
+      }
+    ]
+  },
+  "Tamarindo": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=10.3&longitude=-85.84&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "bf24b65761ea77dbe236175c5338bc838565402ebd7ff63762c12de4d8a134ff",
+    "months": [
+      {
+        "days": 930,
+        "light": 10230,
+        "dry": 10037
+      },
+      {
+        "days": 848,
+        "light": 9501,
+        "dry": 9382
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 10902
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 9607
+      },
+      {
+        "days": 930,
+        "light": 11316,
+        "dry": 6869
+      },
+      {
+        "days": 900,
+        "light": 11700,
+        "dry": 5729
+      },
+      {
+        "days": 930,
+        "light": 12090,
+        "dry": 7446
+      },
+      {
+        "days": 930,
+        "light": 11655,
+        "dry": 6380
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 4189
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 4684
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 7890
+      },
+      {
+        "days": 930,
+        "light": 11139,
+        "dry": 10523
+      }
+    ]
+  },
+  "Galle": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?latitude=6.03&longitude=80.22&start_date=1991-01-01&end_date=2020-12-31&hourly=precipitation%2Cis_day&models=era5&timezone=auto",
+    "sha256": "a08786b638410ffcfe7ca303e24a4c90e6b67067ae4c4502c5cbbd9fef0865dd",
+    "months": [
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 7915
+      },
+      {
+        "days": 848,
+        "light": 10176,
+        "dry": 7303
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 7160
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 4598
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 2590
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 2332
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 2820
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 2620
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 2577
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 3372
+      },
+      {
+        "days": 900,
+        "light": 10800,
+        "dry": 4659
+      },
+      {
+        "days": 930,
+        "light": 11160,
+        "dry": 6442
+      }
+    ]
+  }
+}

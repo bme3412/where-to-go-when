@@ -298,6 +298,8 @@ export function scoreCity(city: City, home: Origin, samples: SampledTrip, weight
     comfortableDryDays += contribution;
     const timestamp = weatherSamples[index], forecastDay = forecast?.get(timestamp);
     weatherPeriods.push({
+      usableDays,
+      daylight: forecastDay?.daylight,
       start: timestamp,
       days: widths[index],
       high: highs[index],

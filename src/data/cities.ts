@@ -232,6 +232,10 @@ export const CITY_ROWS = [
 ["Santiago de los Caballeros","Dominican Republic",19.45,-70.7,[],[]],
 ["Mérida","Mexico",20.97,-89.62,[],[]],
 ["Oaxaca","Mexico",17.06,-96.73,[],[]],
+["El Nido","Philippines",11.2,119.4,[],[]],
+["Balabag","Philippines",11.97,121.92,[],[]],
+["Tamarindo","Costa Rica",10.3,-85.84,[],[]],
+["Galle","Sri Lanka",6.03,80.22,[],[]],
 ["La Paz","Bolivia",-16.5,-68.13,[],[]]
 ] as const satisfies readonly CityRow[];
 

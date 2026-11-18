@@ -1255,5 +1255,25 @@
     "name": "La Paz",
     "lat": -16.5,
     "lon": -68.13
+  },
+  {
+    "name": "El Nido",
+    "lat": 11.2,
+    "lon": 119.4
+  },
+  {
+    "name": "Balabag",
+    "lat": 11.97,
+    "lon": 121.92
+  },
+  {
+    "name": "Tamarindo",
+    "lat": 10.3,
+    "lon": -85.84
+  },
+  {
+    "name": "Galle",
+    "lat": 6.03,
+    "lon": 80.22
   }
 ]

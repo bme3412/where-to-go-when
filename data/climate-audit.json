@@ -1,10 +1,10 @@
 {
-  "auditedAt": "2026-11-17T20:33:04.449739+00:00",
+  "auditedAt": "2026-11-18T16:44:19.247558+00:00",
   "baseline": "1991–2020",
   "status": "passed",
-  "scope": "All 230 reference points, all 230 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
+  "scope": "All 234 reference points, all 234 destination coordinates, and every climate factor. Agency routes reviewed for the 45 previously grid-only destinations; source availability research is not exhaustive.",
   "checks": {
-    "sourceFingerprints": 1251,
+    "sourceFingerprints": 1259,
     "dailyGridFingerprints": true,
     "monthDenominators": true,
     "histogramCounts": true,
@@ -16,7 +16,7 @@
   },
   "destinationCounts": {
     "station": 56,
-    "grid": 164,
+    "grid": 168,
     "mixed": 10
   },
   "additions": [
@@ -653,6 +653,22 @@
       "source": "grid"
     },
     {
+      "name": "El Nido",
+      "source": "grid"
+    },
+    {
+      "name": "Balabag",
+      "source": "grid"
+    },
+    {
+      "name": "Tamarindo",
+      "source": "grid"
+    },
+    {
+      "name": "Galle",
+      "source": "grid"
+    },
+    {
       "name": "La Paz",
       "source": "grid"
     }
@@ -1078,7 +1094,7 @@
     {
       "id": "keyboard-access",
       "status": "fixed",
-      "detail": "Searchable Data audit dialog exposes all 230 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
+      "detail": "Searchable Data audit dialog exposes all 234 destinations independently of ranking, home exclusion and Domestic/International filters; marker labels include provenance."
     },
     {
       "id": "archive-version",
@@ -5918,6 +5934,90 @@
       "name": "La Paz",
       "kind": "grid",
       "reference": "La Paz",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "El Nido",
+      "kind": "grid",
+      "reference": "El Nido",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Balabag",
+      "kind": "grid",
+      "reference": "Balabag",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Tamarindo",
+      "kind": "grid",
+      "reference": "Tamarindo",
+      "factors": {
+        "temperature": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        },
+        "precipitation": {
+          "kind": "grid",
+          "provider": "NASA POWER / MERRA-2",
+          "station": null,
+          "acceptedDays": 10958,
+          "minimumMonthlyCoverage": 1.0
+        }
+      }
+    },
+    {
+      "name": "Galle",
+      "kind": "grid",
+      "reference": "Galle",
       "factors": {
         "temperature": {
           "kind": "grid",

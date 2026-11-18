@@ -1,6 +1,6 @@
 # Where to go, and when
 
-A lightweight vacation globe with 230 destinations, scored for your travel dates, home city, and trip length. The larger globe fills the center of the first screen, with collapsible trip settings on the left and independently scrolling recommendations on the right. Built with TypeScript, Vite, D3 v7, and `topojson-client`; no framework, API keys, or backend.
+A lightweight vacation globe with 234 destinations, scored for your travel dates, home city, and trip length. The larger globe fills the center of the first screen, with collapsible trip settings on the left and independently scrolling recommendations on the right. Built with TypeScript, Vite, D3 v7, and `topojson-client`; no framework, API keys, or backend.
 
 ## Run
 
@@ -79,7 +79,7 @@ Rain uses the same date sampling, monthly blending, spatial interpolation and 90
 
 The trip panel groups origin, destination scope, the Boston nonstop switch and dates. The selected date range is shown on one button, and the shared calendar opens beneath it. Trip duration sits beside the Travel dates heading. Search by city name to choose from 24 origins; the nonstop switch appears only for Boston.
 
-The bundled **1991–2020** baseline covers 230 reference points, including all 230 destinations and all 24 origins. Temperature and precipitation each retain their own source, record counts and coverage. Current destination coverage: **56 station / 10 mixed / 164 grid**.
+The bundled **1991–2020** baseline covers 234 reference points, including all 234 destinations and all 24 origins. Temperature and precipitation each retain their own source, record counts and coverage. Current destination coverage: **56 station / 10 mixed / 168 grid**.
 
 - **Nearby observations:** NOAA NCEI [GHCN-Daily Version 3](https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily), [dataset DOI](https://doi.org/10.7289/V5D21VHZ), plus **Source: MeteoSwiss**, [SwissMetNet historical daily observations](https://opendatadocs.meteoswiss.ch/a-data-groundbased/a1-automatic-weather-stations) for Interlaken station INT.
 - **Regional fallback:** [NASA POWER / MERRA-2](https://power.larc.nasa.gov/docs/methodology/) at the destination coordinate. Native 0.5° latitude × 0.625° longitude grid; `T2M_MAX`, `T2M_MIN` (°C) and `PRECTOTCORR` (mm/day), Local Solar Time. Data provided by the NASA POWER Project at NASA Langley Research Center.
@@ -131,14 +131,11 @@ npm run build
 
 ## Scoring model
 
-`match = temperatureFit × temperatureWeight + dryFit × dryWeight + reliability × reliabilityWeight + crowdFit × crowdWeight + travelFit × travelWeight`
+The seasonal match gives up to 45 points for weather suited to the local experience, 25 for seasonal timing, 20 for travel and 10 for quieter conditions. Historical suitability averages a tapered temperature curve over daily highs and weights it by the observed dry-day frequency. Timing compares the base with its own twelve months and scales the result by absolute suitability. Regional cards use the best eligible base after filtering.
 
-Fits are 0–1; integer weights always sum to 100. The app uses fixed weights of 32% temperature, 20% dry days, 13% weather reliability, 10% crowds, and 25% travel.
+Beach bases use hourly precipitation during daylight. Each hour marked as daylight with less than 0.1 mm counts toward the dry share. A complete hourly forecast takes precedence on its local date. Forecasts with missing hourly data use daily precipitation. Historical beach estimates use monthly totals from 1991–2020 ERA5 via Open-Meteo, blended between month midpoints. Rebuild the bundled summaries with `python3 scripts/import-beach-hours.py`. Each base retains its request URL and raw-response SHA-256. [Historical weather data and attribution](https://open-meteo.com/en/docs/historical-weather-api)
 
 - **Trip cost:** enter estimated round-trip airfare and nightly lodging in destination details. Estimates are for one traveler in USD and scoped to the origin, destination, dates and route mode for the open session. Complete estimates contribute 10% of the match. Cost fit falls linearly from full credit at $250 plus $75 per night to zero at $1,200 plus $250 per night. These are scoring benchmarks. With missing prices, the original score is preserved. Same-day trips require airfare only.
-- **Temperature:** historical highs use 0.1°C histogram bins. Forecast days use the feels-like high when supplied by Open-Meteo, which includes humidity, wind and sunlight. Other dates use air temperatures. Daily lows above 20°C gradually reduce the temperature fit by up to 20% at 26°C or above. Historical days use baseline average lows. This overnight adjustment affects temperature points only.
-- **Dry:** historical fraction of days with less than 1 mm total precipitation (including snowfall water equivalent). Monthly rain volume is context only.
-- **Weather reliability:** estimated probability that at least half the usable stay is comfortable and dry. Historical temperature and rain are modeled independently within days and across days. Forecast dates use the predicted outcome. Partial travel days count by usable fraction, and trips with more than 90 full usable days use a normal approximation.
 - **Crowds:** 1 minus the original estimated seasonal crowd level plus dated event adjustments. No measured attendance claim.
 - **Travel:** estimated usable days divided by trip days. Boston flights use stored route durations, separate outbound/return paths, and explicit connection/transfer allowances. Other origins and incomplete Boston directions use the distance estimate. Driving, airport time, transfers and time-zone recovery remain estimates; schedules and bookable connections are not checked.
 

@@ -98,3 +98,15 @@ describe('near-term weather', () => {
     expect(result.size).toBe(0);
   });
 });
+
+it('credits dry daylight on a beach forecast even when rain fell at night', async () => {
+  const date = '2026-11-21';
+  const time = Array.from({ length: 24 }, (_, h) => date + 'T' + String(h).padStart(2, '0') + ':00');
+  const daily = { time: [date], temperature_2m_max: [28], temperature_2m_min: [20], precipitation_sum: [8] };
+  const hourly = { time, is_day: time.map((_, h) => Number(h >= 6 && h < 18)),
+    precipitation: time.map((_, h) => h === 2 ? 7.9 : h === 9 ? 0.1 : 0) };
+  const load = async (times: string[]) => (await loadForecast([miami], async () =>
+    Response.json({ daily, hourly: { ...hourly, time: times } }))).get('Miami')?.get(Date.parse(date));
+  expect((await load(time))?.daylight).toEqual({ dry: 11, light: 12 });
+  expect((await load(time.slice(1)))?.daylight).toBeUndefined();
+});

@@ -1,4 +1,5 @@
-import { topPickChange, tripFromUrl } from './trip-date-feedback';
+import { rankSeasonalAreas, seasonalArea, seasonalScore, seasonalTitle } from "./seasonal";
+import { tripFromUrl } from './trip-date-feedback';
 import destinationPhotos from './data/destination-photos.json';
 import { countryFlag } from './data/destination-tips';
 import { setupOriginSearch } from './origin-search';
@@ -13,7 +14,7 @@ import { ORIGINS } from './data/origins';
 import { climateLabel, climateResolutionLabel } from './climate';
 import { auditContent, auditDestinations, auditRows } from './audit';
 import type { AuditFilter } from './audit';
-import { band, cityTooltip, countryTooltip, displayCountry, escapeHtml, flightDetails, flightRouteDetails, rankingRouteLabel, scoreBreakdown, temperature, tripPrice, weatherBadges, weatherDetails, weatherSourceSummary } from './format';
+import { band, cityTooltip, countryTooltip, displayCountry, escapeHtml, flightDetails, flightRouteDetails, rankingRouteLabel, scoreBreakdown, temperature, tripPrice, weatherDetails, weatherSourceSummary } from './format';
 import { Globe } from './globe';
 import { isNonstopBostonTrip } from './flights';
 import { flightMapFor, nonstopFlightMaps } from './flight-map';
@@ -35,7 +36,6 @@ const photoCredits = Object.entries(destinationPhotos).sort(([a], [b]) => a.loca
 ).join('');
 const app = document.querySelector<HTMLElement>('#app')!;
 const initialTrip = tripFromUrl(new URL(location.href), defaultTrip(new Date()));
-let previousDateRanking: string[] | null = null;
 let trip = initialTrip;
 const tripPrices = new Map<string, Map<string, TripPriceEstimate>>();
 const airfareQuotes = new WeakMap<HTMLFormElement, AirfareOption[]>();
@@ -122,7 +122,7 @@ app.innerHTML = `
       <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span><span id="selected-weather"></span></div><button id="selected-details" class="small-button" type="button" aria-haspopup="dialog">Why this score? ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
     </section>
     <aside id="results-panel" class="side-panel results-panel" aria-labelledby="destinations-title">
-      <div class="panel-heading"><div><h2 id="destinations-title">Discover destinations</h2><p id="results-context"></p><p id="date-feedback" role="status" aria-live="polite" hidden></p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close destinations">${closeIcon}</button></div>
+      <div class="panel-heading"><div><h2 id="destinations-title">Discover destinations</h2><p id="results-context"></p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close destinations">${closeIcon}</button></div>
       <div class="panel-scroll results-content">
         <p id="forecast-status" class="forecast-status" role="status"></p>
         <div id="destination-list" class="destination-list"></div>
@@ -142,16 +142,15 @@ app.innerHTML = `
 
 setupDatePicker(document.querySelector<HTMLElement>('.trip-dates')!, initialTrip, selected => {
   if (selected.start === trip.start && selected.end === trip.end) return;
-  previousDateRanking = ranked.map(result => destinationName(result.city));
   trip = selected;
   const url = new URL(location.href);
   url.searchParams.set('start', trip.start);
   url.searchParams.set('end', trip.end);
   history.replaceState(history.state, '', url);
-  recompute(false, true);
+  recompute(false);
   document.querySelector('.results-content')!.scrollTop = 0;
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    for (const node of document.querySelectorAll('#date-feedback, .pick-row:nth-child(-n+3)')) {
+    for (const node of document.querySelectorAll('.pick-row:nth-child(-n+3)')) {
       node.animate([{ opacity: 0.6, transform: 'translateY(3px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 220, easing: 'ease-out' });
     }
   }
@@ -201,12 +200,19 @@ const globe = new Globe(document.querySelector<SVGSVGElement>('#globe')!, {
   },
 });
 
+function otherBases(result: CityScore): string {
+  const area = seasonalArea(result);
+  if (!area) return '';
+  const others = rankCities(cityScores.filter(r => seasonalArea(r) === area && r.city.name !== result.city.name));
+  if (!others.length) return '';
+  return `<section><h3>Other bases in ${escapeHtml(area)}</h3>${others.map(r => `<button type="button" class="small-button" data-city="${escapeHtml(r.city.name)}">${escapeHtml(destinationName(r.city))}</button>`).join(' ')}</section>`;
+}
 function renderPick(r: RankedCity): string {
   const rating = band(r.score);
   const photo = photos[r.city.name];
   const route = hasNonstopFare(r.city.name) ? 'Nonstop both ways · Nuitée' : rankingRouteLabel(r.travel);
   const sources = escapeHtml(weatherSourceSummary(r));
-  return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(destinationName(r.city))}, ${rating.label}. ${sources}. ${climateLabel(r.climate)}.${r.weatherFlags.length ? ` Seasonal weather: ${escapeHtml(r.weatherFlags.map(weatherFlagLabel).join(", "))}.` : ""}${route ? ` ${escapeHtml(route)}.` : ''} Center on globe.">${photo ? `<img class="pick-photo" loading="lazy" decoding="async" src="${photo.image}" alt="">` : ''}<span class="pick-copy"><span class="pick-heading"><span class="pick-place"><strong class="city-name">${escapeHtml(destinationName(r.city))}</strong><span class="country-name"><span class="country-flag" aria-hidden="true">${countryFlag(r.city.country)}</span>${escapeHtml(displayCountry(r.city.country))}${r.climate.referenceLabel ? ` · ${escapeHtml(r.climate.referenceLabel)}` : ''}</span></span><span class="rating ${rating.key}">${rating.label}</span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span>${r.tripCost ? `<span>${tripPrice(r.tripCost.total)} estimated trip</span>` : ''}</span>${weatherBadges(r.weatherFlags.slice(0, 2))}${route ? `<span class="pick-route${r.travel.basis !== 'routes' ? ' route-estimate' : ''}">${escapeHtml(route)}</span>` : ''}${r.weatherDates.forecast.length ? `<span class="weather-coverage">${sources}</span>` : ''}</span></button>`;
+  return `<button type="button" class="pick-row${selectedName === r.city.name ? ' selected' : ''}" data-city="${escapeHtml(r.city.name)}" aria-pressed="${selectedName === r.city.name}" aria-label="${escapeHtml(seasonalTitle(r))}, ${rating.label}. ${sources}. ${climateLabel(r.climate)}.${r.weatherFlags.length ? ` Seasonal weather: ${escapeHtml(r.weatherFlags.map(weatherFlagLabel).join(", "))}.` : ""}${route ? ` ${escapeHtml(route)}.` : ''} Center on globe.">${photo ? `<img class="pick-photo" loading="lazy" decoding="async" src="${photo.image}" alt="">` : ''}<span class="pick-copy"><span class="pick-heading"><span class="pick-place"><strong class="city-name">${escapeHtml(seasonalTitle(r))}</strong><span class="country-name"><span class="country-flag" aria-hidden="true">${countryFlag(r.city.country)}</span>${escapeHtml(displayCountry(r.city.country))}${seasonalTitle(r) !== destinationName(r.city) ? ` · ${escapeHtml(destinationName(r.city))}` : ''}</span></span><span class="rating ${rating.key}">${rating.label}</span></span><span class="pick-facts"><span>${temperature(r.high, unit)}</span>${r.tripCost ? `<span>${tripPrice(r.tripCost.total)} estimated trip</span>` : ''}</span><span class="pick-route">${escapeHtml(r.seasonal!.assessment)} for ${r.seasonal!.experience}.</span>${route ? `<span class="pick-route${r.travel.basis !== 'routes' ? ' route-estimate' : ''}">${escapeHtml(route)}</span>` : ''}${r.weatherDates.forecast.length ? `<span class="weather-coverage">${sources}</span>` : ''}</span></button>`;
 }
 
 function renderLists(): void {
@@ -276,7 +282,7 @@ function renderSelection(): void {
       <button type="submit" class="small-button" data-use-lodging hidden>Use Nuitée estimate</button>
     </div>` : ''}
   </form>`;
-  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, unit) + weatherDetails(result, unit) + flightDetails(result.travel) + priceForm + scoreBreakdown(result, unit);
+  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, unit) + weatherDetails(result, unit) + flightDetails(result.travel) + priceForm + scoreBreakdown(result, unit) + otherBases(result);
 }
 function renderFlightMap(result?: CityScore): void {
   const panel = document.querySelector<HTMLElement>('#flight-map-controls')!;
@@ -332,8 +338,7 @@ regionSelect.addEventListener('change', () => {
   recompute(true);
 });
 
-function recompute(shouldFly: boolean, keepDateComparison = false): void {
-  if (!keepDateComparison) previousDateRanking = null;
+function recompute(shouldFly: boolean): void {
   const nextScope = document.querySelector<HTMLInputElement>('[name="destination-scope"]:checked')!.value as DestinationScope;
   const global = nextScope === 'international';
   regionSelect.closest<HTMLElement>('.region-filter')!.hidden = !global;
@@ -347,7 +352,7 @@ function recompute(shouldFly: boolean, keepDateComparison = false): void {
       forecasts = result;
       forecastExpires = Date.now() + (result.size ? 30 : 5) * 60_000;
       forecastPending = false;
-      recompute(false, true);
+      recompute(false);
     });
   }
   const tripForecasts = nearTerm ? forecasts : undefined;
@@ -366,8 +371,8 @@ function recompute(shouldFly: boolean, keepDateComparison = false): void {
   document.querySelector<HTMLElement>('#boston-flight-filter')!.hidden = home.name !== 'Boston';
   nonstopOnly = home.name === 'Boston' && nonstopInput.checked;
   scope = nextScope;
-  allCityScores = scoreCities(trip, home, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, false, tripForecasts, tripPrices.get(tripPriceKey(false)));
-  const nonstopCandidates = home.name === 'Boston' ? scoreCities(trip, home, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, true, tripForecasts, tripPrices.get(tripPriceKey(true))) : [];
+  allCityScores = scoreCities(trip, home, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, false, tripForecasts, tripPrices.get(tripPriceKey(false))).map(seasonalScore);
+  const nonstopCandidates = home.name === 'Boston' ? scoreCities(trip, home, DEFAULT_WEIGHTS, DEFAULT_TEMPERATURE, true, tripForecasts, tripPrices.get(tripPriceKey(true))).map(seasonalScore) : [];
   const candidates = nonstopOnly ? nonstopCandidates : allCityScores;
   const inScope = (result: CityScore) => isRankableCity(result) && matchesDestinationScope(result.city.country, home.country, scope)
     && matchesDestinationRegion(result.city, selectedRegion);
@@ -376,10 +381,7 @@ function recompute(shouldFly: boolean, keepDateComparison = false): void {
   nonstopCityScores = nonstopCandidates.filter(inScope);
   nonstopMaps = nonstopFlightMaps(nonstopCityScores);
   globe.setNonstopRoutes(nonstopMaps);
-  ranked = rankCities(cityScores);
-  const feedback = document.querySelector<HTMLElement>('#date-feedback')!;
-  feedback.hidden = previousDateRanking === null;
-  feedback.textContent = previousDateRanking ? topPickChange(previousDateRanking, ranked.map(result => destinationName(result.city))) : '';
+  ranked = rankSeasonalAreas(cityScores);
   if (shouldFly || homeChanged || regionChanged || !cityScores.some(result => result.city.name === selectedName)) selectedName = null;
   if (activeRegion && !cityScores.some(result => result.city.region === activeRegion)) activeRegion = '';
   renderLists(); renderSelection(); renderRegion(); renderWeatherControls(); globe.update(cityScores, ranked, home); globe.setSelected(selectedName);
@@ -617,6 +619,10 @@ detailsDialog.addEventListener('submit', event => {
   const priceStatus = document.querySelector('#trip-price-status');
   if (priceStatus) priceStatus.textContent = selectedDestination()?.tripCost
     ? 'Estimate applied.' : 'Score unchanged until you enter both costs.';
+});
+detailsDialog.addEventListener('click', event => {
+  const base = resultForTarget(event.target);
+  if (base) selectDestination(base);
 });
 document.querySelector('#selected-details')!.addEventListener('click', () => { hideTooltip(); renderSelection(); detailsDialog.showModal(); detailsDialog.scrollTop = 0; });
 document.addEventListener('click', event => {

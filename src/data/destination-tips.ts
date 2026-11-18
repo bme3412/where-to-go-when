@@ -23,6 +23,10 @@ export const countryFlag = (country: string): string => flags[country] ?? '';
 
 type ActivityPair = readonly [outdoors: string, sheltered: string];
 const localActivities = {
+  'El Nido': ['Explore Bacuit Bay from El Nido.', 'Try a local seafood lunch in El Nido town.'],
+  Balabag: ['Explore White Beach in Balabag.', 'Try a Filipino lunch near White Beach.'],
+  Tamarindo: ['Visit Playa Tamarindo.', 'Explore the cafés in Tamarindo.'],
+  Galle: ['Explore the ramparts of Galle Fort.', 'Visit the galleries inside Galle Fort.'],
   Paris: ['Walk the Seine from Île de la Cité to the Tuileries.', 'Spend an afternoon with the Impressionists at the Musée d’Orsay.'],
   London: ['Walk the South Bank from Borough Market to Westminster.', 'Browse the British Museum and stop for tea in Bloomsbury.'],
   Rome: ['Walk through the Roman Forum and up Palatine Hill.', 'See the Pantheon and stop for espresso near Piazza della Rotonda.'],

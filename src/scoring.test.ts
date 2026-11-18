@@ -15,8 +15,8 @@ const destination = (name: string) => CITIES.find(city => city.name === name)!;
 const results = (start: string, end: string, home = boston) => scoreCities({ start, end }, home, DEFAULT_WEIGHTS);
 
 describe('reference data', () => {
-  it('contains all 230 destinations, 24 origins, and timezone offsets', () => {
-    expect(CITIES).toHaveLength(230);
+  it('contains all 234 destinations, 24 origins, and timezone offsets', () => {
+    expect(CITIES).toHaveLength(234);
     expect(ORIGINS).toHaveLength(24);
     expect(CITIES.every(city => Number.isFinite(TZ[city.name]))).toBe(true);
   });
@@ -446,9 +446,9 @@ describe('sourced climate baseline', () => {
     expect(climateProvenance(climateFor('Queenstown'))).toContain('Grid terrain mismatch');
   });
   it('makes all destinations searchable independently of rankings and source type', () => {
-    expect(auditDestinations('', 'all')).toHaveLength(230);
-    expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(230);
-    expect(sourceCounts).toEqual({station:56,mixed:10,grid:164});
+    expect(auditDestinations('', 'all')).toHaveLength(234);
+    expect(Object.values(sourceCounts).reduce((a, b) => a + b, 0)).toBe(234);
+    expect(sourceCounts).toEqual({station:56,mixed:10,grid:168});
     expect(auditDestinations('Queenstown', 'grid').map(c => c.name)).toEqual(['Queenstown']);
     expect(auditDestinations('El Médano', 'station').map(c => c.name)).toEqual(['Tenerife']);
     expect(auditDestinations('Banff', 'mixed').map(c => c.name)).toEqual(['Banff']);
