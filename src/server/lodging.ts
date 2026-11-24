@@ -1,8 +1,13 @@
 import { lodgingCountryCode } from '../lodging';
 import type { LodgingQuote } from '../lodging';
+import { priceRateLimited, priceRetryAfter } from './price-rate-limit';
 
 const DAY = 86_400_000;
 const HOUR = 3_600_000;
+
+class LodgingRateLimit extends Error {
+  constructor(readonly retryAfter: string | null) { super('Nuitée lodging rate limit'); }
+}
 
 function dateValue(value: string): number {
   const day = Date.parse(value);
@@ -34,9 +39,8 @@ export function createLodgingHandler(provider: typeof fetch = fetch, now = Date.
     let entry = cache.get(key);
     if (!entry || entry.expires <= time) {
       requestTimes = requestTimes.filter(timestamp => timestamp > time - HOUR);
-      if (requestTimes.length >= 15 || requestTimes.filter(timestamp => timestamp > time - 60_000).length >= 5) {
-        return json({ error: 'Too many lodging lookups. Try again later.' }, 429);
-      }
+      const retryAfter = priceRetryAfter(requestTimes, time);
+      if (retryAfter) return priceRateLimited('Too many lodging lookups. Try again later.', retryAfter);
       requestTimes.push(time);
       const lastNight = new Date(end - DAY).toISOString().slice(0, 10);
       const params = new URLSearchParams({ cityName: city, countryCode, fromDate: checkin, toDate: lastNight });
@@ -45,7 +49,7 @@ export function createLodgingHandler(provider: typeof fetch = fetch, now = Date.
           headers: { 'X-API-Key': apiKey, Accept: 'application/json' },
           signal: AbortSignal.timeout(8000),
         });
-        if (response.status === 429) throw new RangeError('rate limited');
+        if (response.status === 429) throw new LodgingRateLimit(response.headers.get('Retry-After'));
         if (!response.ok) throw new Error('provider unavailable');
         const body = await response.json() as { prices?: { day?: string; avgPriceUsd?: number }[] } | null;
         if (!Array.isArray(body?.prices)) return null;
@@ -75,8 +79,8 @@ export function createLodgingHandler(provider: typeof fetch = fetch, now = Date.
       return quote ? json(quote) : json({ error: 'Nuitée has no complete estimate for these dates.' }, 404);
     } catch (error) {
       if (cache.get(key) === entry) cache.delete(key);
-      return error instanceof RangeError
-        ? json({ error: 'Nuitée is rate-limiting lookups. Try again later.' }, 429)
+      return error instanceof LodgingRateLimit
+        ? priceRateLimited('Nuitée is rate-limiting lookups. Try again later.', error.retryAfter)
         : json({ error: 'Nuitée lodging estimates are currently unavailable.' }, 502);
     }
   };

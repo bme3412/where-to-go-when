@@ -21,6 +21,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 [hidden] { display: none !important; }
 svg { display: block; flex-shrink: 0; }
 #app { height: 100dvh; min-height: 560px; max-width: 2000px; margin: 0 auto; display: flex; flex-direction: column; padding: 0 24px; }
+#app:has(#selection:not([hidden])) { min-height: 700px; }
 .app-header { min-height: 64px; flex-shrink: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding-block: 8px; border-bottom: 1px solid var(--border); }
 .app-header .panel-toggles { justify-self: end; }
 .brand { display: flex; align-items: center; gap: 12px; }
@@ -89,19 +90,23 @@ h2 { font-size: 16px; font-weight: 600; letter-spacing: -.3px; margin: 0; }
 .field label { font-size: 11px; font-weight: 550; }
 input[type="date"], select { width: 100%; min-width: 0; height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 7px; color: var(--ink); background: var(--surface); font-size: 12px; }
 select { padding-right: 24px; }
-.trip-dates { position: relative; max-width: 100%; }
-.date-range-button { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); text-align: left; font-size: 12px; font-weight: 550; }
-.date-range-button svg { width: 16px; height: 16px; flex: none; color: var(--accent); }
-.trip-calendar { position: absolute; z-index: 20; top: 100%; left: 50%; transform: translateX(-50%); width: min(280px, calc(100vw - 32px)); text-align: left; margin-top: 8px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
-.calendar-nav { display: flex; justify-content: space-between; align-items: center; gap: 4px; font-size: 11px; }
-.calendar-nav .icon-button { width: 30px; height: 30px; font-size: 19px; color: var(--accent); }
-.calendar-nav .icon-button:disabled { opacity: .4; }
-.calendar-prompt { margin: 4px 0 7px; color: var(--muted); font-size: 10px; }
-.calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 3px; text-align: center; font-size: 10px; }
+.trip-dates { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; max-width: 100%; }
+.date-field { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); text-align: left; }
+.date-field[aria-expanded="true"] { border-color: var(--accent); background: var(--subtle); }
+.date-field-copy { display: grid; gap: 2px; }
+.date-field-label { color: var(--muted); font-size: .75rem; }
+.date-field-value { font-size: .875rem; font-weight: 600; white-space: nowrap; }
+.date-field svg { width: 15px; height: 15px; color: var(--accent); }
+.trip-calendar { position: absolute; z-index: 20; top: 100%; left: 50%; transform: translateX(-50%); width: min(304px, calc(100vw - 32px)); text-align: left; margin-top: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: 0 5px 18px rgb(36 50 71 / 12%); }
+.calendar-nav { display: flex; justify-content: space-between; align-items: center; gap: 4px; font-size: .875rem; }
+.calendar-nav .icon-button { width: 32px; height: 32px; font-size: 19px; color: var(--accent); }
+.calendar-prompt { margin: 4px 0 8px; color: var(--muted); font-size: .8125rem; }
+.calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 3px; text-align: center; font-size: .75rem; }
 .calendar-days span { padding-bottom: 4px; color: var(--muted); }
-.calendar-days button { min-height: 31px; padding: 0; border: 0; border-radius: 5px; background: transparent; font-size: 11px; }
-.calendar-days button:hover, .calendar-days button[aria-pressed="true"] { background: var(--subtle); }
-.calendar-days button.range-endpoint { color: white; background: var(--accent); }
+.calendar-days button { min-height: 34px; padding: 0; border: 0; border-radius: 5px; background: transparent; font-size: .875rem; }
+.calendar-days button:hover:not(:disabled), .calendar-days button[aria-pressed="true"] { background: var(--subtle); }
+.calendar-days button.range-endpoint, .calendar-days button.range-endpoint:hover { color: var(--surface); background: var(--accent); }
+.trip-calendar button:disabled { opacity: .42; cursor: default; background: transparent; }
 .calendar-days button:focus-visible { position: relative; z-index: 1; }
 .date-error, .invalid-summary { color: var(--error); font-size: 10px; line-height: 1.6; margin: 10px 0 0; }
 [aria-invalid="true"] { border-color: var(--error) !important; }
@@ -125,8 +130,11 @@ h3 { font-size: 12px; font-weight: 600; margin: 0; }
 .map-toolbar summary::-webkit-details-marker { display: none; }
 .map-toolbar summary span::before { content: '+'; color: var(--accent); }
 .map-toolbar[open] summary span::before { content: '−'; }
-.map-weather-options { position: absolute; bottom: 100%; left: 0; z-index: 12; box-shadow: 0 5px 18px rgb(36 50 71 / 12%); display: grid; justify-items: start; width: max-content; padding: 4px 9px; margin-bottom: 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
-.map-weather-options label { display: inline-flex; align-items: center; gap: 6px; min-height: 26px; cursor: pointer; }
+.map-weather-options { position: absolute; bottom: 100%; left: 0; z-index: 12; box-shadow: 0 5px 18px rgb(36 50 71 / 12%); display: grid; gap: 8px; width: max-content; padding: 10px 12px; margin-bottom: 4px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-size: .875rem; }
+.map-weather-options fieldset { display: grid; min-width: 0; margin: 0; padding: 0; border: 0; }
+.map-weather-options fieldset + fieldset { border-top: 1px solid var(--border); padding-top: 7px; }
+.map-weather-options legend { float: left; padding: 0; color: var(--muted); font-size: .75rem; font-weight: 650; }
+.map-weather-options label { display: flex; align-items: center; gap: 8px; min-height: 29px; cursor: pointer; }
 .map-weather-options input { margin: 0; accent-color: var(--accent); }
 .weather-wet { color: #176d91; }
 .weather-heat { color: #ae4618; }
@@ -171,7 +179,6 @@ h3 { font-size: 12px; font-weight: 600; margin: 0; }
 .globe-stage { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; }
 .trip-summary { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 12px; }
 .trip-summary h2 { font-size: 15px; line-height: 1.25; }
-.trip-summary .date-range-button { min-height: 36px; }
 .trip-summary .summary-scope { flex-basis: 100%; text-align: center; font-size: 11px; }
 .stage-actions { display: flex; gap: 6px; }
 .small-button { min-height: 32px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); padding: 7px 9px; font-size: 10px; white-space: nowrap; }
@@ -227,12 +234,34 @@ h3 { font-size: 12px; font-weight: 600; margin: 0; }
 .zoom-controls svg { width: 16px; height: 16px; }
 .zoom-controls .reset-view { margin-top: 3px; border-top: 1px solid var(--border); border-radius: 0 0 5px 5px; }
 .swatch { display: inline-block; width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; background: var(--swatch); }
-.selection { display: flex; align-items: center; gap: 10px; padding: 11px 12px; margin: 3px auto 2px; width: min(100%, 440px); border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); }
+.selection { flex-shrink: 0; padding: 11px 12px; margin: 3px auto 2px; width: min(100%, 520px); border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); }
+.selection-heading { display: flex; align-items: center; gap: 10px; }
 .selection-dot { width: 9px; height: 9px; background: var(--swatch); border-radius: 50%; flex-shrink: 0; }
 .selection-copy { flex: 1; min-width: 0; }
 .selection-copy strong { display: block; font-size: 12px; font-weight: 550; }
 .selection-copy > span { display: block; color: var(--muted); font-size: 10px; margin-top: 4px; line-height: 1.4; }
 .selection .icon-button { width: 24px; height: 24px; padding: 4px; }
+.monthly-scores { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border); }
+.monthly-score-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; }
+.monthly-score-heading h3 { font-size: .875rem; }
+.monthly-score-peak { color: var(--accent); font-size: .75rem; font-weight: 600; }
+.monthly-score-context, .monthly-score-basis { margin: 4px 0 0; color: var(--muted); font-size: .75rem; line-height: 1.45; }
+.monthly-score-grid { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); margin: 10px 0 6px; }
+.monthly-score-axis { position: relative; color: var(--muted); font-size: .6875rem; }
+.monthly-score-axis span { position: absolute; top: 0; right: .375rem; transform: translateY(-50%); }
+.monthly-score-axis span:nth-child(2) { top: 50%; }
+.monthly-score-axis span:last-child { top: 100%; }
+.monthly-score-plot { height: 72px; position: relative; }
+.monthly-score-plot svg { width: 100%; height: 100%; overflow: visible; fill: none; }
+.monthly-score-guides { stroke: var(--border); }
+.monthly-score-line { stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.monthly-score-dot { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); transform: translate(-50%, 50%); }
+.monthly-score-dot.trip-month { width: 8px; height: 8px; border: 2px solid var(--accent); background: var(--surface); }
+.monthly-score-values { grid-column: 2; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); list-style: none; margin: 4px 0 0; padding: 0; text-align: center; }
+.monthly-score-values li { display: grid; gap: 2px; padding: 3px 0; border-radius: 4px; color: var(--muted); font-size: .6875rem; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.monthly-score-values strong { color: var(--ink); font-size: .75rem; }
+.monthly-score-values .trip-month { background: var(--subtle); color: var(--accent); }
+.monthly-score-values .trip-month strong { color: var(--accent); }
 .results-panel .panel-heading { border-bottom: 1px solid var(--border); }
 .results-content { padding: 12px 12px 18px; }
 .destination-list { display: grid; }
@@ -377,7 +406,8 @@ dialog::backdrop { background: #16223778; }
 @media (max-width: 600px) {
   #app { padding: 0 14px; min-height: 560px; }
   .app-header { grid-template-columns: 1fr auto; gap: 6px; }
-  .app-header .trip-summary { grid-row: 2; grid-column: 1 / -1; }
+  .app-header .trip-summary { position: relative; grid-row: 2; grid-column: 1 / -1; }
+  .trip-dates { position: static; }
   .app-header .panel-toggles { grid-column: 2; grid-row: 1; }
   .brand { gap: 9px; }
   .brand-icon { width: 29px; height: 29px; border: 0; }
@@ -405,7 +435,8 @@ dialog::backdrop { background: #16223778; }
   .zoom-controls .icon-button { height: 29px; width: 29px; }
   .app-footer { height: 40px; gap: 10px; border-top: 1px solid var(--border); font-size: 8px; }
   .app-footer .text-button { font-size: 9px; }
-  .selection { gap: 8px; padding: 10px; }
+  .selection { padding: 10px; }
+  .selection-heading { gap: 8px; }
   .selection-copy > span { font-size: 9px; }
   .selection .small-button { padding: 6px; }
   .selection .small-button svg { display: none; }
@@ -506,7 +537,7 @@ dialog::backdrop { background: #16223778; }
   .globe-canvas { background: radial-gradient(ellipse at center,#e0effb,#f1f6fe); }
 }
 .brand h1 { letter-spacing: -.055em; font-weight: 720; }
-.brand-icon, .side-panel, .date-range-button, .map-toolbar summary, .small-button, .panel-toggle { box-shadow: 0 2px 6px #293f820c; }
+.brand-icon, .side-panel, .date-field, .map-toolbar summary, .small-button, .panel-toggle { box-shadow: 0 2px 6px #293f820c; }
 .side-panel, .globe-canvas { border: 1px solid var(--border); border-radius: 16px; }
 .globe-canvas { margin-inline: 0; overflow: hidden; }
 .trip-panel-title, #destinations-title { color: var(--ink); font-size: 18px; font-weight: 700; letter-spacing: -.045em; }

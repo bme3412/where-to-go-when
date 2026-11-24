@@ -1,10 +1,27 @@
 import { expect, it } from 'vitest';
 import { ORIGINS } from './data/origins';
-import { rankCities, scoreCities } from './scoring';
-import { rankSeasonalAreas, seasonalScore, seasonalTitle } from './seasonal';
+import { DAY, DEFAULT_WEIGHTS, rankCities, sampleDays, scoreCities, scoreCity, tripEvents } from './scoring';
+import { monthlySeasonalScores, rankSeasonalAreas, seasonalScore, seasonalTitle } from './seasonal';
 
 const trip = { start: '2026-12-20', end: '2027-01-03' };
 const scores = scoreCities(trip, ORIGINS.find(o => o.name === 'Boston')!).map(seasonalScore);
+
+it('scores January through December with the same trip duration and scoring model', () => {
+  const city = scores.find(result => result.city.name === 'Paris')!.city;
+  const home = ORIGINS.find(origin => origin.name === 'Boston')!;
+  const dates = { start: '2027-10-31', end: '2027-11-14' };
+  const monthly = monthlySeasonalScores(city, home, dates, true);
+  expect(monthly.map(point => point?.dates.start.slice(0, 7))).toEqual(
+    Array.from({ length: 12 }, (_, month) => `2027-${String(month + 1).padStart(2, '0')}`),
+  );
+  expect(monthly.map(point => (Date.parse(point!.dates.end) - Date.parse(point!.dates.start)) / DAY)).toEqual(Array(12).fill(14));
+  expect(monthly[1]?.dates).toEqual({ start: '2027-02-28', end: '2027-03-14' });
+  expect(monthly[9]?.dates).toEqual(dates);
+  expect(monthly[11]?.dates).toEqual({ start: '2027-12-31', end: '2028-01-14' });
+  const direct = seasonalScore(scoreCity(city, home, sampleDays(dates), DEFAULT_WEIGHTS, tripEvents(dates), undefined, true));
+  expect(monthly[9]?.score).toBeCloseTo(direct.score);
+  expect(monthly[1]?.score).not.toBeCloseTo(monthly[7]!.score);
+});
 
 it('ranks each area once using its best remaining eligible base', () => {
   const bases = scores.filter(r => r.city.region === 'Galápagos');

@@ -1,5 +1,6 @@
 import { airfareAirports } from '../airfare';
 import type { AirfareOption } from '../airfare';
+import { priceRateLimited, priceRetryAfter } from './price-rate-limit';
 
 type Direction = 'OUTBOUND' | 'INBOUND';
 interface Segment { direction: Direction; originCode: string; destinationCode: string; stopCount?: number; stops?: unknown[] }
@@ -114,9 +115,8 @@ export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.
       return json({ error: 'Choose a mapped flight route and dates within 11 months.' }, 400);
     }
     requests = requests.filter(timestamp => timestamp > time - 3_600_000);
-    if (requests.length >= 15 || requests.filter(timestamp => timestamp > time - 60_000).length >= 5) {
-      return json({ error: 'Too many airfare lookups.' }, 429);
-    }
+    const retryAfter = priceRetryAfter(requests, time);
+    if (retryAfter) return priceRateLimited('Too many airfare lookups.', retryAfter);
     requests.push(time);
     const { from, to } = airports;
     try {
@@ -133,7 +133,7 @@ export function createAirfareHandler(provider: typeof fetch = fetch, now = Date.
         }),
         signal: AbortSignal.timeout(22_000),
       });
-      if (response.status === 429) return json({ error: 'Too many airfare lookups.' }, 429);
+      if (response.status === 429) return priceRateLimited('Too many airfare lookups.', response.headers.get('Retry-After'));
       if (!response.ok) return json({ error: 'Airfare lookup is unavailable.' }, 502);
       const { options, nonstopValidUntil } = first && response.headers.get('Content-Type')?.includes('text/event-stream')
         ? await firstAvailable(response, from, to, nonstop, now)

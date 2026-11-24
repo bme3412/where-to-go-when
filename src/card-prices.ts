@@ -33,13 +33,15 @@ export function pricesScrolled() {
   lastScroll = Date.now();
   schedule();
 }
-interface Task { lookup: Lookup; item: HTMLElement; label: string; settled?: boolean }
+const priceNames = { 'Round trip': 'Airfare', Stay: 'Lodging' } as const;
+type PriceLabel = keyof typeof priceNames;
+interface Task { lookup: Lookup; item: HTMLElement; label: PriceLabel; settled?: boolean }
 const visible = new Set<HTMLElement>();
 const firstSeen = new WeakMap<HTMLElement, number>();
 const tasks = new Map<HTMLElement, Task[]>();
-interface Lane { starts: number[]; pause: number; active: Set<string> }
+interface Lane { starts: number[]; pause: number; active: Set<string>; unavailableUntil?: number }
 const lanes = new Map<string, Lane>();
-// Retry a transient fare failure once promptly, then return to the normal cooldown.
+// Retry transient failures once promptly, then return to the normal cooldown.
 const fareLimitedUntil = new Map<string, number>();
 const retryAt = new Map<string, number>();
 let timer: ReturnType<typeof setTimeout> | undefined;
@@ -47,6 +49,18 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 function schedule() {
   clearTimeout(timer);
   timer = setTimeout(pump, 50);
+}
+
+function showStatus(item: HTMLElement, text: string, title = '') {
+  if (item.textContent !== text) item.textContent = text;
+  item.title = title;
+}
+
+function rateLimitDelay(response: Response): number {
+  const value = response.headers.get('Retry-After')?.trim();
+  if (!value) return 60_000;
+  const delay = /^\d+$/.test(value) ? Number(value) * 1_000 : Date.parse(value) - Date.now();
+  return Number.isFinite(delay) ? Math.max(1_000, delay) : 60_000;
 }
 
 function pump() {
@@ -65,51 +79,59 @@ function pump() {
   for (const container of cards) {
     for (const task of tasks.get(container) ?? []) {
       const { lookup, item, label } = task;
+      const name = priceNames[label];
       const url = lookup.url;
       const entry = cache.get(url);
       if (entry && entry.until > now) {
-        item.textContent = label + ' ' + entry.text;
-        item.title = 'Nuitée estimate in USD';
+        if (entry.text === 'no estimate') showStatus(item, `No ${name.toLowerCase()} estimate`);
+        else if (entry.text === 'unavailable') showStatus(item, `${name} temporarily unavailable`);
+        else showStatus(item, `${label} ${entry.text}`, 'Nuitée estimate in USD');
         task.settled = entry.text !== 'unavailable';
         next = Math.min(next, entry.until);
         continue;
       }
       if (task.settled) {
-        item.textContent = label + ' expired';
+        showStatus(item, `${name} estimate expired`);
         continue;
       }
-      const fare = url.startsWith(AIRFARE_ENDPOINT + '?');
+      const fare = label === 'Round trip';
       const dwell = fare && container !== cards[0] ? 1000 : 150;
       const stableAt = Math.max(firstSeen.get(container) ?? now, fare ? lastScroll : 0) + dwell;
       if (stableAt > now) {
         next = Math.min(next, stableAt);
         continue;
       }
-      const endpoint = url.split('?')[0];
+      const endpoint = fare ? AIRFARE_ENDPOINT : LODGING_ENDPOINT;
       const lane: Lane = lanes.get(endpoint) ?? { starts: [], pause: 0, active: new Set() };
       lanes.set(endpoint, lane);
+      const unavailableUntil = lane.unavailableUntil ?? 0;
+      if (unavailableUntil > now) {
+        showStatus(item, `${name} service unavailable`);
+        next = Math.min(next, unavailableUntil);
+        continue;
+      }
       // Let the stopped-on card reach the CDN even when background requests are queued.
       // The server still rate-limits provider lookups on a CDN miss.
       const focused = fare && container === cards[0];
-      if (lane.active.has(url) || lane.active.size >= (focused ? 3 : fare ? 2 : 1)) continue;
+      if (lane.active.has(url)) continue;
       const retry = retryAt.get(url);
       if (retry !== undefined && retry > now) {
-        item.textContent = label + ' retrying…';
+        showStatus(item, `Retrying ${name.toLowerCase()}…`);
         next = Math.min(next, retry);
         continue;
       }
       lane.starts = lane.starts.filter(start => start + 3_600_000 > now);
-      // Reserve the fifth minute slot while another visible fare could need a retry.
-      const reserve = fare && retry === undefined && (lane.active.size > 0 ||
-        cards.some(card => tasks.get(card)?.some(t => retryAt.has(t.lookup.url))));
+      // Keep the last minute slot open for a visible lookup waiting to retry.
+      const reserve = retry === undefined && ((fare && lane.active.size > 0) ||
+        cards.some(card => tasks.get(card)?.some(t => t.label === label && retryAt.has(t.lookup.url))));
       const ready = focused ? (fareLimitedUntil.get(url) ?? 0) : Math.max(lane.pause, (lane.starts.at(reserve ? -4 : -5) ?? 0) + 60_000, (lane.starts.at(-15) ?? 0) + 3_600_000);
       if (ready > now) {
-        item.textContent = label + ' queued';
-        item.title = 'Nuitée request limit. Next lookup can start at ' + new Date(ready).toLocaleTimeString();
+        showStatus(item, `${name} busy · will retry`, 'Price lookup limit. Next attempt after ' + new Date(ready).toLocaleTimeString());
         next = Math.min(next, ready);
         continue;
       }
-      item.textContent = label + ' …';
+      if (lane.active.size >= (focused ? 3 : fare ? 2 : 1)) continue;
+      showStatus(item, `Checking ${name.toLowerCase()}…`);
       lane.active.add(url);
       lane.starts.push(now);
       void (async () => {
@@ -118,9 +140,13 @@ function pump() {
           // Keep the original request alive long enough to receive that quote.
           const response = await fetch(url, { signal: AbortSignal.timeout(fare ? 45_000 : 18_000) });
           if (response.status === 429) {
-            const seconds = Number(response.headers.get('Retry-After'));
-            lane.pause = Date.now() + Math.max(60, Number.isFinite(seconds) ? seconds : 0) * 1000;
-            if (fare) fareLimitedUntil.set(url, lane.pause);
+            const until = Date.now() + rateLimitDelay(response);
+            lane.pause = Math.max(lane.pause, until);
+            if (fare) fareLimitedUntil.set(url, until);
+          } else if (response.status === 503 || (response.ok && response.headers.get('Content-Type')?.includes('text/html'))) {
+            // An unconfigured service or a static preview's HTML fallback affects every card.
+            retryAt.delete(url);
+            lane.unavailableUntil = Date.now() + 300_000;
           } else if (response.status === 404 || response.status === 400) {
             retryAt.delete(url);
             cache.set(url, { text: 'no estimate', until: Date.now() + 300_000 });
@@ -132,7 +158,7 @@ function pump() {
           }
           else throw new Error('Unavailable');
         } catch {
-          if (fare && retry === undefined) retryAt.set(url, Date.now() + 1_500);
+          if (retry === undefined) retryAt.set(url, Date.now() + 1_500);
           else {
             retryAt.delete(url);
             cache.set(url, { text: 'unavailable', until: Date.now() + 60_000 });
@@ -144,7 +170,7 @@ function pump() {
       })();
     }
   }
-  if (Number.isFinite(next)) timer = setTimeout(pump, Math.max(50, next - Date.now()));
+  if (Number.isFinite(next)) timer = setTimeout(pump, Math.min(2_147_483_647, Math.max(50, next - Date.now())));
 }
 
 const observer = new IntersectionObserver(entries => {
@@ -179,7 +205,7 @@ export function observeCardPrices(container: HTMLElement, origin: string, city: 
   const fareLimit = new Date(today);
   fareLimit.setUTCMonth(fareLimit.getUTCMonth() + 11);
   if (fareLimit.getUTCDate() < new Date(today).getUTCDate()) fareLimit.setUTCDate(0);
-  const parts: { label: string; lookup: Lookup }[] = [];
+  const parts: { label: PriceLabel; lookup: Lookup }[] = [];
   if (start >= today && end <= +fareLimit && flight && airfareAirports(origin, city, nonstop)) {
     const params = new URLSearchParams({ origin, city, ...trip, nonstop: String(nonstop), view: 'first' });
     parts.push({ label: 'Round trip', lookup: { url: AIRFARE_ENDPOINT + '?' + params, read(data) {
@@ -203,8 +229,7 @@ export function observeCardPrices(container: HTMLElement, origin: string, city: 
   if (!parts.length) { container.textContent = 'No price lookup for this trip'; return; }
   tasks.set(container, parts.map(({ label, lookup }) => {
     const item = document.createElement('span');
-    item.textContent = label + ' …';
-    item.title = 'Nuitée estimate in USD';
+    item.textContent = `Checking ${priceNames[label].toLowerCase()}…`;
     container.append(item);
     return { label, lookup, item };
   }));

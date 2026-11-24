@@ -21,6 +21,7 @@ import { isNonstopBostonTrip } from './flights';
 import { flightMapFor, nonstopFlightMaps } from './flight-map';
 import type { FlightDirection, NonstopFlightMap } from './flight-map';
 import { methodContent } from './method';
+import { monthlyScoreChart } from './monthly-score-chart';
 import { setupPanels } from './panels';
 import { AIRFARE_ENDPOINT, airfareAirports, airportForCity } from './airfare';
 import type { AirfareOption } from './airfare';
@@ -53,7 +54,7 @@ function tripPriceKey(nonstop: boolean): string {
 }
 
 let weatherLayer: WeatherLayer = 'temperature';
-let weatherKinds = new Set<WeatherKind>(WEATHER_KINDS);
+let weatherKinds = new Set<WeatherKind>();
 const weatherFlagLabels = { wet: 'Wet periods', heat: 'Heat', cold: 'Freezing nights', storm: 'Storm seasons' };
 const originParam = new URL(location.href).searchParams.get('origin');
 let home = ORIGINS.find(origin => origin.name === originParam) ?? ORIGINS.find(origin => origin.name === 'Boston')!;
@@ -85,7 +86,7 @@ app.innerHTML = `
     <div class="brand"><span class="brand-icon">${globeIcon}</span><h1>Where to go, and when</h1></div>
     <div class="trip-summary">
       <h2 id="summary-route">From ${escapeHtml(home.name)}</h2>
-      <div class="trip-dates">${datePickerMarkup}</div>
+      <div class="trip-dates" role="group" aria-label="Travel dates">${datePickerMarkup}</div>
       <span class="summary-scope" id="summary-scope" hidden></span>
     </div>
     <nav class="panel-toggles" aria-label="Explore controls">
@@ -112,16 +113,24 @@ app.innerHTML = `
       <div class="globe-canvas"><svg id="globe" viewBox="0 0 760 520" tabindex="0" role="group" aria-label="Destination globe"></svg><div id="weather-legend" class="weather-legend" aria-label="Weather color legend"></div><div class="zoom-controls" aria-label="Globe zoom"><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">${icon('<path d="M12 5v14M5 12h14"/>')}</button><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">${icon('<path d="M5 12h14"/>')}</button><button class="icon-button reset-view" id="reset-view" type="button" aria-label="Reset globe view">${icon('<path d="M8 4H4v4m12-4h4v4M4 16v4h4m8 0h4v-4"/>')}</button></div></div>
       <div class="map-controls"><details class="map-toolbar">
         <summary>Weather<span aria-hidden="true"></span></summary>
-        <div class="map-weather-options" id="map-weather-options" role="group" aria-label="Weather layers">
-          <label><input type="checkbox" data-weather-surface="temperature" checked />Daytime temperature</label>
-          <label><input type="checkbox" data-weather-surface="wet" />Precipitation</label>
-          ${WEATHER_KINDS.map(kind => `<label><input type="checkbox" data-weather-kind="${kind}" checked />${weatherFlagLabels[kind]}</label>`).join('')}
+        <div class="map-weather-options" id="map-weather-options">
+          <fieldset><legend>Climate colors</legend>
+            <label><input type="radio" name="weather-surface" value="temperature" checked />Daytime temperature</label>
+            <label><input type="radio" name="weather-surface" value="wet" />Precipitation</label>
+            <label><input type="radio" name="weather-surface" value="off" />None</label>
+          </fieldset>
+          <fieldset><legend>Seasonal overlays</legend>
+            ${WEATHER_KINDS.map(kind => `<label><input type="checkbox" data-weather-kind="${kind}" />${weatherFlagLabels[kind]}</label>`).join('')}
+          </fieldset>
         </div>
       </details><div class="stage-actions"><button id="spin" class="small-button spin-button" type="button" aria-pressed="true"><span id="spin-icon">${icon('<path d="M9 5v14M15 5v14"/>')}</span><span id="spin-text">Pause spin</span></button><button id="units" class="small-button unit-button" type="button" aria-label="Temperature unit: Fahrenheit. Switch to Celsius."><span class="unit-active">°F</span><span class="unit-divider">/</span><span>°C</span></button></div></div>
       <section id="flight-map-controls" class="flight-map-controls" aria-label="Boston flight routes" hidden>
         <div id="selected-flight-route" class="selected-flight-route" hidden><div class="flight-map-caption"><strong id="flight-map-path"></strong><span id="flight-map-note">Highlighted flight legs · schedules unverified</span></div><div class="flight-map-actions"><div class="route-directions" role="group" aria-label="Flight direction"><button type="button" id="route-outbound" data-route-direction="outbound" aria-pressed="true">Outbound</button><button type="button" id="route-inbound" data-route-direction="inbound" aria-pressed="false">Return</button></div><button type="button" id="view-flight-route" class="text-button">View route</button></div><div id="flight-map-details" class="flight-map-details" role="status" aria-live="polite" aria-atomic="true"></div></div>
       </section>
-      <div id="selection" class="selection" hidden><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span><span id="selected-weather"></span></div><button id="selected-details" class="small-button" type="button" aria-haspopup="dialog">Why this score? ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
+      <div id="selection" class="selection" hidden>
+        <div class="selection-heading"><span class="selection-dot"></span><div class="selection-copy"><strong id="selected-name"></strong><span id="selected-summary"></span><span id="selected-weather"></span></div><button id="selected-details" class="small-button" type="button" aria-haspopup="dialog">Why this score? ${icon('<path d="m9 5 7 7-7 7"/>')}</button><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected destination">${closeIcon}</button></div>
+        <div id="selected-monthly-scores"></div>
+      </div>
     </section>
     <aside id="results-panel" class="side-panel results-panel" aria-labelledby="destinations-title">
       <div class="panel-heading"><div><h2 id="destinations-title">Discover destinations</h2><p id="results-context"></p></div><button type="button" class="icon-button close-panel" data-close-panel aria-label="Close destinations">${closeIcon}</button></div>
@@ -168,8 +177,6 @@ setupDatePicker(document.querySelector<HTMLElement>('.trip-dates')!, initialTrip
 const homeInput = document.querySelector<HTMLInputElement>('#home')!;
 const nonstopInput = document.querySelector<HTMLInputElement>('#nonstop-only')!;
 const weatherOptions = document.querySelector<HTMLElement>('#map-weather-options')!;
-const weatherSurfaces = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-surface]')];
-const weatherFlags = [...weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-kind]')];
 const regionSelect = document.querySelector<HTMLSelectElement>('#destination-region')!;
 const tooltip = document.querySelector<HTMLDivElement>('#tooltip')!;
 const container = document.querySelector<HTMLElement>('#globe-container')!;
@@ -274,6 +281,8 @@ function renderSelection(): void {
   document.querySelector('#selected-name')!.textContent = destinationName(result.city);
   document.querySelector('#selected-summary')!.textContent = `${displayCountry(result.city.country)} · ${temperature(result.high, unit)}`;
   document.querySelector('#selected-weather')!.textContent = result.weatherFlags.map(weatherFlagLabel).join(' · ');
+  const monthlyScores = monthlyScoreChart(result, home, trip, selectedNonstopRoute || nonstopOnly);
+  document.querySelector('#selected-monthly-scores')!.innerHTML = monthlyScores;
   const estimate = tripPrices.get(tripPriceKey(selectedNonstopRoute || nonstopOnly))?.get(result.city.name);
   const lookup = result.tripDays > 1 && lodgingCountryCode(result.city.name);
   const airfareLookup = result.travel.mode === 'flight' && airfareAirports(home.name, result.city.name, selectedNonstopRoute || nonstopOnly);
@@ -299,7 +308,7 @@ function renderSelection(): void {
       <button type="submit" class="small-button" data-use-lodging hidden>Use Nuitée estimate</button>
     </div>` : ''}
   </form>`;
-  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, unit) + weatherDetails(result, unit) + flightDetails(result.travel) + priceForm + scoreBreakdown(result, unit) + otherBases(result);
+  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, unit) + monthlyScores + weatherDetails(result, unit) + flightDetails(result.travel) + priceForm + scoreBreakdown(result, unit) + otherBases(result);
 }
 function renderFlightMap(result?: CityScore): void {
   const panel = document.querySelector<HTMLElement>('#flight-map-controls')!;
@@ -420,14 +429,11 @@ setupOriginSearch(homeInput, document.querySelector('#origin-suggestions')!, ORI
   recompute(true);
 });
 nonstopInput.addEventListener('change', () => recompute(true));
-weatherOptions.addEventListener('change', event => {
-  const changed = event.target as HTMLInputElement;
-  if (changed.checked && changed.dataset.weatherSurface) {
-    for (const surface of weatherSurfaces) if (surface !== changed) surface.checked = false;
-  }
-  weatherKinds = new Set(weatherFlags.filter(input => input.checked).map(input => input.dataset.weatherKind as WeatherKind));
-  const surface = weatherSurfaces.find(input => input.checked)?.dataset.weatherSurface as 'temperature' | 'wet' | undefined;
-  weatherLayer = surface ?? (weatherKinds.size ? 'all' : 'off');
+weatherOptions.addEventListener('change', () => {
+  const surface = weatherOptions.querySelector<HTMLInputElement>('[name="weather-surface"]:checked')!.value as 'temperature' | 'wet' | 'off';
+  const checkedFlags = weatherOptions.querySelectorAll<HTMLInputElement>('[data-weather-kind]:checked');
+  weatherKinds = new Set([...checkedFlags].map(input => input.dataset.weatherKind as WeatherKind));
+  weatherLayer = surface === 'off' && weatherKinds.size ? 'all' : surface;
   hideTooltip();
   globe.setWeatherLayer(weatherLayer, weatherKinds);
   renderWeatherControls();
@@ -670,7 +676,7 @@ auditDialog.addEventListener('click', event => {
   const button = (event.target as Element).closest<HTMLButtonElement>('[data-audit-city]');
   const result = allCityScores.find(r => r.city.name === button?.dataset.auditCity);
   if (!result) return;
-  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, unit) + weatherDetails(result, unit) + flightDetails(result.travel) + scoreBreakdown(result, unit);
+  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, unit) + monthlyScoreChart(result, home, trip) + weatherDetails(result, unit) + flightDetails(result.travel) + scoreBreakdown(result, unit);
   detailsDialog.showModal(); detailsDialog.scrollTop = 0;
 });
 for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog')) {

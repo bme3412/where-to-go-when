@@ -40,7 +40,7 @@ it.each([429, 502])('lazily prices holiday cards and recovers from HTTP %i', asy
   expect(fetchPrice).not.toHaveBeenCalled();
   show();
   await vi.advanceTimersByTimeAsync(300);
-  expect(items.map(i => i.textContent)).toEqual([status === 429 ? 'Round trip queued' : 'Round trip retrying…', 'Stay $1,703 / 14 nights']);
+  expect(items.map(i => i.textContent)).toEqual([status === 429 ? 'Airfare busy · will retry' : 'Retrying airfare…', 'Stay $1,703 / 14 nights']);
   visibility([{ target: card, isIntersecting: false }]);
   await vi.advanceTimersByTimeAsync(status === 429 ? 61_000 : 1500);
   expect(fetchPrice).toHaveBeenCalledTimes(2);
@@ -64,6 +64,74 @@ it.each([429, 502])('lazily prices holiday cards and recovers from HTTP %i', asy
   expect(items[0].textContent).toBe('Round trip $1,323');
   expect(airfareCalls()).toBe(beforeReload);
   refreshed.resetCardPrices();
+});
+
+it('recovers a stay estimate after a temporary failure and the provider retry delay', async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-11-18T12:00:00Z'));
+  let show!: (entries: { target: HTMLElement; isIntersecting: boolean }[]) => void;
+  vi.stubGlobal('IntersectionObserver', class {
+    constructor(callback: typeof show) { show = callback; }
+    observe() {}
+    disconnect() {}
+  });
+  vi.stubGlobal('document', { createElement: () => ({}) });
+  const provider = vi.fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(null, { status: 502 }))
+    .mockResolvedValueOnce(new Response(null, { status: 429, headers: { 'Retry-After': '2' } }))
+    .mockResolvedValueOnce(Response.json({ prices: [
+      { day: '2026-12-20', avgPriceUsd: 140 }, { day: '2026-12-21', avgPriceUsd: 152 },
+    ] }));
+  const { createLodgingHandler } = await import('./server/lodging');
+  const lodging = createLodgingHandler(provider);
+  vi.stubGlobal('fetch', (url: string) => lodging(new Request(`https://site.test${url}`), 'fixture-key'));
+  const { observeCardPrices, resetCardPrices } = await import('./card-prices');
+  const items: { textContent: string }[] = [];
+  const card = { replaceChildren() {}, append(item: typeof items[number]) { items.push(item); } } as unknown as HTMLElement;
+  observeCardPrices(card, 'Boston', 'Miami', { start: '2026-12-20', end: '2026-12-22' }, false, false);
+  show([{ target: card, isIntersecting: true }]);
+  await vi.advanceTimersByTimeAsync(300);
+  expect(items[0].textContent).toBe('Retrying lodging…');
+  await vi.advanceTimersByTimeAsync(1_500);
+  expect(items[0].textContent).toBe('Lodging busy · will retry');
+  expect(provider).toHaveBeenCalledTimes(2);
+  await vi.advanceTimersByTimeAsync(1_700);
+  expect(provider).toHaveBeenCalledTimes(2);
+  await vi.advanceTimersByTimeAsync(300);
+  expect(items[0].textContent).toBe('Stay $292 / 2 nights');
+  expect(provider).toHaveBeenCalledTimes(3);
+  resetCardPrices();
+});
+
+it('keeps a request slot for a stay retry when several cards are visible', async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-11-18T12:00:00Z'));
+  let show!: (entries: { target: HTMLElement; isIntersecting: boolean }[]) => void;
+  vi.stubGlobal('IntersectionObserver', class {
+    constructor(callback: typeof show) { show = callback; }
+    observe() {}
+    disconnect() {}
+  });
+  vi.stubGlobal('document', { createElement: () => ({}) });
+  const fetchPrice = vi.fn<typeof fetch>(async () => Response.json({ nights: 2, total: 292 }))
+    .mockResolvedValueOnce(new Response(null, { status: 502 }));
+  vi.stubGlobal('fetch', fetchPrice);
+  const { observeCardPrices, resetCardPrices } = await import('./card-prices');
+  const items: { textContent: string }[] = [];
+  const cities = ['Miami', 'Mexico City', 'Tamarindo', 'Guadalajara', 'Doha'];
+  const cards = cities.map(city => {
+    const card = { replaceChildren() {}, append(item: typeof items[number]) { items.push(item); } } as unknown as HTMLElement;
+    observeCardPrices(card, 'Boston', city, { start: '2026-12-20', end: '2026-12-22' }, false, false);
+    return card;
+  });
+  show(cards.map(target => ({ target, isIntersecting: true })));
+  await vi.advanceTimersByTimeAsync(1_000);
+  expect(fetchPrice).toHaveBeenCalledTimes(4);
+  await vi.advanceTimersByTimeAsync(800);
+  expect(fetchPrice).toHaveBeenCalledTimes(5);
+  expect(fetchPrice.mock.lastCall?.[0]).toContain('city=Miami');
+  expect(items[0].textContent).toBe('Stay $292 / 2 nights');
+  resetCardPrices();
 });
 
 it('starts the first fully visible fare after scrolling settles', async () => {

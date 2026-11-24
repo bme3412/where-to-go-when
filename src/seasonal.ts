@@ -1,9 +1,9 @@
 import beachHours from './data/beach-hours.json';
 import beachBases from './data/beach-bases.json';
-import { fractionalMonth, interp, rankCities } from './scoring';
+import { DEFAULT_WEIGHTS, fractionalMonth, interp, rankCities, sampleDays, scoreCity, shiftTripMonth, tripEvents } from './scoring';
 import { destinationName } from './regions';
 import { wetDayFrequency } from './climate';
-import type { CityScore, CityClimate, Travel, FlightJourney } from './types';
+import type { City, CityScore, CityClimate, FlightJourney, Origin, Travel, Trip } from './types';
 
 type Experience = 'coast' | 'nature' | 'sightseeing';
 const coastal = new Set(beachBases);
@@ -67,6 +67,16 @@ export function seasonalScore(r: CityScore): CityScore {
     travel: 20 * Math.min(r.breakdown.fits.travel, accessFit(r.travel)) * scale, crowds: 10 * r.breakdown.fits.crowds * scale,
     cost: r.tripCost ? 10 * r.breakdown.fits.cost : 0 };
   return { ...r, score: Object.values(points).reduce((a, b) => a + b, 0), seasonal: { experience, points, dryDaylightHours: hourlyDays ? dryHours / hourlyDays : undefined } };
+}
+
+export function monthlySeasonalScores(city: City, home: Origin, trip: Trip, nonstopOnly = false) {
+  const departureMonth = new Date(trip.start).getUTCMonth();
+  return Array.from({ length: 12 }, (_, month) => {
+    const dates = shiftTripMonth(trip, month - departureMonth);
+    if (!dates) return null;
+    const result = scoreCity(city, home, sampleDays(dates), DEFAULT_WEIGHTS, tripEvents(dates), undefined, nonstopOnly);
+    return { dates, score: seasonalScore(result).score };
+  });
 }
 
 export function rankSeasonalAreas(scores: CityScore[]) {

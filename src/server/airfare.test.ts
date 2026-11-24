@@ -70,12 +70,30 @@ it('handles another origin, empty results, and unavailable provider access', asy
   expect(airfareAirports('London', 'Miami', false)).toEqual({ from: 'LHR', to: 'MIA' });
   const fetcher = vi.fn<typeof fetch>()
     .mockResolvedValueOnce(Response.json({ data: [{ journeys: [journey('LHR', 'MIA', 100, 300, 'technical')] }] }))
-    .mockResolvedValueOnce(new Response(null, { status: 429 }));
+    .mockResolvedValueOnce(new Response(null, { status: 429, headers: { 'Retry-After': '42' } }));
   const handler = createAirfareHandler(fetcher, clock);
   const request = new Request('https://site.test/api/airfare-estimate?origin=London&city=Miami&start=2026-12-18&end=2026-12-20&nonstop=true');
   expect((await handler(request)).status).toBe(503);
   expect((await handler(request, 'fixture')).status).toBe(404);
-  expect((await handler(request, 'fixture')).status).toBe(429);
+  const limited = await handler(request, 'fixture');
+  expect(limited.status).toBe(429);
+  expect(limited.headers.get('Retry-After')).toBe('42');
+});
+
+it('reports when the local airfare lookup budget resets', async () => {
+  let time = clock();
+  const provider = vi.fn<typeof fetch>(async () => Response.json({ data: [] }));
+  const handler = createAirfareHandler(provider, () => time);
+  const request = new Request('https://site.test/api/airfare-estimate?origin=Boston&city=Miami&start=2026-12-18&end=2026-12-20');
+  for (let minute = 0; minute < 3; minute++) {
+    for (let lookup = 0; lookup < 5; lookup++) expect((await handler(request, 'fixture')).status).toBe(404);
+    time += 10_000;
+    const limited = await handler(request, 'fixture');
+    expect(limited.status).toBe(429);
+    expect(limited.headers.get('Retry-After')).toBe(minute === 2 ? '3470' : '50');
+    time += 50_000;
+  }
+  expect(provider).toHaveBeenCalledTimes(15);
 });
 
 it('recognizes a confirmed nonstop outside the displayed offers and requires evidence on both legs', async () => {

@@ -49,7 +49,7 @@ export class Globe {
   private height = 520;
   private selectedName: string | null = null;
   private weatherLayer: WeatherLayer = 'temperature';
-  private weatherKinds?: ReadonlySet<WeatherKind>;
+  private weatherKinds: ReadonlySet<WeatherKind> = new Set();
   private resizeObserver: ResizeObserver;
   private spin = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   private reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
