@@ -20,6 +20,8 @@ it('scores January through December with the same trip duration and scoring mode
   expect(monthly[11]?.dates).toEqual({ start: '2027-12-31', end: '2028-01-14' });
   const direct = seasonalScore(scoreCity(city, home, sampleDays(dates), DEFAULT_WEIGHTS, tripEvents(dates), undefined, true));
   expect(monthly[9]?.score).toBeCloseTo(direct.score);
+  expect(monthly[9]?.high).toBeCloseTo(direct.high);
+  expect(monthly[7]!.high).toBeGreaterThan(monthly[1]!.high);
   expect(monthly[1]?.score).not.toBeCloseTo(monthly[7]!.score);
 });
 

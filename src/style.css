@@ -242,26 +242,30 @@ h3 { font-size: 12px; font-weight: 600; margin: 0; }
 .selection-copy > span { display: block; color: var(--muted); font-size: 10px; margin-top: 4px; line-height: 1.4; }
 .selection .icon-button { width: 24px; height: 24px; padding: 4px; }
 .monthly-scores { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border); }
-.monthly-score-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; }
-.monthly-score-heading h3 { font-size: .875rem; }
-.monthly-score-peak { color: var(--accent); font-size: .75rem; font-weight: 600; }
-.monthly-score-context, .monthly-score-basis { margin: 4px 0 0; color: var(--muted); font-size: .75rem; line-height: 1.45; }
-.monthly-score-grid { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); margin: 10px 0 6px; }
-.monthly-score-axis { position: relative; color: var(--muted); font-size: .6875rem; }
-.monthly-score-axis span { position: absolute; top: 0; right: .375rem; transform: translateY(-50%); }
-.monthly-score-axis span:nth-child(2) { top: 50%; }
-.monthly-score-axis span:last-child { top: 100%; }
-.monthly-score-plot { height: 72px; position: relative; }
+.monthly-score-heading { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 6px; color: var(--muted); font-size: .75rem; line-height: 1.3; }
+.monthly-score-heading > span { display: flex; align-items: center; gap: 5px; }
+.monthly-score-heading > span:last-child { grid-column: 3; }
+.monthly-score-peak { justify-content: center; text-align: center; color: var(--accent); font-weight: 600; }
+.monthly-score-key { flex-shrink: 0; width: .5rem; height: .5rem; border-radius: 50%; background: var(--ink); }
+.monthly-temperature-key { width: 1rem; border-radius: 2px; }
+.monthly-score-grid { display: grid; grid-template-columns: 1.625rem minmax(0, 1fr) 1.625rem; margin: 13px 0 0; }
+.monthly-score-axis { position: relative; color: var(--muted); font-size: .6875rem; font-variant-numeric: tabular-nums; line-height: 1; }
+.monthly-score-axis span { position: absolute; right: .3125rem; transform: translateY(-50%); white-space: nowrap; }
+.monthly-temperature-axis span { left: .3125rem; right: auto; }
+.monthly-score-plot { height: 94px; position: relative; }
 .monthly-score-plot svg { width: 100%; height: 100%; overflow: visible; fill: none; }
+.monthly-score-highlight { fill: var(--subtle); }
 .monthly-score-guides { stroke: var(--border); }
-.monthly-score-line { stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.monthly-score-dot { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); transform: translate(-50%, 50%); }
-.monthly-score-dot.trip-month { width: 8px; height: 8px; border: 2px solid var(--accent); background: var(--surface); }
+.monthly-temperature-baseline { stroke: var(--border-strong); stroke-dasharray: 3 3; }
+.monthly-score-marker { position: absolute; width: 9px; height: 9px; border: 2px solid var(--surface); border-radius: 50%; background: var(--ink); transform: translate(-50%, -50%); }
 .monthly-score-values { grid-column: 2; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); list-style: none; margin: 4px 0 0; padding: 0; text-align: center; }
 .monthly-score-values li { display: grid; gap: 2px; padding: 3px 0; border-radius: 4px; color: var(--muted); font-size: .6875rem; font-variant-numeric: tabular-nums; line-height: 1.15; }
 .monthly-score-values strong { color: var(--ink); font-size: .75rem; }
 .monthly-score-values .trip-month { background: var(--subtle); color: var(--accent); }
 .monthly-score-values .trip-month strong { color: var(--accent); }
+@media (max-width: 360px) {
+  .monthly-score-values li { font-size: .625rem; }
+}
 .results-panel .panel-heading { border-bottom: 1px solid var(--border); }
 .results-content { padding: 12px 12px 18px; }
 .destination-list { display: grid; }

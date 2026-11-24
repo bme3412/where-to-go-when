@@ -281,7 +281,7 @@ function renderSelection(): void {
   document.querySelector('#selected-name')!.textContent = destinationName(result.city);
   document.querySelector('#selected-summary')!.textContent = `${displayCountry(result.city.country)} · ${temperature(result.high, unit)}`;
   document.querySelector('#selected-weather')!.textContent = result.weatherFlags.map(weatherFlagLabel).join(' · ');
-  const monthlyScores = monthlyScoreChart(result, home, trip, selectedNonstopRoute || nonstopOnly);
+  const monthlyScores = monthlyScoreChart(result, home, trip, unit, selectedNonstopRoute || nonstopOnly);
   document.querySelector('#selected-monthly-scores')!.innerHTML = monthlyScores;
   const estimate = tripPrices.get(tripPriceKey(selectedNonstopRoute || nonstopOnly))?.get(result.city.name);
   const lookup = result.tripDays > 1 && lodgingCountryCode(result.city.name);
@@ -676,7 +676,7 @@ auditDialog.addEventListener('click', event => {
   const button = (event.target as Element).closest<HTMLButtonElement>('[data-audit-city]');
   const result = allCityScores.find(r => r.city.name === button?.dataset.auditCity);
   if (!result) return;
-  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, unit) + monthlyScoreChart(result, home, trip) + weatherDetails(result, unit) + flightDetails(result.travel) + scoreBreakdown(result, unit);
+  document.querySelector('#details-content')!.innerHTML = cityTooltip(result, unit) + monthlyScoreChart(result, home, trip, unit) + weatherDetails(result, unit) + flightDetails(result.travel) + scoreBreakdown(result, unit);
   detailsDialog.showModal(); detailsDialog.scrollTop = 0;
 });
 for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog')) {

@@ -27,12 +27,14 @@ export const SEASON_COLORS: Record<WeatherKind, { color: string; label: string }
   storm: { color: '#c18b24', label: 'Storm season' },
 };
 
+export function temperatureColor(high: number): string | null {
+  if (!Number.isFinite(high)) return null;
+  return TEMPERATURE_COLORS.find(band => high >= band.min && high < band.max)!.color;
+}
+
 export function weatherMapColor(result: Pick<CityScore, 'high' | 'weatherFlags'>, layer: WeatherLayer, kinds?: ReadonlySet<WeatherKind>): string | null {
   if (layer === 'off') return null;
-  if (layer === 'temperature') {
-    if (!Number.isFinite(result.high)) return null;
-    return TEMPERATURE_COLORS.find(band => result.high >= band.min && result.high < band.max)!.color;
-  }
+  if (layer === 'temperature') return temperatureColor(result.high);
   const flag = primaryWeatherFlag(result.weatherFlags, layer, kinds);
   return flag ? SEASON_COLORS[flag.kind].color : null;
 }

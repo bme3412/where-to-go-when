@@ -75,7 +75,7 @@ export function monthlySeasonalScores(city: City, home: Origin, trip: Trip, nons
     const dates = shiftTripMonth(trip, month - departureMonth);
     if (!dates) return null;
     const result = scoreCity(city, home, sampleDays(dates), DEFAULT_WEIGHTS, tripEvents(dates), undefined, nonstopOnly);
-    return { dates, score: seasonalScore(result).score };
+    return { dates, score: seasonalScore(result).score, high: result.high };
   });
 }
 
